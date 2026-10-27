@@ -214,7 +214,7 @@ const BOARD_PROJECTS=[["ai-station","AI Station"],["dock-to-stock","Dock to Stoc
 const PROJ=BOARD_PROJECTS.map(([slug,n])=>{const id="bp-"+slug;S[id]={n,u:BRD+"/p/"+slug+"/",site:"board",img:null};return id});
 Object.assign(S["bp-ir-dev"],{pages:1,live:"https://beachkila.github.io/IR/"});
 // This map: its own board project, last stop on the Board projects branch, drawn as the red "You are here" stop.
-S.here={n:"S.We.T.A. Map",u:BRD+"/p/sweta-map/",live:"https://beachkila.github.io/sitemap/",pages:1,site:"board",img:null,here:1};PROJ.unshift("here");
+S.here={n:"S.We.T.A. Map",u:BRD+"/p/sweta-map/",live:"https://beachkila.github.io/SiteMap/",pages:1,site:"board",img:null,here:1};PROJ.unshift("here");
 
 // Lines. "@name" is a bend token; each layout says where its bends go (zero or more points).
 const L=[

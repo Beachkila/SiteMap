@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Subway-style map of every page across studiowetware.com, The Cyanotype Network, Small Works and Beach Self-Grading.">
+<title>Studio Wetware Transit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Overpass:wght@400;600;800&family=Overpass+Mono:wght@400;600&display=swap">
+<style>
+html,body{margin:0}
+
+/* Layout: one-screen transit explorer. Thin header bar with legend, the map fills the rest; station list slides in over the map. */
+:root{
+  --bg:#ffffff; --board:#fbfbf8; --ink:#1b1c1e; --muted:#62656b; --rule:#dcdcd6; --stn:#ffffff; --shade:rgba(20,20,20,.18);
+  --display:"Overpass","Helvetica Neue",Arial,sans-serif;
+  --mono:"Overpass Mono",ui-monospace,Menlo,monospace;
+  --red:#E3242B; --orange:#F28C28; --yellow:#F2BF00; --green:#00964A; --blue:#0072CE; --purple:#7B2D8E; --brown:#8C5A2B; --teal:#00A19C; --gray:#8A8D91; --focus:#0072CE;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#121314;--board:#17181a;--ink:#ececE8;--muted:#a3a6ab;--rule:#2d2f32;--stn:#17181a;--brown:#B07A45;--shade:rgba(0,0,0,.5);color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#121314;--board:#17181a;--ink:#ececE8;--muted:#a3a6ab;--rule:#2d2f32;--stn:#17181a;--brown:#B07A45;--shade:rgba(0,0,0,.5);color-scheme:dark}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--display);font-size:14px;line-height:1.45;overflow:hidden;padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px));padding-block:10px;box-sizing:border-box;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.app{height:100%;display:flex;flex-direction:column;gap:8px;max-width:1500px;margin:0 auto}
+.bar{display:flex;flex-wrap:wrap;align-items:center;gap:6px 16px;border-bottom:3px solid var(--ink);padding-bottom:6px}
+h1{font-size:20px;font-weight:800;margin:0;letter-spacing:-.01em;white-space:nowrap}
+.legend{display:flex;flex-wrap:wrap;gap:2px 12px;align-items:center;flex:1;min-width:0}
+.lg{display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;background:none;border:0;color:var(--ink);font-family:var(--display);padding:2px 0}
+.lg i{display:inline-block;width:18px;height:5px;border-radius:3px}
+.lg.off{opacity:.3}
+.board{position:relative;flex:1;min-height:0;background:var(--board);border:1px solid var(--rule);border-radius:10px;overflow:hidden}
+#map{display:block;width:100%;height:100%;touch-action:none;cursor:grab;user-select:none}
+#map.grabbing{cursor:grabbing}
+.ctrls{position:absolute;right:calc(10px + env(safe-area-inset-right,0px));top:10px;display:flex;flex-direction:column;gap:6px}
+.btn{font-family:var(--display);font-weight:600;font-size:14px;background:var(--bg);color:var(--ink);border:1px solid var(--rule);border-radius:6px;min-width:36px;height:36px;padding:0 12px;cursor:pointer}
+.btn:hover{border-color:var(--ink)}
+button:focus-visible,a:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.card{position:absolute;z-index:5;width:250px;max-width:calc(100% - 20px);background:var(--bg);border:2px solid var(--ink);border-radius:10px;overflow:hidden;box-shadow:0 8px 24px var(--shade)}
+.card .img{aspect-ratio:16/10;background:var(--board);display:block;width:100%;object-fit:cover;border-bottom:1px solid var(--rule)}
+.card .noimg{aspect-ratio:16/10;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);background:repeating-linear-gradient(135deg,var(--board) 0 8px,var(--bg) 8px 16px);border-bottom:1px solid var(--rule)}
+.card .body{padding:10px 12px 12px;display:flex;flex-direction:column;gap:4px}
+.card .dots{display:flex;gap:4px}
+.card .dots i{height:5px;width:22px;border-radius:3px}
+.card b{font-size:17px;font-weight:800;line-height:1.2}
+.card .u{font-family:var(--mono);font-size:11px;color:var(--muted);word-break:break-all}
+.card .go{margin-top:6px;align-self:flex-start;display:inline-flex;align-items:center;height:32px;padding:0 12px;border-radius:6px;background:var(--ink);color:var(--bg);font-weight:600;font-size:13px;text-decoration:none}
+.card .x{position:absolute;right:6px;top:6px;width:28px;height:28px;border-radius:50%;border:0;background:var(--bg);color:var(--ink);font-size:16px;cursor:pointer;box-shadow:0 1px 4px var(--shade)}
+.drawer{position:absolute;z-index:6;top:0;right:0;bottom:0;width:min(360px,100%);background:var(--bg);border-left:2px solid var(--ink);display:flex;flex-direction:column}
+.drawer header{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid var(--rule)}
+.drawer h2{font-size:15px;margin:0;font-weight:800}
+.tabs{display:flex;gap:6px;padding:8px 12px 0}
+.tab{font-family:var(--display);font-size:13px;font-weight:600;border:1px solid var(--rule);background:none;color:var(--ink);border-radius:999px;padding:4px 12px;cursor:pointer}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.dlist{overflow-y:auto;padding:8px 12px 16px;flex:1;min-height:0}
+.dlist h3{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:14px 0 4px;font-weight:600}
+.dlist h3 small{text-transform:none;letter-spacing:0;font-family:var(--mono);font-weight:400}
+.dlist p{font-size:12px;color:var(--muted);margin:6px 0 0}
+.row{display:flex;gap:8px;align-items:center;width:100%;text-align:left;background:none;border:0;padding:4px 0;font-family:var(--display);font-size:14px;color:var(--ink);cursor:pointer}
+.row .d{display:inline-flex;gap:2px;flex:none}
+.row .d i{width:8px;height:8px;border-radius:50%}
+.row:hover span{text-decoration:underline}
+.row em{font-style:normal;font-size:11px;color:var(--muted);margin-left:auto}
+svg text{font-family:var(--display)}
+.lbl{font-size:16px;font-weight:600;fill:var(--ink);paint-order:stroke;stroke:var(--board);stroke-width:4px;stroke-linejoin:round;pointer-events:none}
+.hubl{font-size:20px;font-weight:800}
+.dom{font-family:var(--mono);font-size:12px;font-weight:400;fill:var(--muted)}
+.stn{cursor:pointer}
+.stn:focus{outline:none}
+.stn:focus-visible circle{stroke:var(--focus)}
+@media (max-width:640px){h1{font-size:17px}.bar{flex-wrap:nowrap;flex-direction:column;align-items:stretch}.legend{flex-wrap:nowrap;overflow-x:auto;padding-bottom:2px}.lg{font-size:12px;white-space:nowrap}.ctrls{flex-direction:row;top:auto;bottom:calc(10px + env(safe-area-inset-bottom,0px))}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="bar">
+    <h1>Studio Wetware Transit</h1>
+    <div class="legend" id="legend"></div>
+  </div>
+  <div class="board" id="board">
+    <svg id="map" role="img" aria-label="Subway-style map of Studio Wetware web pages"></svg>
+    <div class="ctrls">
+      <button class="btn" id="listBtn" aria-expanded="false">Stations</button>
+      <button class="btn" id="zin" aria-label="Zoom in">+</button>
+      <button class="btn" id="zout" aria-label="Zoom out">−</button>
+      <button class="btn" id="fit" aria-label="Fit whole map">Fit</button>
+    </div>
+    <div class="card" id="card" hidden></div>
+    <aside class="drawer" id="drawer" hidden aria-label="Station list">
+      <header><h2>Stations</h2><button class="btn" id="closeList" aria-label="Close list">×</button></header>
+      <div class="tabs" role="tablist">
+        <button class="tab" role="tab" id="tabAll" aria-selected="true">All stations</button>
+        <button class="tab" role="tab" id="tabNo" aria-selected="false">No image</button>
+      </div>
+      <div class="dlist" id="dlist"></div>
+    </aside>
+  </div>
+</div>
+
+<script>
+const SW="https://studiowetware.com", BSGU="https://beachselfgrading.com", BRD="https://board.studiowetware.com";
+// Stations. img: the page's featured (og:image) URL from the crawl; null = none found; "logo" = only the site logo.
+const S={
+ SW:{n:"Studio Wetware",u:SW+"/",x:500,y:400,hub:1,dom:"studiowetware.com",lab:"hubSW",site:"sw",img:null},
+ about:{n:"About Beach",u:SW+"/aboutbeach/",x:555,y:345,lab:"r",site:"sw",img:"i0/2026/07/untitled-235.png"},
+ netpage:{n:"Network page",u:SW+"/network/",x:600,y:400,lab:"t",site:"sw",img:"sw/2026/07/tcn_post.jpg"},
+ solat:{n:"SoLaT negatives",u:SW+"/solat-digital-negatives/",x:740,y:360,lab:"r",site:"sw",img:"i0/2026/08/img_6499.jpg"},
+ cmyk:{n:"CMYK for UV",u:SW+"/cmyk/",x:785,y:315,lab:"r",site:"sw",img:"sw/2026/07/img_6307.png"},
+ sunprint:{n:"Sunprint UVI",u:SW+"/sunprint/",x:830,y:270,lab:"r",site:"sw",img:"i0/2026/07/tcn_sunprint-e1785622534642.jpg"},
+ enlarger:{n:"Negative enlarger",u:SW+"/negative-enlarger/",x:930,y:225,lab:"b",site:"sw",img:"i0/2026/09/Screenshot-2026-09-27-154049.png"},
+ NET:{n:"The Cyanotype Network",u:"https://network.studiowetware.com/",x:1020,y:225,hub:1,dom:"network.studiowetware.com",lab:"hubR",site:"net",img:null},
+ SMW:{n:"Small Works",u:"https://smallworks.studiowetware.com/",x:760,y:490,hub:1,dom:"smallworks.studiowetware.com",lab:"hubR",site:"smw",img:null},
+ gitbeach:{n:"GitBeach",u:SW+"/gitbeach/",x:500,y:510,lab:"r",site:"sw",img:"i0/2026/10/img_8407.jpg"},
+ picam:{n:"Pi-Cam-IR-A",u:SW+"/pi-cam-ir-a/",x:545,y:555,lab:"r",site:"sw",img:"i0/2026/08/img_6445.jpg"},
+ atlas:{n:"Atlas",u:SW+"/atlas/",x:590,y:600,lab:"r",site:"sw",img:"i0/2026/09/image-6.jpg"},
+ blackbox:{n:"Black Box",u:SW+"/black-box/",x:635,y:645,lab:"l",site:"sw",img:"sw/2026/07/image-11.jpg"},
+ bucke:{n:"Buck-E",u:SW+"/buck-e-musical-cipher/",x:695,y:645,lab:"ur",site:"sw",img:"i0/2026/09/img_7598.jpg"},
+ pender:{n:"PENDER Studios",u:SW+"/pender-studios/",x:755,y:645,lab:"ur",site:"sw",img:"i0/2026/08/Screenshot-2026-08-11-121834.png"},
+ bang:{n:"Bang!",u:SW+"/bang/",x:815,y:645,lab:"ur",site:"sw",img:"sw/2026/06/img_5927-1.png"},
+ potholes:{n:"Adopt-a-Pothole",u:SW+"/potholes/",x:875,y:645,lab:"ur",closed:1,site:"sw",img:"i0/2026/09/100d6cb7-c66f-4d73-99b4-c718f9d59241.png"},
+ planes:{n:"Plane Spotter",u:SW+"/plane-spotter/",x:935,y:645,lab:"ur",site:"sw",img:"i0/2026/10/img_7816.jpg"},
+ githoods:{n:"GitHoods",u:SW+"/githoods/",x:995,y:645,lab:"ur",site:"sw",img:"i0/2026/10/img_8327.jpg"},
+ board:{n:"Project Board",u:BRD+"/",x:500,y:700,xfer:1,dom:"board.studiowetware.com",site:"board",img:null},
+ mediums:{n:"Mediums",u:BRD+"/spectra/",x:600,y:700,lab:"b",site:"board",img:null},
+ stack:{n:"Stack",u:BRD+"/skills/",x:700,y:700,lab:"b",site:"board",img:null},
+ pimaker:{n:"Pi-Maker",u:"https://beachkila.github.io/Pi-Maker/",x:800,y:700,pages:1,lab:"b",site:"gh",img:null},
+ BSG:{n:"Beach Self-Grading",u:BSGU+"/",x:320,y:580,hub:1,dom:"beachselfgrading.com",lab:"hubBR",site:"bsg",img:"bsg/2026/02/763e6748-7d35-44af-a8de-e0b1ca1c0a4f.png"},
+ create:{n:"Create a Beach-Tag",u:"https://tag.beachselfgrading.com/",x:320,y:625,lab:"r",site:"bsg",img:null},
+ bsggal:{n:"Beach-Tag Gallery",u:BSGU+"/gallery/",x:320,y:665,lab:"r",site:"bsg",img:"bsg/2026/01/beach-tag-7.jpg"},
+ templates:{n:"Printable templates",u:BSGU+"/templates/",x:320,y:705,lab:"r",site:"bsg",img:"logo"},
+ whatis:{n:"What are Beach-Tags?",u:BSGU+"/what-are-beach-tags/",x:240,y:580,lab:"t",site:"bsg",img:"logo"},
+ contact:{n:"Tip / Contact",u:BSGU+"/contact-me/",x:70,y:580,lab:"t",site:"bsg",img:"logo"},
+ galleries:{n:"All galleries",u:SW+"/galleries/",x:450,y:400,lab:"dl",site:"sw",img:"i0/2026/02/img_3301-e1785119950881.jpg"},
+ cyanogal:{n:"Cyanotypes",u:SW+"/cyanotype-gallery/",x:395,y:400,lab:"dl",site:"sw",img:"sw/2026/02/image-4-2.jpg"},
+ lino:{n:"Linocuts",u:SW+"/linocut-gallery/",x:340,y:400,lab:"dl",site:"sw",img:"sw/2026/02/image-6.jpg"},
+ pendergal:{n:"PENDER plotter",u:SW+"/pender-3d-gallery/",x:285,y:400,lab:"dl",site:"sw",img:"sw/2026/06/image-1-1.jpg"},
+ irgal:{n:"IR photography",u:SW+"/infrared-photography-gallery/",x:230,y:400,lab:"dl",site:"sw",img:"i0/2026/08/img_6573-1-1.jpg"},
+ neggal:{n:"Negatives",u:SW+"/negatives-gallery/",x:175,y:400,lab:"dl",site:"sw",img:"sw/2026/02/img_3254.png"},
+ digigal:{n:"Digital",u:SW+"/digital-gallery/",x:130,y:355,lab:"l",site:"sw",img:"i0/2026/06/untitled-207.png"},
+ ui:{n:"Interfaces",u:SW+"/program-gallery/",x:130,y:310,lab:"l",site:"sw",img:"i0/2026/06/screenshot-2026-06-21-210024-edited.png"},
+ undisc:{n:"Undisciplined",u:SW+"/undisciplined-gallery/",x:130,y:265,lab:"l",site:"sw",img:"sw/2026/02/img_2517.jpg"},
+ process:{n:"Cyanotype process",u:SW+"/how-cyanotype-works/",x:500,y:330,lab:"r",site:"sw",img:"sw/2026/08/img_5222-e1785799609222-1024x875.jpg"},
+ light:{n:"Light",u:SW+"/light/",x:500,y:285,lab:"r",site:"sw",img:"i0/2026/02/img_3786-e1786146249309.jpg"},
+ salt:{n:"Salt",u:SW+"/salt/",x:500,y:240,lab:"r",site:"sw",img:"sw/2026/02/img_3784.jpg"},
+ thinkneg:{n:"Think Negative",u:SW+"/think-negative/",x:500,y:195,lab:"r",site:"sw",img:"sw/2026/02/img_3254.png"},
+ seepos:{n:"See Positive",u:SW+"/see-positive/",x:500,y:150,lab:"r",site:"sw",img:"i0/2026/02/img_3343-e1785484573900.jpg"},
+ sbs:{n:"Step-by-step",u:SW+"/step-by-step/",x:455,y:355,lab:"l",site:"sw",img:"i0/2026/02/image-3.jpg"},
+ step1:{n:"Step 1 · Negative",u:SW+"/step-1/",x:410,y:310,lab:"l",site:"sw",img:"sw/2026/02/img_5238.jpg"},
+ step2:{n:"Step 2 · Preparation",u:SW+"/step-2/",x:365,y:265,lab:"l",site:"sw",img:"i0/2026/02/img_3867-e1785483768208.jpg"},
+ step3:{n:"Step 3 · UV exposure",u:SW+"/step-3/",x:320,y:220,lab:"l",site:"sw",img:"i0/2026/07/tcn_sunprint-e1785622534642.jpg"},
+ step4:{n:"Step 4 · Wash",u:SW+"/step-4/",x:275,y:175,lab:"l",site:"sw",img:"sw/2026/02/img_3262-edited.jpg"}
+};
+
+// Board projects with no page elsewhere: stops on the Board line, linking to their board pages.
+const BOARD_PROJECTS=[["ai-station","AI Station"],["dock-to-stock","Dock to Stock"],["beelab","BeeLab"],["coolpix-ir","Coolpix IR conversion"],["droneaware-node","DroneAware node"],["fire-hd8-linux-pad","Fire HD 8 Linux pad"],["ink-drawer","Ink Drawer"],["redditprofiler","redditprofiler"],["snake-lcd-pi","Snake LCD Pi"],["ir-dev","IR DEV"],["nmap-subway","nmap subway"]];
+const projBranch=["board",[550,750]];
+BOARD_PROJECTS.forEach(([slug,n],i)=>{const id="bp-"+slug;S[id]={n,u:BRD+"/p/"+slug+"/",x:585+i*50,y:750,lab:"dr",site:"board",img:null};projBranch.push(id)});
+// Featured image URLs, served resized through the WordPress image CDN.
+function imgURL(s){
+  if(!s.img||s.img==="logo")return null;
+  const [src,...rest]=s.img.split("/"),path=rest.join("/");
+  if(src==="bsg")return "https://beachselfgrading.com/wp-content/uploads/"+path+"?w=520";
+  return "https://i0.wp.com/studiowetware.com/wp-content/uploads/"+path+"?w=520";
+}
+
+// Lines. "~id" passes a station without stopping; [x,y] is a bend.
+const L=[
+ {id:"red",n:"Process",c:"--red",b:[["SW","process","light","salt","thinkneg","seepos"]]},
+ {id:"orange",n:"Step-by-Step",c:"--orange",b:[["SW","sbs","step1","step2","step3","step4"]]},
+ {id:"blue",n:"Network",c:"--blue",b:[["SW","netpage",[700,400],"solat","cmyk","sunprint",[875,225],"enlarger","NET"]]},
+ {id:"teal",n:"Small Works",c:"--teal",b:[["SW",[590,490],"SMW"]]},
+ {id:"green",n:"Gallery",c:"--green",b:[["SW","galleries","cyanogal","lino","pendergal","irgal","neggal","digigal","ui","undisc"]]},
+ {id:"purple",n:"GitBeach",c:"--purple",b:[["SW","gitbeach","picam","atlas","blackbox","bucke","pender","bang","potholes","planes","githoods"]]},
+ {id:"brown",n:"Board",c:"--brown",b:[["gitbeach","board","mediums","stack"],projBranch]},
+ {id:"pages",n:"GitHub Pages",c:"--teal",dash:1,b:[["stack","pimaker"]]},
+ {id:"yellow",n:"Beach",c:"--yellow",b:[["SW","BSG","create","bsggal","templates"],["BSG","whatis","contact"]]},
+ {id:"gray",n:"About",c:"--gray",b:[["SW","about"]]}
+];
+const SITES={sw:"studiowetware.com",net:"The Cyanotype Network",smw:"Small Works",bsg:"Beach Self-Grading",board:"Project Board",gh:"GitHub Pages"};
+
+const NS="http://www.w3.org/2000/svg", svg=document.getElementById("map"), card=document.getElementById("card"), boardEl=document.getElementById("board");
+let vb={x:0,y:0,w:1400,h:900};
+const col=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const hidden=new Set(); let sel=null, pinned=false;
+const GAP=8, LW=7;
+function el(t,a,p){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e}
+const isPass=q=>typeof q==="string"&&q[0]==="~";
+const sid=q=>isPass(q)?q.slice(1):q;
+const pos=q=>Array.isArray(q)?q:[S[sid(q)].x,S[sid(q)].y];
+const stopsOf=l=>{const s=new Set();l.b.forEach(br=>br.forEach(q=>{if(typeof q==="string"&&!isPass(q))s.add(q)}));return s};
+const linesAt=id=>L.filter(l=>stopsOf(l).has(id));
+
+function key(a,b){const A=a.join(","),B=b.join(",");return A<B?A+"|"+B:B+"|"+A}
+function corridors(){const seg={};L.forEach((l,li)=>{if(hidden.has(l.id))return;l.b.forEach(br=>{for(let i=1;i<br.length;i++){const k=key(pos(br[i-1]),pos(br[i]));(seg[k]=seg[k]||new Set()).add(li)}})});return seg}
+function offVec(a,b,li,seg){const set=seg[key(a,b)];if(!set||set.size<2)return[0,0];const arr=[...set].sort((x,y)=>x-y),o=(arr.indexOf(li)-(arr.length-1)/2)*GAP;const A=a.join(",")<b.join(",")?a:b,B=A===a?b:a;const dx=B[0]-A[0],dy=B[1]-A[1],len=Math.hypot(dx,dy)||1;return[-dy/len*o,dx/len*o]}
+function offsetPath(P,li,seg){
+  const V=[];for(let i=1;i<P.length;i++)V.push(offVec(P[i-1],P[i],li,seg));
+  const out=[[P[0][0]+V[0][0],P[0][1]+V[0][1]]];
+  for(let i=1;i<P.length-1;i++){
+    const a1=[P[i-1][0]+V[i-1][0],P[i-1][1]+V[i-1][1]],a2=[P[i][0]+V[i-1][0],P[i][1]+V[i-1][1]],b1=[P[i][0]+V[i][0],P[i][1]+V[i][1]],b2=[P[i+1][0]+V[i][0],P[i+1][1]+V[i][1]];
+    const d1=[a2[0]-a1[0],a2[1]-a1[1]],d2=[b2[0]-b1[0],b2[1]-b1[1]],den=d1[0]*d2[1]-d1[1]*d2[0];
+    if(Math.abs(den)<1e-6){out.push(a2);if(V[i][0]!==V[i-1][0]||V[i][1]!==V[i-1][1])out.push(b1)}
+    else{const t=((b1[0]-a1[0])*d2[1]-(b1[1]-a1[1])*d2[0])/den;out.push([a1[0]+d1[0]*t,a1[1]+d1[1]*t])}
+  }
+  const n=P.length-1;out.push([P[n][0]+V[n-1][0],P[n][1]+V[n-1][1]]);return out;
+}
+function tracksAt(){const t={};L.forEach(l=>{if(hidden.has(l.id)||l.dash)return;l.b.forEach(br=>br.forEach(q=>{if(typeof q==="string"){const s=sid(q);(t[s]=t[s]||new Set()).add(l.id)}}))});return t}
+
+function render(){
+  svg.innerHTML="";svg.setAttribute("viewBox",`${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
+  const gL=el("g",{},svg),gS=el("g",{},svg),gT=el("g",{},svg);
+  const seg=corridors(),tr=tracksAt();
+  L.forEach((l,li)=>{if(hidden.has(l.id))return;l.b.forEach(br=>{const P=offsetPath(br.map(pos),li,seg);
+    el("path",{d:"M"+P.map(p=>p.map(v=>v.toFixed(1)).join(" ")).join(" L"),fill:"none",stroke:col(l.c),"stroke-width":l.dash?5:LW,"stroke-linecap":"round","stroke-linejoin":"round","stroke-dasharray":l.dash?"10 9":"none"},gL)})});
+  for(const id in S){
+    const s=S[id];const lines=linesAt(id).filter(l=>!hidden.has(l.id));if(!lines.length)continue;
+    const n=tr[id]?tr[id].size:1,inter=lines.filter(l=>!l.dash).length>1;
+    const r=s.hub?15:s.xfer?11:(inter?8:6.5)+(n>1?(n-1)*GAP/2:0);
+    const g=el("g",{class:"stn",tabindex:"0",role:"button","aria-label":s.n,"data-id":id},gS);
+    el("circle",{cx:s.x,cy:s.y,r,fill:col("--stn"),stroke:sel===id?col("--focus"):s.closed?col("--gray"):col("--ink"),"stroke-width":s.hub||s.xfer||inter?4.5:3,"stroke-dasharray":s.closed?"2 3":"none"},g);
+    if(s.pages)el("circle",{cx:s.x,cy:s.y,r:r+5,fill:"none",stroke:col("--teal"),"stroke-width":2.5,"stroke-dasharray":"4 3"},g);
+    el("circle",{cx:s.x,cy:s.y,r:Math.max(r,18),fill:"transparent"},g);
+    label(s,r,gT);
+  }
+}
+function txt(p,a,c,cls){const t=el("text",{...a,class:"lbl"+(cls?" "+cls:"")},p);t.textContent=c;return t}
+function label(s,r,g){
+  if(s.hub){const m={hubSW:[48,28,"start",1],hubR:[22,4,"start",1],hubBR:[-12,30,"end",1]}[s.lab];
+    txt(g,{x:s.x+m[0],y:s.y+m[1],"text-anchor":m[2]},s.n,"hubl");txt(g,{x:s.x+m[0],y:s.y+m[1]+16*m[3]+(m[3]<0?-4:0),"text-anchor":m[2]},s.dom,"dom");return}
+  if(s.xfer){txt(g,{x:s.x+18,y:s.y-16,"text-anchor":"start"},s.n,"hubl");return}
+  const pad=r+7,d=r*.7+3,o={r:[pad,6,"start"],l:[-pad,6,"end"],t:[0,-pad-2,"middle"],b:[0,pad+14,"middle"],ur:[d+2,-d,"start",-45],dl:[-d,d+2,"end",-45],dr:[d+2,d+4,"start",45]}[s.lab];
+  const a={x:s.x+o[0],y:s.y+o[1],"text-anchor":o[2]};if(o[3])a.transform=`rotate(${o[3]} ${a.x} ${a.y})`;
+  const t=txt(g,a,s.n);if(s.closed)t.style.fill=col("--muted");
+}
+
+// legend
+const legend=document.getElementById("legend");
+L.forEach(l=>{const b=document.createElement("button");b.className="lg";b.type="button";b.setAttribute("aria-pressed","true");b.title="Show or hide this line";
+  b.innerHTML=`<i style="background:${l.dash?"repeating-linear-gradient(90deg,var(--teal) 0 5px,transparent 5px 8px)":"var("+l.c+")"}"></i>${l.n}`;
+  b.onclick=()=>{hidden.has(l.id)?hidden.delete(l.id):hidden.add(l.id);b.classList.toggle("off");b.setAttribute("aria-pressed",String(!hidden.has(l.id)));hideCard();render()};legend.appendChild(b)});
+
+// station window
+function showCard(id,pin){
+  sel=id;pinned=!!pin;const s=S[id];
+  const th=imgURL(s);
+  const media=th?`<img class="img" src="${th}" alt="${s.n}" loading="eager" onerror="this.outerHTML='<div class=noimg>Image unavailable</div>'">`:`<div class="noimg">No featured image</div>`;
+  card.innerHTML=`${pinned?'<button class="x" aria-label="Close">×</button>':""}${media}<div class="body"><div class="dots">${linesAt(id).map(l=>`<i style="background:var(${l.c})"></i>`).join("")}</div><b>${s.n}${s.closed?" (closed)":""}</b><span class="u">${s.u.replace("https://","").replace(/\/$/,"")}</span><a class="go" href="${s.u}" target="_blank" rel="noopener">Visit page ↗</a></div>`;
+  card.hidden=false;
+  const m=svg.getScreenCTM(),br=boardEl.getBoundingClientRect(),pt=svg.createSVGPoint();pt.x=s.x;pt.y=s.y;const p=pt.matrixTransform(m);
+  let x=p.x-br.left+18,y=p.y-br.top-40;
+  if(x+card.offsetWidth>br.width-10)x=p.x-br.left-card.offsetWidth-18;
+  y=Math.min(Math.max(10,y),br.height-card.offsetHeight-10);x=Math.max(10,x);
+  card.style.left=x+"px";card.style.top=y+"px";
+  card.querySelector(".x")?.addEventListener("click",hideCard);
+  render();
+}
+let hideT=null;
+function hideCard(){card.hidden=true;sel=null;pinned=false;render()}
+svg.addEventListener("pointerover",e=>{if(e.pointerType!=="mouse"||pinned)return;const g=e.target.closest(".stn");if(g){clearTimeout(hideT);if(sel!==g.dataset.id)showCard(g.dataset.id,false)}});
+svg.addEventListener("pointerout",e=>{if(e.pointerType!=="mouse"||pinned)return;if(e.target.closest(".stn")){clearTimeout(hideT);hideT=setTimeout(()=>{if(!card.matches(":hover"))hideCard()},250)}});
+card.addEventListener("pointerleave",e=>{if(e.pointerType==="mouse"&&!pinned)hideT=setTimeout(hideCard,250)});
+card.addEventListener("pointerenter",()=>clearTimeout(hideT));
+
+// drawer lists
+const drawer=document.getElementById("drawer"),dlist=document.getElementById("dlist"),listBtn=document.getElementById("listBtn"),tabAll=document.getElementById("tabAll"),tabNo=document.getElementById("tabNo");
+const dots=id=>`<span class="d">${linesAt(id).map(l=>`<i style="background:var(${l.c})"></i>`).join("")}</span>`;
+function drawList(which){
+  tabAll.setAttribute("aria-selected",String(which==="all"));tabNo.setAttribute("aria-selected",String(which==="no"));
+  let h="";
+  for(const k in SITES){
+    let ids=Object.keys(S).filter(i=>S[i].site===k);
+    if(which==="no")ids=ids.filter(i=>S[i].img===null||S[i].img==="logo");
+    if(!ids.length)continue;
+    h+=`<h3>${SITES[k]} <small>${ids.length}</small></h3>`+ids.map(i=>`<button class="row" data-go="${i}">${dots(i)}<span>${S[i].n}</span>${which==="no"&&S[i].img==="logo"?"<em>site logo only</em>":""}</button>`).join("");
+  }
+  if(which==="no")h=`<p>These pages have no featured image set (og:image), or only the site logo.</p>`+h;
+  dlist.innerHTML=h;
+  dlist.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>{closeDrawer();focusOn(b.dataset.go)});
+}
+function openDrawer(){drawer.hidden=false;listBtn.setAttribute("aria-expanded","true");hideCard();drawList("all")}
+function closeDrawer(){drawer.hidden=true;listBtn.setAttribute("aria-expanded","false")}
+listBtn.onclick=()=>drawer.hidden?openDrawer():closeDrawer();
+document.getElementById("closeList").onclick=closeDrawer;
+tabAll.onclick=()=>drawList("all");tabNo.onclick=()=>drawList("no");
+function focusOn(id){const s=S[id];const r=svg.getBoundingClientRect();const w=Math.min(vb.w,700),h=w*r.height/r.width;vb={x:s.x-w/2,y:s.y-h/2,w,h};render();showCard(id,true)}
+
+// pan / zoom / tap
+const ptrs=new Map();let start=null,moved=false,pinch=null;
+function toSvg(cx,cy){const r=svg.getBoundingClientRect();const sc=Math.max(vb.w/r.width,vb.h/r.height);const ox=(r.width*sc-vb.w)/2,oy=(r.height*sc-vb.h)/2;return[vb.x+(cx-r.left)*sc-ox,vb.y+(cy-r.top)*sc-oy]}
+function zoom(f,cx,cy){const[px,py]=cx==null?[vb.x+vb.w/2,vb.y+vb.h/2]:toSvg(cx,cy);const nw=Math.min(Math.max(vb.w*f,200),2600);const k=nw/vb.w;vb.x=px-(px-vb.x)*k;vb.y=py-(py-vb.y)*k;vb.w=nw;vb.h*=k;hideCard()}
+function fit(){
+  let b;try{b=svg.getBBox()}catch(e){}if(!b||!b.width)b={x:0,y:100,width:1100,height:800};
+  const m=24,R=svg.getBoundingClientRect(),narrow=R.width<640;
+  // leave room for the map controls: right column on wide screens, bottom row on phones
+  const w=b.width+2*m,h=b.height+2*m,k=Math.max(w/(R.width-(narrow?0:96)),h/(R.height-(narrow?56:0)))||1;
+  vb={x:b.x-m,y:b.y-m,w:narrow?w:(R.width*k),h:narrow?(R.height*k):h};hideCard();
+}
+svg.addEventListener("pointerdown",e=>{svg.setPointerCapture(e.pointerId);ptrs.set(e.pointerId,[e.clientX,e.clientY]);moved=false;
+  if(ptrs.size===2){const a=[...ptrs.values()];pinch={d:Math.hypot(a[0][0]-a[1][0],a[0][1]-a[1][1]),w:vb.w}}
+  start={x:e.clientX,y:e.clientY,vb:{...vb},g:e.target.closest(".stn"),type:e.pointerType};svg.classList.add("grabbing")});
+svg.addEventListener("pointermove",e=>{if(!ptrs.has(e.pointerId))return;ptrs.set(e.pointerId,[e.clientX,e.clientY]);
+  if(ptrs.size===2&&pinch){const a=[...ptrs.values()];const d=Math.hypot(a[0][0]-a[1][0],a[0][1]-a[1][1]);zoom((pinch.w*pinch.d/d)/vb.w,(a[0][0]+a[1][0])/2,(a[0][1]+a[1][1])/2);render();moved=true;return}
+  if(!start)return;const dx=e.clientX-start.x,dy=e.clientY-start.y;if(Math.hypot(dx,dy)>4)moved=true;if(!moved)return;
+  const r=svg.getBoundingClientRect();const sc=Math.max(vb.w/r.width,vb.h/r.height);vb.x=start.vb.x-dx*sc;vb.y=start.vb.y-dy*sc;if(!card.hidden)hideCard();else render()});
+function end(e){ptrs.delete(e.pointerId);if(ptrs.size<2)pinch=null;svg.classList.remove("grabbing");
+  if(start&&!moved){if(start.g)showCard(start.g.dataset.id,true);else hideCard()}
+  if(!ptrs.size)start=null}
+svg.addEventListener("pointerup",end);svg.addEventListener("pointercancel",end);
+svg.addEventListener("wheel",e=>{e.preventDefault();zoom(e.deltaY>0?1.12:.89,e.clientX,e.clientY);render()},{passive:false});
+svg.addEventListener("keydown",e=>{const g=e.target.closest(".stn");if(g&&(e.key==="Enter"||e.key===" ")){e.preventDefault();showCard(g.dataset.id,true);card.querySelector(".go")?.focus()}});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(!drawer.hidden)closeDrawer();else if(!card.hidden)hideCard()}});
+document.getElementById("zin").onclick=()=>{zoom(.8);render()};document.getElementById("zout").onclick=()=>{zoom(1.25);render()};document.getElementById("fit").onclick=()=>{fit();render()};
+window.addEventListener("resize",()=>{fit();render()});
+window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change",render);
+new MutationObserver(render).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+render();fit();render();
+</script>
+</body>
+</html>

@@ -46,21 +46,21 @@
   function lineChip(l) { return '<span class="chip">' + dot(l) + esc(l.n) + "</span>"; }
 
   var CSS = [
-    ":host{display:block;font-family:Arial,Helvetica,sans-serif;line-height:1.25;margin:12px 0;max-width:100%}",
+    ":host{display:block;font-family:Arial,Helvetica,sans-serif;line-height:1.25;margin:0;max-width:none}",
     "*{box-sizing:border-box}",
-    ".tk{background:#121314;color:#fff;border-radius:8px;padding:10px 14px 9px;overflow:hidden}",
+    ".tk{background:#121314;color:#fff;padding:12px 0 11px;overflow:hidden;width:100%}",".in{max-width:1280px;margin:0 auto;padding:0 22px}",".contained .tk{border-radius:8px}",
     ".row{display:flex;align-items:center;gap:10px}",
     ".badge{flex:none;width:22px;height:22px;border-radius:50%;border:2px solid #fff;display:grid;place-items:center;font:700 11px Arial}",
     ".lname{flex:none;font:700 11px Arial;letter-spacing:.06em;text-transform:uppercase}",
     ".sp{flex:1}",
-    ".map{flex:none;color:#bbb;font:700 10px Arial;letter-spacing:.08em;text-decoration:none;border:1px solid #444;border-radius:4px;padding:3px 6px}",
+    ".map{flex:none;color:#bbb;font:700 11px Arial;letter-spacing:.08em;text-decoration:none;border:1px solid #444;border-radius:4px;padding:6px 10px;min-height:30px;display:inline-flex;align-items:center}",
     ".map:hover,.map:focus{color:#fff;border-color:#fff}",
     ".track{position:relative;height:50px;margin:2px 26px 0}",
     ".bar{position:absolute;left:-14px;right:-14px;top:13px;height:6px;border-radius:3px}",
     ".st{position:absolute;top:0;width:0}",
     ".dot{position:absolute;left:-6px;top:10px;width:12px;height:12px;border-radius:50%;background:#121314;border:3px solid #fff}",
     ".st.cur .dot{left:-9px;top:7px;width:18px;height:18px;border-width:4px}",
-    ".st.first .lab{left:-6px;transform:none;text-align:left}",".st.last .lab{left:auto;right:-6px;transform:none;text-align:right}",".lab{position:absolute;top:30px;left:50%;transform:translateX(-50%);font-size:10px;white-space:nowrap;color:#b5b5b5;text-decoration:none;max-width:var(--lw,84px);overflow:hidden;text-overflow:ellipsis;text-align:center}",
+    ".st.first .lab{left:-6px;transform:none;text-align:left}",".st.last .lab{left:auto;right:-6px;transform:none;text-align:right}",".lab{position:absolute;top:30px;padding:2px 0;left:50%;transform:translateX(-50%);font-size:11px;white-space:nowrap;color:#b5b5b5;text-decoration:none;max-width:var(--lw,84px);overflow:hidden;text-overflow:ellipsis;text-align:center}",
     "a.lab:hover,a.lab:focus{color:#fff;text-decoration:underline}",
     ".st.cur .lab{color:#fff;font-weight:700}",
     ".st.cur .dot{box-shadow:0 0 0 0 rgba(255,255,255,.55);animation:ping 2.4s ease-out infinite}",
@@ -81,7 +81,7 @@
     ".go:hover .mq{animation-play-state:paused}",
     "@keyframes go{to{transform:translateX(-50%)}}",
     "@media (prefers-reduced-motion:reduce){.go .mq{animation:none;width:auto;flex-wrap:wrap;white-space:normal}.go .grp+.grp{display:none}.st.cur .dot{animation:none}}",
-    ".narrow .lname{font-size:10px}.narrow .track{margin:2px 30px 0}.narrow .lab{font-size:9px}"
+    ".narrow .lname{font-size:11px}.narrow .in{padding:0 14px}.narrow .track{margin:2px 38px 0;height:58px}.narrow .lab{font-size:11px;top:32px;padding:6px 0}.narrow .msg{font-size:13px}.narrow .mq{width:auto;white-space:normal;flex-wrap:wrap}.narrow .mq .grp{flex-wrap:wrap;gap:6px 9px;padding-right:0}.narrow .chips a{padding:8px 12px;font-size:13px}.wide .lab{font-size:12px}.wide .lname{font-size:12px}.wide .msg{font-size:13px}"
   ].join("");
 
   function windowOf(seq, i, size) {
@@ -95,7 +95,7 @@
     if (!p) { host.style.display = "none"; return; }
     var root = host.shadowRoot || host.attachShadow({ mode: "open" });
     var w = host.clientWidth || 600;
-    var narrow = w < 480;
+    var narrow = w < 480, wide = w >= 1100;
     var html = "", msg = "";
     var here = S[id];
 
@@ -108,10 +108,10 @@
       msg = '<span class="tag">YOU ARE HERE</span><b>' + esc(here.n) + '</b><span>\u00b7</span><span>Hub station. Pick a line to ride.</span>';
     } else {
       var m = p.main, seq = m.seq.filter(function (x) { return S[x]; }), i = seq.indexOf(id);
-      var win = windowOf(seq, i, narrow ? 3 : 7);
+      var win = windowOf(seq, i, w < 480 ? 3 : w < 760 ? 5 : w < 1100 ? 7 : 9);
       var vis = seq.slice(win.s, win.e), n = vis.length;
       var pos = function (k) { return n === 1 ? 50 : k * 100 / (n - 1); };
-      var lw = Math.max(48, Math.min(96, Math.floor((w - 60) / Math.max(n - 1, 1)) - 6));
+      var lw = Math.max(48, Math.min(wide ? 120 : 96, Math.floor((Math.min(w, 1280) - 100) / Math.max(n - 1, 1)) - 6));
       var stops = vis.map(function (sid, k) {
         var cur = sid === id;
         return '<div class="st' + (cur ? " cur" : "") + '" style="left:' + pos(k) + '%"><span class="dot"></span>' +
@@ -128,11 +128,11 @@
         (next ? "<span>Next stop: " + a(next) + "</span>" : "<span>Last stop on the " + esc(m.line.n) + " line</span>") +
         (p.transfers.length ? "<span>\u00b7</span><span>Change here for " + p.transfers.map(function (l) { return "<b>" + esc(l.n) + "</b>"; }).join(", ") + "</span>" : "");
     }
-    root.innerHTML = "<style>" + CSS + '</style><div class="tk' + (narrow ? " narrow" : "") + '" role="navigation" aria-label="Station strip">' + html +
-      '<div class="msg"><div class="mq"><div class="grp">' + msg + "</div></div></div></div>";
+    root.innerHTML = "<style>" + CSS + '</style><div class="' + (host.hasAttribute("data-contained") ? "contained " : "") + '"><div class="tk' + (narrow ? " narrow" : wide ? " wide" : "") + '" role="navigation" aria-label="Station strip"><div class="in">' + html +
+      '<div class="msg"><div class="mq"><div class="grp">' + msg + "</div></div></div></div></div></div>";
 
     var box = root.querySelector(".msg"), mq = root.querySelector(".mq");
-    if (mq.scrollWidth > box.clientWidth + 2) {
+    if (!narrow && mq.scrollWidth > box.clientWidth + 2) {
       var g = mq.firstChild.cloneNode(true);
       g.setAttribute("aria-hidden", "true");
       mq.appendChild(g);
@@ -141,21 +141,24 @@
     }
   }
 
+  function fit(el) {
+    if (el.hasAttribute("data-contained")) return;
+    el.style.marginLeft = "0"; el.style.width = "auto";
+    var r = el.getBoundingClientRect();
+    el.style.marginLeft = (-r.left) + "px";
+    el.style.width = document.documentElement.clientWidth + "px";
+  }
+
   function mount(el) {
     var id = el.getAttribute("data-stop");
     if (!id || !S[id]) id = byUrl[norm(location.href)];
     if (!id) { el.style.display = "none"; return; }
-    render(el, id);
-    var last = el.clientWidth;
-    if (window.ResizeObserver) {
-      var t;
-      new ResizeObserver(function () {
-        if (Math.abs(el.clientWidth - last) < 40) return;
-        last = el.clientWidth;
-        clearTimeout(t);
-        t = setTimeout(function () { render(el, id); }, 120);
-      }).observe(el);
-    }
+    fit(el); render(el, id);
+    var tm;
+    window.addEventListener("resize", function () {
+      clearTimeout(tm);
+      tm = setTimeout(function () { fit(el); render(el, id); }, 120);
+    });
   }
 
   function start() {

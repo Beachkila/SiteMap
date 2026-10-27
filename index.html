@@ -111,7 +111,7 @@ button:focus-visible,a:focus-visible{outline:3px solid var(--focus);outline-offs
 .strip li.hub button::before{width:20px;height:20px;margin-left:2px}
 .strip li button small{font-weight:400;font-size:12px;color:var(--muted)}
 svg text{font-family:var(--display)}
-.lbl{font-weight:600;fill:var(--ink);paint-order:stroke;stroke:var(--board);stroke-linejoin:round;pointer-events:none}
+.lbl{font-weight:600;fill:var(--ink);paint-order:stroke;stroke:var(--board);stroke-linejoin:round;cursor:pointer}
 .hubl{font-weight:800}
 .dom{font-family:var(--mono);font-weight:400;fill:var(--muted)}
 .stn{cursor:pointer}
@@ -214,7 +214,7 @@ const BOARD_PROJECTS=[["ai-station","AI Station"],["dock-to-stock","Dock to Stoc
 const PROJ=BOARD_PROJECTS.map(([slug,n])=>{const id="bp-"+slug;S[id]={n,u:BRD+"/p/"+slug+"/",site:"board",img:null};return id});
 Object.assign(S["bp-ir-dev"],{pages:1,live:"https://beachkila.github.io/IR/"});
 // This map: its own board project, last stop on the Board projects branch, drawn as the red "You are here" stop.
-S.here={n:"S.We.T.A. Map",u:BRD+"/p/sweta-map/",live:"https://beachkila.github.io/sitemap/",pages:1,site:"board",img:null,here:1};PROJ.push("here");
+S.here={n:"S.We.T.A. Map",u:BRD+"/p/sweta-map/",live:"https://beachkila.github.io/sitemap/",pages:1,site:"board",img:null,here:1};PROJ.unshift("here");
 
 // Lines. "@name" is a bend token; each layout says where its bends go (zero or more points).
 const L=[
@@ -240,9 +240,9 @@ const LAYOUT={
    galleries:[450,400,"dl"],cyanogal:[395,400,"dl"],lino:[340,400,"dl"],pendergal:[285,400,"dl"],irgal:[230,400,"dl"],neggal:[175,400,"dl"],digigal:[130,355,"l"],ui:[130,310,"l"],undisc:[130,265,"l"],
    process:[500,330,"r"],light:[500,285,"r"],salt:[500,240,"r"],thinkneg:[500,195,"r"],seepos:[500,150,"r"],
    sbs:[455,355,"l"],step1:[410,310,"l"],step2:[365,265,"l"],step3:[320,220,"l"],step4:[275,175,"l"]},
-  bend:{or:[],blA:[[700,400]],blB:[[875,225]],te:[[570,470]],gr:[],brA:[],brP:[[550,750]]},
+  bend:{or:[],blA:[[700,400]],blB:[[875,225]],te:[[570,470]],gr:[],brA:[],brP:[[600,800]]},
   h:{SW:{n:[48,28,"start"],d:[48,44]},NET:{n:[22,4,"start"],d:[22,20]},SMW:{n:[0,34,"middle"],d:[0,50]},BSG:{n:[-12,30,"end"],d:[-12,46]},board:{n:[18,-16,"start"]}},
-  proj:i=>[585+i*50,750,"dr"]
+  proj:i=>[635+i*50,800,"dr"]
  },
  tall:{
   p:{SW:[380,560],about:[425,515,"r"],netpage:[450,560,"br"],solat:[550,455,"r"],cmyk:[550,400,"r"],sunprint:[550,345,"r"],enlarger:[550,290,"r"],NET:[550,220],SMW:[660,600],
@@ -254,7 +254,7 @@ const LAYOUT={
    sbs:[300,480,"l"],step1:[210,335,"r"],step2:[210,280,"r"],step3:[210,225,"r"],step4:[210,170,"r"]},
   bend:{or:[[210,390]],blA:[[500,560],[550,510]],blB:[],te:[[420,600]],gr:[[40,560]],brA:[[400,650],[580,650]],brP:[]},
   h:{SW:{n:[-35,-15,"end"],d:[-45,-32]},NET:{n:[22,6,"start"],d:[22,22]},SMW:{n:[22,6,"start"],d:[22,22]},BSG:{n:[-14,-22,"end"],d:[-14,-40]},board:{n:[18,-18,"start"]}},
-  proj:i=>[600,730+i*55,"r"]
+  proj:i=>[600,750+i*55,"r"]
  }
 };
 for(const k in LAYOUT)PROJ.forEach((id,i)=>LAYOUT[k].p[id]=LAYOUT[k].proj(i));
@@ -337,7 +337,7 @@ function render(){
   const ov=(a,b)=>!(a.x1<b.x0||a.x0>b.x1||a.y1<b.y0||a.y0>b.y1);
   for(const lb of labels){
     const bx=lb.box;if(bx.x1<vx0||bx.x0>vx1||bx.y1<vy0||bx.y0>vy1)continue;
-    if(overview&&lb.pri<60)continue;
+    if(overview&&lb.pri<60&&!lb.fol)continue; // zoomed far out: hubs only, plus the line being followed
     const hitsPlaced=lb.parts.some(a=>placed.some(b=>ov(a,b)));
     const hitsDot=lb.parts.some(a=>obst.some(b=>ov(a,b)&&!(b.dim&&!lb.dim)&&!(b.x0<=lb.ax&&b.x1>=lb.ax&&b.y0<=lb.ay&&b.y1>=lb.ay)));
     if(lb.pri<90&&(hitsPlaced||hitsDot))continue;
@@ -345,12 +345,12 @@ function render(){
     placed.push(...lb.parts);
     const a={x:lb.x,y:lb.y,"text-anchor":lb.anchor,class:"lbl"+(lb.kind==="hub"||lb.kind==="ov"?" hubl":lb.kind==="dom"?" dom":""),"font-size":FS[lb.kind]*k,"stroke-width":4*k};
     if(lb.rot)a.transform=`rotate(${lb.rot} ${lb.x} ${lb.y})`;if(lb.dim)a.opacity=.3;
-    const t=el("text",a,gT);t.textContent=lb.text;if(lb.closed)t.style.fill=col("--muted");
+    a["data-id"]=lb.id;const t=el("text",a,gT);t.textContent=lb.text;if(lb.closed)t.style.fill=col("--muted");
   }
   drawMini();
 }
 function labelCands(id,s,p,rpx,k,dim,onF){
-  const out=[],H=LAYOUT[lay].h[id],pri=(sel===id?100:0)+(s.hub?60:s.xfer?40:0)+(onF&&onF.has(id)?30:0)+(dim?-20:0);
+  const out=[],H=LAYOUT[lay].h[id],pri=(sel===id?100:0)+(s.hub?60:s.xfer?40:s.here?45:0)+(onF&&onF.has(id)?30:0)+(dim?-20:0);
   const mk=(text,kind,x,y,anchor,rot,p2)=>{
     const w=tw(text,kind)*k,h=FS[kind]*k;
     let b,parts;
@@ -360,7 +360,7 @@ function labelCands(id,s,p,rpx,k,dim,onF){
       const nx=rot<0?-.7071:.7071,ny=-.7071;
       for(let i=0;i<=n;i++){const t=w*i/n*.7071,cx=x+dir[0]*t+nx*h*.35,cy=y+dir[1]*t+ny*h*.35;parts.push({x0:cx-q,x1:cx+q,y0:cy-q,y1:cy+q})}
       b={x0:Math.min(...parts.map(a=>a.x0)),x1:Math.max(...parts.map(a=>a.x1)),y0:Math.min(...parts.map(a=>a.y0)),y1:Math.max(...parts.map(a=>a.y1))}}
-    return{text,kind,x,y,anchor,rot,box:b,parts,pri:p2,ax:p[0],ay:p[1],dim,closed:s.closed};
+    return{id,fol:!!(onF&&onF.has(id)),text,kind,x,y,anchor,rot,box:b,parts,pri:p2,ax:p[0],ay:p[1],dim,closed:s.closed};
   };
   if(H&&k>2.2){ // overview: small hub names above each hub, kept inside the view
     const lb=mk(s.n,"ov",p[0],p[1]-(rpx+7)*k,"middle",0,90),m=8*k,dx=Math.max(0,vb.x+m-lb.box.x0)-Math.max(0,lb.box.x1-(vb.x+vb.w-m));
@@ -447,8 +447,8 @@ sheet.addEventListener("pointerup",e=>{if(!sw0)return;const dx=e.clientX-sw0.x,d
   else if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)){const o=ORDER[ride],i=o.indexOf(sel),t=o[i+(dx<0?1:-1)];if(t)goTo(t)}});
 // desktop hover preview
 let hoverT=null;
-svg.addEventListener("pointerover",e=>{if(e.pointerType!=="mouse"||narrow()||pinned)return;const g=e.target.closest(".stn");if(g&&g.dataset.id!==sel){clearTimeout(hoverT);openStation(g.dataset.id,"peek")}});
-svg.addEventListener("pointerout",e=>{if(e.pointerType!=="mouse"||pinned)return;if(e.target.closest(".stn")){clearTimeout(hoverT);hoverT=setTimeout(()=>{if(!pinned&&!sheet.matches(":hover"))hideSheet()},250)}});
+svg.addEventListener("pointerover",e=>{if(e.pointerType!=="mouse"||narrow()||pinned)return;const g=e.target.closest("[data-id]");if(g&&g.dataset.id!==sel){clearTimeout(hoverT);openStation(g.dataset.id,"peek")}});
+svg.addEventListener("pointerout",e=>{if(e.pointerType!=="mouse"||pinned)return;if(e.target.closest("[data-id]")){clearTimeout(hoverT);hoverT=setTimeout(()=>{if(!pinned&&!sheet.matches(":hover"))hideSheet()},250)}});
 sheet.addEventListener("pointerenter",()=>clearTimeout(hoverT));
 sheet.addEventListener("pointerleave",e=>{if(e.pointerType==="mouse"&&!pinned)hoverT=setTimeout(()=>hideSheet(),250)});
 
@@ -502,7 +502,7 @@ L.forEach(l=>{const b=document.createElement("button");b.className="lg";b.type="
 const ptrs=new Map();let start=null,moved=false,pinch=null;
 svg.addEventListener("pointerdown",e=>{svg.setPointerCapture(e.pointerId);ptrs.set(e.pointerId,[e.clientX,e.clientY]);moved=false;cancelAnimationFrame(anim);
   if(ptrs.size===2){const a=[...ptrs.values()];pinch={d:Math.hypot(a[0][0]-a[1][0],a[0][1]-a[1][1]),k:kNow()}}
-  start={x:e.clientX,y:e.clientY,vb:{...vb},g:e.target.closest(".stn")};svg.classList.add("grabbing")});
+  start={x:e.clientX,y:e.clientY,vb:{...vb},g:e.target.closest("[data-id]")};svg.classList.add("grabbing")});
 svg.addEventListener("pointermove",e=>{if(!ptrs.has(e.pointerId))return;ptrs.set(e.pointerId,[e.clientX,e.clientY]);
   if(ptrs.size===2&&pinch){const a=[...ptrs.values()],d=Math.hypot(a[0][0]-a[1][0],a[0][1]-a[1][1]);zoomBy(pinch.k*pinch.d/d/kNow(),(a[0][0]+a[1][0])/2,(a[0][1]+a[1][1])/2);moved=true;if(sheet.classList.contains("float"))hideSheet(true);render();return}
   if(!start||ptrs.size>1)return;const dx=e.clientX-start.x,dy=e.clientY-start.y;if(Math.hypot(dx,dy)>6)moved=true;if(!moved)return;

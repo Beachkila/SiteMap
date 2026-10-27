@@ -20,7 +20,7 @@ html,body{margin:0}
   --bg:#ffffff; --board:#fbfbf8; --ink:#1b1c1e; --muted:#62656b; --rule:#dcdcd6; --stn:#ffffff; --shade:rgba(20,20,20,.18);
   --display:"Overpass","Helvetica Neue",Arial,sans-serif;
   --mono:"Overpass Mono",ui-monospace,Menlo,monospace;
-  --red:#E3242B; --orange:#F28C28; --yellow:#F2BF00; --green:#00964A; --blue:#0072CE; --purple:#7B2D8E; --brown:#8C5A2B; --teal:#00A19C; --gray:#8A8D91; --focus:#0072CE;
+  --red:#E3242B; --orange:#F28C28; --yellow:#F2BF00; --green:#00964A; --blue:#0072CE; --purple:#7B2D8E; --brown:#8C5A2B; --teal:#00A19C; --gray:#8A8D91; --focus:#0072CE; --here:#E3242B;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#121314;--board:#17181a;--ink:#ececE8;--muted:#a3a6ab;--rule:#2d2f32;--stn:#17181a;--brown:#B07A45;--shade:rgba(0,0,0,.5);color-scheme:dark}}
 :root[data-theme="dark"]{--bg:#121314;--board:#17181a;--ink:#ececE8;--muted:#a3a6ab;--rule:#2d2f32;--stn:#17181a;--brown:#B07A45;--shade:rgba(0,0,0,.5);color-scheme:dark}
@@ -67,10 +67,15 @@ button:focus-visible,a:focus-visible{outline:3px solid var(--focus);outline-offs
 .chip{display:inline-flex;align-items:center;gap:6px;font-family:var(--display);font-size:12px;font-weight:600;border:1px solid var(--rule);background:none;color:var(--ink);border-radius:999px;padding:3px 10px 3px 6px;cursor:pointer}
 .chip i{width:14px;height:5px;border-radius:3px}
 .chip[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.youhere{align-self:flex-start;background:var(--here);color:#fff;font-weight:800;font-size:12px;border-radius:999px;padding:2px 10px;letter-spacing:.02em}
+.tag-here rect{fill:var(--here)}
+.tag-here text{fill:#fff;font-weight:800;font-family:var(--display)}
+@media (prefers-reduced-motion:no-preference){.pulse{transform-box:fill-box;transform-origin:center;animation:pulse 1.8s ease-out infinite}@keyframes pulse{0%{transform:scale(.6);opacity:1}100%{transform:scale(1.6);opacity:0}}}
 .sheet b{font-size:19px;font-weight:800;line-height:1.2}
 .sheet .u{font-family:var(--mono);font-size:11px;color:var(--muted);word-break:break-all}
 .row2{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .go{display:inline-flex;align-items:center;height:38px;padding:0 14px;border-radius:8px;background:var(--ink);color:var(--bg);font-weight:600;font-size:14px;text-decoration:none}
+.go.alt{background:var(--bg);color:var(--ink);border:1px solid var(--ink)}
 .ride{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:2px}
 .ride button{font-family:var(--display);font-size:13px;font-weight:600;height:40px;border-radius:8px;border:1px solid var(--rule);background:var(--bg);color:var(--ink);cursor:pointer;padding:0 10px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .ride button:last-child{text-align:right}
@@ -163,7 +168,7 @@ const S={
  sunprint:{n:"Sunprint UVI",u:SW+"/sunprint/",site:"sw",img:"i0/2026/07/tcn_sunprint-e1785622534642.jpg"},
  enlarger:{n:"Negative enlarger",u:SW+"/negative-enlarger/",site:"sw",img:"i0/2026/09/Screenshot-2026-09-27-154049.png"},
  NET:{n:"The Cyanotype Network",u:"https://network.studiowetware.com/",hub:1,dom:"network.studiowetware.com",site:"net",img:null},
- SMW:{n:"Small Works",u:"https://smallworks.studiowetware.com/",hub:1,dom:"smallworks.studiowetware.com",site:"smw",img:null},
+ SMW:{n:"Small Works",u:"https://smallworks.studiowetware.com/",pages:1,hub:1,dom:"smallworks.studiowetware.com",site:"smw",img:null},
  gitbeach:{n:"GitBeach",u:SW+"/gitbeach/",site:"sw",img:"i0/2026/10/img_8407.jpg"},
  picam:{n:"Pi-Cam-IR-A",u:SW+"/pi-cam-ir-a/",site:"sw",img:"i0/2026/08/img_6445.jpg"},
  atlas:{n:"Atlas",u:SW+"/atlas/",site:"sw",img:"i0/2026/09/image-6.jpg"},
@@ -173,7 +178,7 @@ const S={
  bang:{n:"Bang!",u:SW+"/bang/",site:"sw",img:"sw/2026/06/img_5927-1.png"},
  potholes:{n:"Adopt-a-Pothole",u:SW+"/potholes/",closed:1,site:"sw",img:"i0/2026/09/100d6cb7-c66f-4d73-99b4-c718f9d59241.png"},
  planes:{n:"Plane Spotter",u:SW+"/plane-spotter/",site:"sw",img:"i0/2026/10/img_7816.jpg"},
- githoods:{n:"GitHoods",u:SW+"/githoods/",site:"sw",img:"i0/2026/10/img_8327.jpg"},
+ githoods:{n:"GitHoods",u:SW+"/githoods/",pages:1,live:"https://beachkila.github.io/GitHoods/",site:"sw",img:"i0/2026/10/img_8327.jpg"},
  board:{n:"Project Board",u:BRD+"/",xfer:1,dom:"board.studiowetware.com",site:"board",img:null},
  mediums:{n:"Mediums",u:BRD+"/spectra/",site:"board",img:null},
  stack:{n:"Stack",u:BRD+"/skills/",site:"board",img:null},
@@ -207,6 +212,9 @@ const S={
 // Board projects with no page elsewhere: stops on the Board line, linking to their board pages.
 const BOARD_PROJECTS=[["ai-station","AI Station"],["dock-to-stock","Dock to Stock"],["beelab","BeeLab"],["coolpix-ir","Coolpix IR conversion"],["droneaware-node","DroneAware node"],["fire-hd8-linux-pad","Fire HD 8 Linux pad"],["ink-drawer","Ink Drawer"],["redditprofiler","redditprofiler"],["snake-lcd-pi","Snake LCD Pi"],["ir-dev","IR DEV"],["nmap-subway","nmap subway"]];
 const PROJ=BOARD_PROJECTS.map(([slug,n])=>{const id="bp-"+slug;S[id]={n,u:BRD+"/p/"+slug+"/",site:"board",img:null};return id});
+Object.assign(S["bp-ir-dev"],{pages:1,live:"https://beachkila.github.io/IR/"});
+// This map: its own board project, last stop on the Board projects branch, drawn as the red "You are here" stop.
+S.here={n:"S.We.T.A. Map",u:BRD+"/p/sweta-map/",live:"https://beachkila.github.io/sitemap/",pages:1,site:"board",img:null,here:1};PROJ.push("here");
 
 // Lines. "@name" is a bend token; each layout says where its bends go (zero or more points).
 const L=[
@@ -225,15 +233,15 @@ const L=[
 // Two hand-placed layouts. p: id -> [x, y, label side]. Label sides: r l t b br, and 45° ur dl dr. h: hub label offsets.
 const LAYOUT={
  wide:{
-  p:{SW:[500,400],about:[555,345,"r"],netpage:[600,400,"t"],solat:[740,360,"r"],cmyk:[785,315,"r"],sunprint:[830,270,"r"],enlarger:[930,225,"b"],NET:[1020,225],SMW:[760,490],
+  p:{SW:[500,400],about:[555,345,"r"],netpage:[600,400,"t"],solat:[740,360,"r"],cmyk:[785,315,"r"],sunprint:[830,270,"r"],enlarger:[930,225,"b"],NET:[1020,225],SMW:[760,470],
    gitbeach:[500,510,"r"],picam:[545,555,"r"],atlas:[590,600,"r"],blackbox:[635,645,"l"],bucke:[695,645,"ur"],pender:[755,645,"ur"],bang:[815,645,"ur"],potholes:[875,645,"ur"],planes:[935,645,"ur"],githoods:[995,645,"ur"],
    board:[500,700],mediums:[600,700,"b"],stack:[700,700,"b"],pimaker:[800,700,"b"],
    BSG:[320,580],create:[320,625,"r"],bsggal:[320,665,"r"],templates:[320,705,"r"],whatis:[240,580,"t"],contact:[70,580,"t"],
    galleries:[450,400,"dl"],cyanogal:[395,400,"dl"],lino:[340,400,"dl"],pendergal:[285,400,"dl"],irgal:[230,400,"dl"],neggal:[175,400,"dl"],digigal:[130,355,"l"],ui:[130,310,"l"],undisc:[130,265,"l"],
    process:[500,330,"r"],light:[500,285,"r"],salt:[500,240,"r"],thinkneg:[500,195,"r"],seepos:[500,150,"r"],
    sbs:[455,355,"l"],step1:[410,310,"l"],step2:[365,265,"l"],step3:[320,220,"l"],step4:[275,175,"l"]},
-  bend:{or:[],blA:[[700,400]],blB:[[875,225]],te:[[590,490]],gr:[],brA:[],brP:[[550,750]]},
-  h:{SW:{n:[48,28,"start"],d:[48,44]},NET:{n:[22,4,"start"],d:[22,20]},SMW:{n:[22,4,"start"],d:[22,20]},BSG:{n:[-12,30,"end"],d:[-12,46]},board:{n:[18,-16,"start"]}},
+  bend:{or:[],blA:[[700,400]],blB:[[875,225]],te:[[570,470]],gr:[],brA:[],brP:[[550,750]]},
+  h:{SW:{n:[48,28,"start"],d:[48,44]},NET:{n:[22,4,"start"],d:[22,20]},SMW:{n:[0,34,"middle"],d:[0,50]},BSG:{n:[-12,30,"end"],d:[-12,46]},board:{n:[18,-16,"start"]}},
   proj:i=>[585+i*50,750,"dr"]
  },
  tall:{
@@ -269,6 +277,7 @@ const reduced=matchMedia("(prefers-reduced-motion: reduce)").matches;
 function el(t,a,p){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e}
 const P=id=>LAYOUT[lay].p[id];
 function pts(br){const out=[];br.forEach(q=>{if(q[0]==="@")LAYOUT[lay].bend[q.slice(1)].forEach(b=>out.push(b));else{const p=P(q);out.push([p[0],p[1]])}});return out}
+const BR=l=>lay==="tall"&&l.bt?l.bt:l.b;
 const stopsOf=l=>{const s=[];l.b.forEach(br=>br.forEach(q=>{if(q[0]!=="@"&&!s.includes(q))s.push(q)}));return s};
 const ORDER={};L.forEach(l=>ORDER[l.id]=stopsOf(l));
 const linesAt=id=>L.filter(l=>ORDER[l.id].includes(id));
@@ -284,6 +293,19 @@ const FS={stop:15,hub:18,dom:12,ov:13};
 function tw(text,kind){mctx.font=kind==="dom"?`400 ${FS.dom}px "Overpass Mono", monospace`:kind==="hub"?`800 ${FS.hub}px Overpass, Arial`:kind==="ov"?`800 ${FS.ov}px Overpass, Arial`:`600 ${FS.stop}px Overpass, Arial`;return mctx.measureText(text).width}
 
 // ---------- render ----------
+// "You are here" tag beside the map's own stop, drawn at a fixed screen size.
+let hereBoxes=[];
+function hereTag(p,rr,k,g){
+  if(p[0]<vb.x||p[0]>vb.x+vb.w||p[1]<vb.y||p[1]>vb.y+vb.h)return; // stop is off screen
+  const txt="You are here",fs=13*k,w=tw(txt,"stop")*13/15*k+20*k,h=24*k,gap=8*k;
+  const m=8*k,side=lay==="tall"; // portrait: the stop sits on a vertical line, so the tag goes to its left
+  const x=side?p[0]-rr-gap-w-6*k:Math.min(Math.max(p[0]-w/2,vb.x+m),vb.x+vb.w-w-m),y=side?p[1]-h/2:p[1]-rr-gap-h-6*k;
+  const t=el("g",{class:"tag-here"},g);
+  el("rect",{x,y,width:w,height:h,rx:h/2},t);
+  el("path",{d:side?`M${x+w-1} ${p[1]-5*k} L${x+w+6*k} ${p[1]} L${x+w-1} ${p[1]+5*k}Z`:`M${p[0]-5*k} ${y+h-1} L${p[0]} ${y+h+6*k} L${p[0]+5*k} ${y+h-1}Z`,fill:col("--here")},t);
+  const tx=el("text",{x:x+w/2,y:y+h/2+fs*.36,"text-anchor":"middle","font-size":fs},t);tx.textContent=txt;
+  hereBoxes.push({x0:x,y0:y,x1:x+w+6*k,y1:y+h+6*k});
+}
 function render(){
   const k=kNow(),zs=Math.min(1,Math.max(.45,1.7/k));
   svg.innerHTML="";svg.setAttribute("viewBox",`${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
@@ -291,7 +313,7 @@ function render(){
   const fl=follow?L.find(l=>l.id===follow):null, onF=fl?new Set(ORDER[fl.id]):null;
   L.forEach(l=>{
     const dim=fl&&fl.id!==l.id&&!(fl.id==="brown"&&l.id==="pages");
-    l.b.forEach(br=>{const P2=pts(br);
+    BR(l).forEach(br=>{const P2=pts(br);
       el("path",{d:"M"+P2.map(p=>p.join(" ")).join(" L"),fill:"none",stroke:col(l.c),"stroke-width":(l.dash?4.5:6.5)*k*Math.max(.6,zs),"stroke-linecap":"round","stroke-linejoin":"round","stroke-dasharray":l.dash?`${9*k} ${8*k}`:"none",opacity:dim?.14:1},gL)})});
   // stations
   const obst=[],labels=[];
@@ -300,6 +322,7 @@ function render(){
     const rpx=(s.hub?11:s.xfer?9:inter?7.5:5.5)*zs,r=rpx*k;
     const g=el("g",{class:"stn",tabindex:"0",role:"button","aria-label":s.n,"data-id":id,opacity:dim?.25:1},gS);
     el("circle",{cx:p[0],cy:p[1],r:Math.max(r,24*k),fill:"transparent"},g);
+    if(s.here){const rr=9*Math.max(zs,.7)*k;el("circle",{cx:p[0],cy:p[1],r:rr+7*k,fill:col("--here"),"fill-opacity":.18,class:"pulse"},g);el("circle",{cx:p[0],cy:p[1],r:rr,fill:col("--here"),stroke:col("--ink"),"stroke-width":2.6*k},g);el("circle",{cx:p[0],cy:p[1],r:rr*.38,fill:col("--stn")},g);if(s.pages)el("circle",{cx:p[0],cy:p[1],r:rr+4.5*k,fill:"none",stroke:col("--teal"),"stroke-width":2*k,"stroke-dasharray":`${3*k} ${2.5*k}`},g);hereTag(p,rr,k,gT,obst,labels);obst.push({x0:p[0]-rr,y0:p[1]-rr,x1:p[0]+rr,y1:p[1]+rr,dim});labels.push(...labelCands(id,s,p,rr/k,k,dim,onF));continue}
     el("circle",{cx:p[0],cy:p[1],r,fill:col("--stn"),stroke:sel===id?col("--focus"):s.closed?col("--gray"):col("--ink"),"stroke-width":(s.hub||s.xfer||inter?3.5:2.6)*k,"stroke-dasharray":s.closed?`${2*k} ${2.5*k}`:"none"},g);
     if(s.pages)el("circle",{cx:p[0],cy:p[1],r:r+4.5*k,fill:"none",stroke:col("--teal"),"stroke-width":2*k,"stroke-dasharray":`${3*k} ${2.5*k}`},g);
     if(sel===id)el("circle",{cx:p[0],cy:p[1],r:r+5*k,fill:"none",stroke:col("--focus"),"stroke-width":2.5*k},g);
@@ -309,7 +332,7 @@ function render(){
   // place labels by priority, skipping any that collide
   const vx0=vb.x-40*k,vy0=vb.y-40*k,vx1=vb.x+vb.w+40*k,vy1=vb.y+vb.h+40*k;
   labels.sort((a,b)=>b.pri-a.pri);
-  const placed=[];
+  const placed=[...hereBoxes];hereBoxes=[];
   const overview=k>2.2;
   const ov=(a,b)=>!(a.x1<b.x0||a.x0>b.x1||a.y1<b.y0||a.y0>b.y1);
   for(const lb of labels){
@@ -356,7 +379,7 @@ function drawMini(){
   mini.toggleAttribute("hidden",full);if(full)return;
   mini.setAttribute("width",Wf);mini.setAttribute("height",H);mini.setAttribute("viewBox",`${B.x0-pad} ${B.y0-pad} ${bw} ${bh}`);
   mini.innerHTML="";const sw=bw/Wf;
-  L.forEach(l=>l.b.forEach(br=>el("path",{d:"M"+pts(br).map(p=>p.join(" ")).join(" L"),fill:"none",stroke:col(l.c),"stroke-width":2.2*sw,"stroke-linecap":"round"},mini)));
+  L.forEach(l=>BR(l).forEach(br=>el("path",{d:"M"+pts(br).map(p=>p.join(" ")).join(" L"),fill:"none",stroke:col(l.c),"stroke-width":2.2*sw,"stroke-linecap":"round"},mini)));
   el("rect",{x:vb.x,y:vb.y,width:vb.w,height:vb.h,fill:col("--ink"),"fill-opacity":.08,stroke:col("--ink"),"stroke-width":1.5*sw,rx:3*sw},mini);
 }
 mini.addEventListener("click",e=>{const r=mini.getBoundingClientRect(),v=mini.viewBox.baseVal;const x=v.x+(e.clientX-r.left)/r.width*v.width,y=v.y+(e.clientY-r.top)/r.height*v.height;animateTo(x,y,kNow())});
@@ -399,8 +422,8 @@ function openStation(id,mode){
   sheet.className="sheet "+(mob?"bottom":"float")+(pinned?" pinned":"");
   sheet.innerHTML=`<div class="grab"><span></span></div><div class="media">${th?`<img class="img" src="${th}" alt="${s.n}" onerror="this.outerHTML='<div class=noimg>Image unavailable</div>'">`:`<div class="noimg">No featured image</div>`}<button class="x" aria-label="Close">×</button></div>
    <div class="body"><div class="chips">${linesAt(id).map(l=>`<button class="chip" data-ride="${l.id}" aria-pressed="${l.id===ride}"><i style="background:var(${l.c})"></i>${l.n}</button>`).join("")}</div>
-   <b>${s.n}${s.closed?" (closed)":""}</b><span class="u">${s.u.replace("https://","").replace(/\/$/,"")}</span>
-   <div class="row2"><a class="go" href="${s.u}" target="_blank" rel="noopener">Visit page ↗</a></div>
+   ${s.here?`<span class="youhere">You are here</span>`:""}<b>${s.n}${s.closed?" (closed)":""}</b><span class="u">${s.u.replace("https://","").replace(/\/$/,"")}</span>
+   <div class="row2"><a class="go" href="${s.u}" target="_blank" rel="noopener">Visit page ↗</a>${s.live?`<a class="go alt" href="${s.live}" target="_blank" rel="noopener">Live site ↗</a>`:""}</div>
    <div class="ride" aria-label="Ride the ${ln.n} line"><button data-go="${prev||""}" ${prev?"":"disabled"}>← ${prev?S[prev].n:"End of line"}<span>${ln.n} line</span></button><button data-go="${next||""}" ${next?"":"disabled"}>${next?S[next].n:"End of line"} →<span>${ln.n} line</span></button></div></div>`;
   sheet.hidden=false;
   sheet.querySelector(".x").onclick=()=>hideSheet();
@@ -437,7 +460,7 @@ function setFollow(id){
   const l=L.find(x=>x.id===id);
   followEl.innerHTML=`<i style="background:var(${l.c})"></i>${l.n} line<button type="button">Done</button>`;followEl.hidden=false;
   followEl.querySelector("button").onclick=()=>{setFollow(null);if(!panel.hidden)drawPanel()};
-  let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;l.b.forEach(br=>pts(br).forEach(p=>{x0=Math.min(x0,p[0]);y0=Math.min(y0,p[1]);x1=Math.max(x1,p[0]);y1=Math.max(y1,p[1])}));
+  let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;BR(l).forEach(br=>pts(br).forEach(p=>{x0=Math.min(x0,p[0]);y0=Math.min(y0,p[1]);x1=Math.max(x1,p[0]);y1=Math.max(y1,p[1])}));
   hideSheet(true);animateBox(x0,y0,x1,y1);
 }
 

@@ -143,10 +143,15 @@
 
   function fit(el) {
     if (el.hasAttribute("data-contained")) return;
-    el.style.marginLeft = "0"; el.style.width = "auto";
+    var st = el.style;
+    // Block themes center and cap direct children with !important rules, so override with !important too.
+    st.setProperty("max-width", "none", "important");
+    st.setProperty("margin-right", "0", "important");
+    st.setProperty("margin-left", "0", "important");
+    st.setProperty("width", "auto", "important");
     var r = el.getBoundingClientRect();
-    el.style.marginLeft = (-r.left) + "px";
-    el.style.width = document.documentElement.clientWidth + "px";
+    st.setProperty("margin-left", (-r.left) + "px", "important");
+    st.setProperty("width", document.documentElement.clientWidth + "px", "important");
   }
 
   function mount(el) {

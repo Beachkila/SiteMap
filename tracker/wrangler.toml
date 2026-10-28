@@ -1,0 +1,13 @@
+name = "sweta-tracker"
+main = "worker.js"
+compatibility_date = "2024-11-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "sweta"
+database_id = "REPLACE_WITH_DATABASE_ID"
+
+[triggers]
+crons = ["17 4 * * *"]
+
+# Secrets (set with `wrangler secret put NAME`): SALT, READ_TOKEN, ACCESS_TEAM, ACCESS_AUD, ALLOWED_EMAILS

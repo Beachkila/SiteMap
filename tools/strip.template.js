@@ -4,6 +4,41 @@
   "use strict";
   var DATA = /*DATA*/null;
   var MAP_URL = "https://beachkila.github.io/SiteMap/";
+  var TRACK = /*TRACK*/""; // Rider counting endpoint. Empty = off.
+
+  // ---- rider counting: anonymous browser ID, handed along links the strip builds ----
+  var RID = "";
+  var OPTOUT = false;
+  try { OPTOUT = navigator.doNotTrack === "1" || window.doNotTrack === "1" || navigator.globalPrivacyControl === true; } catch (e) {}
+  function newId() {
+    var a = new Uint8Array(16), s = "";
+    (window.crypto || window.msCrypto).getRandomValues(a);
+    for (var i = 0; i < a.length; i++) s += (a[i] % 36).toString(36);
+    return s;
+  }
+  (function () {
+    if (!TRACK || OPTOUT) return;
+    try {
+      var q = new URLSearchParams(location.search), h = q.get("swt");
+      if (h && /^[a-z0-9]{8,32}$/.test(h)) {
+        localStorage.setItem("swt_rid", h);
+        q.delete("swt");
+        var qs = q.toString();
+        history.replaceState(history.state, "", location.pathname + (qs ? "?" + qs : "") + location.hash);
+      }
+      RID = localStorage.getItem("swt_rid") || "";
+      if (!/^[a-z0-9]{8,32}$/.test(RID)) { RID = newId(); localStorage.setItem("swt_rid", RID); }
+    } catch (e) { RID = ""; }
+  })();
+  function hand(u) { return RID ? u + (u.indexOf("?") > -1 ? "&" : "?") + "swt=" + RID : u; }
+  function track(type, stop, to) {
+    if (!TRACK || OPTOUT || !RID) return;
+    try {
+      var body = JSON.stringify({ t: type, s: stop || "", o: to || "", r: RID, h: location.hostname, p: location.pathname, k: "strip" });
+      if (navigator.sendBeacon && navigator.sendBeacon(TRACK + "/hit", new Blob([body], { type: "text/plain" }))) return;
+      fetch(TRACK + "/hit", { method: "POST", body: body, keepalive: true, mode: "cors", headers: { "content-type": "text/plain" } }).catch(function () {});
+    } catch (e) {}
+  }
   var S = DATA.stations, LINES = DATA.lines;
 
   function norm(u) {
@@ -45,7 +80,7 @@
   }
 
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
-  function a(id, cls) { return '<a class="' + (cls || "") + '" href="' + esc(S[id].u) + '">' + esc(S[id].n) + "</a>"; }
+  function a(id, cls) { return '<a class="' + (cls || "") + '" data-to="' + id + '" href="' + esc(hand(S[id].u)) + '">' + esc(S[id].n) + "</a>"; }
   function dot(l) { return '<i class="ld" style="background:' + l.c + '"></i>'; }
   function lineChip(l) { return '<span class="chip">' + dot(l) + esc(l.n) + "</span>"; }
 
@@ -70,7 +105,7 @@
     ".st.cur .dot{box-shadow:0 0 0 0 rgba(255,255,255,.55);animation:ping 2.4s ease-out infinite}",
     "@keyframes ping{70%{box-shadow:0 0 0 9px rgba(255,255,255,0)}100%{box-shadow:0 0 0 0 rgba(255,255,255,0)}}",
     ".more{position:absolute;top:8px;color:#888;font-size:13px;letter-spacing:2px}",
-    ".msg{margin-top:6px;border-top:1px solid #2c2d30;padding-top:7px;overflow:hidden;font-size:12px;color:#ddd}",
+    ".msg{margin-top:6px;border-top:1px solid #2c2d30;padding-top:7px;font-size:12px;color:#ddd;display:flex;align-items:center;gap:14px}",".mqw{flex:1;min-width:0;overflow:hidden}",".priv{flex:none;color:#8d8f94;font:11px Arial;text-decoration:underline;text-underline-offset:2px;padding:4px 0}",".priv:hover,.priv:focus{color:#fff}",
     ".mq{display:flex;gap:0;white-space:nowrap;width:max-content;align-items:center}",
     ".mq .grp{display:flex;align-items:center;gap:9px;padding-right:36px}",
     ".mq b{color:#fff}",
@@ -85,7 +120,7 @@
     ".go:hover .mq{animation-play-state:paused}",
     "@keyframes go{to{transform:translateX(-50%)}}",
     "@media (prefers-reduced-motion:reduce){.go .mq{animation:none;width:auto;flex-wrap:wrap;white-space:normal}.go .grp+.grp{display:none}.st.cur .dot{animation:none}}",
-    ".narrow .lname{font-size:11px}.narrow .in{padding:0 14px}.narrow .track{margin:2px 38px 0;height:58px}.narrow .lab{font-size:11px;top:32px;padding:6px 0}.narrow .msg{font-size:13px}.narrow .mq{width:auto;white-space:normal;flex-wrap:wrap}.narrow .mq .grp{flex-wrap:wrap;gap:6px 9px;padding-right:0}.narrow .chips a{padding:8px 12px;font-size:13px}.wide .lab{font-size:12px}.wide .lname{font-size:12px}.wide .msg{font-size:13px}"
+    ".narrow .lname{font-size:11px}.narrow .in{padding:0 14px}.narrow .track{margin:2px 38px 0;height:58px}.narrow .lab{font-size:11px;top:32px;padding:6px 0}.narrow .msg{font-size:13px;flex-wrap:wrap;gap:2px}.narrow .mqw{flex:1 1 100%}.narrow .priv{margin-left:auto;padding:8px 0 2px}.narrow .mq{width:auto;white-space:normal;flex-wrap:wrap}.narrow .mq .grp{flex-wrap:wrap;gap:6px 9px;padding-right:0}.narrow .chips a{padding:8px 12px;font-size:13px}.wide .lab{font-size:12px}.wide .lname{font-size:12px}.wide .msg{font-size:13px}"
   ].join("");
 
   function windowOf(seq, i, size) {
@@ -104,10 +139,10 @@
     var here = S[id];
 
     if (p.hub) {
-      html = '<div class="row"><div class="badge" style="background:#E3242B">S</div><div class="lname">' + esc(here.n) + '</div><span class="sp"></span><a class="map" href="' + MAP_URL + '">MAP</a></div>' +
+      html = '<div class="row"><div class="badge" style="background:#E3242B">S</div><div class="lname">' + esc(here.n) + '</div><span class="sp"></span><a class="map" data-to="map" href="' + esc(hand(MAP_URL)) + '">MAP</a></div>' +
         '<div class="chips">' + p.lines.map(function (l) {
           var first = l.b[0].filter(function (x) { return x !== id && S[x]; })[0];
-          return '<a href="' + esc(S[first].u) + '">' + dot(l) + esc(l.n) + "</a>";
+          return '<a data-to="' + first + '" href="' + esc(hand(S[first].u)) + '">' + dot(l) + esc(l.n) + "</a>";
         }).join("") + "</div>";
       msg = '<span class="tag">YOU ARE HERE</span><b>' + esc(here.n) + '</b><span>\u00b7</span><span>Hub station. Pick a line to ride.</span>';
     } else {
@@ -123,7 +158,7 @@
       }).join("");
       var more = (win.s > 0 ? '<span class="more" style="left:-26px">\u2026</span>' : "") + (win.e < seq.length ? '<span class="more" style="right:-26px">\u2026</span>' : "");
       var light = m.line.c === "#F2BF00";
-      html = '<div class="row"><div class="badge" style="background:' + m.line.c + ";color:" + (light ? "#121314" : "#fff") + '">' + esc(m.line.k) + '</div><div class="lname">' + esc(m.line.n) + ' line</div><span class="sp"></span><a class="map" href="' + MAP_URL + '">MAP</a></div>' +
+      html = '<div class="row"><div class="badge" style="background:' + m.line.c + ";color:" + (light ? "#121314" : "#fff") + '">' + esc(m.line.k) + '</div><div class="lname">' + esc(m.line.n) + ' line</div><span class="sp"></span><a class="map" data-to="map" href="' + esc(hand(MAP_URL)) + '">MAP</a></div>' +
         '<div class="track" style="--lw:' + lw + 'px"><div class="bar" style="background:' + m.line.c + '"></div>' + stops + more + "</div>";
       var next = seq[i + 1];
       msg = '<span class="tag">' + (p.transfers.length ? "TRANSFER" : "YOU ARE HERE") + "</span>" +
@@ -133,9 +168,16 @@
         (p.transfers.length ? "<span>\u00b7</span><span>Change here for " + p.transfers.map(function (l) { return "<b>" + esc(l.n) + "</b>"; }).join(", ") + "</span>" : "");
     }
     root.innerHTML = "<style>" + CSS + '</style><div class="' + (host.hasAttribute("data-contained") ? "contained " : "") + '"><div class="tk' + (narrow ? " narrow" : wide ? " wide" : "") + '" role="navigation" aria-label="Station strip"><div class="in">' + html +
-      '<div class="msg"><div class="mq"><div class="grp">' + msg + "</div></div></div></div></div></div>";
+      '<div class="msg"><div class="mqw"><div class="mq"><div class="grp">' + msg + '</div></div></div><a class="priv" data-to="privacy" href="' + esc(hand(MAP_URL + "?privacy=1")) + '">Privacy</a></div></div></div></div>';
 
-    var box = root.querySelector(".msg"), mq = root.querySelector(".mq");
+    if (!root._swt) {
+      root._swt = 1;
+      root.addEventListener("click", function (ev) {
+        var t = ev.target && ev.target.closest ? ev.target.closest("a") : null;
+        if (t) track("click", id, t.getAttribute("data-to") || "");
+      });
+    }
+    var box = root.querySelector(".mqw"), mq = root.querySelector(".mq");
     if (!narrow && mq.scrollWidth > box.clientWidth + 2) {
       var g = mq.firstChild.cloneNode(true);
       g.setAttribute("aria-hidden", "true");
@@ -163,6 +205,7 @@
     if (!id || !S[id]) id = byUrl[norm(location.href)];
     if (!id) { el.style.display = "none"; return; }
     fit(el); render(el, id);
+    track("view", id, "");
     var tm;
     window.addEventListener("resize", function () {
       clearTimeout(tm);

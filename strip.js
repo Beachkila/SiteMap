@@ -4,6 +4,41 @@
   "use strict";
   var DATA = {"stations":{"SW":{"n":"Studio Wetware","u":"https://studiowetware.com/"},"about":{"n":"About Beach","u":"https://studiowetware.com/aboutbeach/"},"netpage":{"n":"Network page","u":"https://studiowetware.com/network/"},"solat":{"n":"SoLaT negatives","u":"https://studiowetware.com/solat-digital-negatives/"},"cmyk":{"n":"CMYK for UV","u":"https://studiowetware.com/cmyk/"},"sunprint":{"n":"Sunprint UVI","u":"https://studiowetware.com/sunprint/"},"enlarger":{"n":"Negative enlarger","u":"https://studiowetware.com/negative-enlarger/"},"NET":{"n":"The Cyanotype Network","u":"https://network.studiowetware.com/","a":["https://board.studiowetware.com/p/the-cyanotype-network/"]},"SMW":{"n":"Small Works","u":"https://smallworks.studiowetware.com/"},"gitbeach":{"n":"GitBeach","u":"https://studiowetware.com/gitbeach/"},"picam":{"n":"Pi-Cam-IR-A","u":"https://studiowetware.com/pi-cam-ir-a/","a":["https://board.studiowetware.com/p/pi-cam-ir-a/"]},"atlas":{"n":"Atlas","u":"https://studiowetware.com/atlas/","a":["https://board.studiowetware.com/p/atlas/"]},"blackbox":{"n":"Black Box","u":"https://studiowetware.com/black-box/","a":["https://board.studiowetware.com/p/black-box/"]},"bucke":{"n":"Buck-E","u":"https://studiowetware.com/buck-e-musical-cipher/","a":["https://board.studiowetware.com/p/buck-e/"]},"pender":{"n":"PENDER Studios","u":"https://studiowetware.com/pender-studios/","a":["https://board.studiowetware.com/p/pender/"]},"bang":{"n":"Bang!","u":"https://studiowetware.com/bang/","a":["https://board.studiowetware.com/p/bang/"]},"potholes":{"n":"Adopt-a-Pothole","u":"https://studiowetware.com/potholes/"},"planes":{"n":"Plane Spotter","u":"https://studiowetware.com/plane-spotter/","a":["https://board.studiowetware.com/p/plane-spotter/"]},"githoods":{"n":"GitHoods","u":"https://studiowetware.com/githoods/","a":["https://board.studiowetware.com/p/githoods/","https://beachkila.github.io/GitHoods/"]},"board":{"n":"Project Board","u":"https://board.studiowetware.com/"},"mediums":{"n":"Mediums","u":"https://board.studiowetware.com/spectra/"},"stack":{"n":"Stack","u":"https://board.studiowetware.com/skills/"},"pimaker":{"n":"Pi-Maker","u":"https://beachkila.github.io/Pi-Maker/","a":["https://board.studiowetware.com/p/the-sandbox/"]},"BSG":{"n":"Beach Self-Grading","u":"https://beachselfgrading.com/","a":["https://board.studiowetware.com/p/beach-self-grading/"]},"create":{"n":"Create a Beach-Tag","u":"https://tag.beachselfgrading.com/"},"bsggal":{"n":"Beach-Tag Gallery","u":"https://beachselfgrading.com/gallery/"},"templates":{"n":"Printable templates","u":"https://beachselfgrading.com/templates/"},"whatis":{"n":"What are Beach-Tags?","u":"https://beachselfgrading.com/what-are-beach-tags/"},"contact":{"n":"Tip / Contact","u":"https://beachselfgrading.com/contact-me/"},"galleries":{"n":"All galleries","u":"https://studiowetware.com/galleries/"},"cyanogal":{"n":"Cyanotypes","u":"https://studiowetware.com/cyanotype-gallery/","a":["https://board.studiowetware.com/p/cyanotype/"]},"lino":{"n":"Linocuts","u":"https://studiowetware.com/linocut-gallery/","a":["https://board.studiowetware.com/p/linocuts/"]},"pendergal":{"n":"PENDER plotter","u":"https://studiowetware.com/pender-3d-gallery/","a":["https://board.studiowetware.com/p/pender-art/"]},"irgal":{"n":"IR photography","u":"https://studiowetware.com/infrared-photography-gallery/","a":["https://board.studiowetware.com/p/infrared-photography/"]},"neggal":{"n":"Negatives","u":"https://studiowetware.com/negatives-gallery/"},"digigal":{"n":"Digital","u":"https://studiowetware.com/digital-gallery/"},"ui":{"n":"Interfaces","u":"https://studiowetware.com/program-gallery/"},"undisc":{"n":"Undisciplined","u":"https://studiowetware.com/undisciplined-gallery/"},"process":{"n":"Cyanotype process","u":"https://studiowetware.com/how-cyanotype-works/"},"light":{"n":"Light","u":"https://studiowetware.com/light/"},"salt":{"n":"Salt","u":"https://studiowetware.com/salt/"},"thinkneg":{"n":"Think Negative","u":"https://studiowetware.com/think-negative/"},"seepos":{"n":"See Positive","u":"https://studiowetware.com/see-positive/"},"sbs":{"n":"Step-by-step","u":"https://studiowetware.com/step-by-step/"},"step1":{"n":"Step 1 \u00b7 Negative","u":"https://studiowetware.com/step-1/"},"step2":{"n":"Step 2 \u00b7 Preparation","u":"https://studiowetware.com/step-2/"},"step3":{"n":"Step 3 \u00b7 UV exposure","u":"https://studiowetware.com/step-3/"},"step4":{"n":"Step 4 \u00b7 Wash","u":"https://studiowetware.com/step-4/"},"bp-ai-station":{"n":"AI Station","u":"https://board.studiowetware.com/p/ai-station/"},"bp-dock-to-stock":{"n":"Dock to Stock","u":"https://board.studiowetware.com/p/dock-to-stock/"},"bp-beelab":{"n":"BeeLab","u":"https://board.studiowetware.com/p/beelab/"},"bp-coolpix-ir":{"n":"Coolpix IR conversion","u":"https://board.studiowetware.com/p/coolpix-ir/"},"bp-droneaware-node":{"n":"DroneAware node","u":"https://board.studiowetware.com/p/droneaware-node/"},"bp-fire-hd8-linux-pad":{"n":"Fire HD 8 Linux pad","u":"https://board.studiowetware.com/p/fire-hd8-linux-pad/"},"bp-ink-drawer":{"n":"Ink Drawer","u":"https://board.studiowetware.com/p/ink-drawer/"},"bp-redditprofiler":{"n":"redditprofiler","u":"https://board.studiowetware.com/p/redditprofiler/"},"bp-snake-lcd-pi":{"n":"Snake LCD Pi","u":"https://board.studiowetware.com/p/snake-lcd-pi/"},"bp-ir-dev":{"n":"IR DEV","u":"https://board.studiowetware.com/p/ir-dev/","a":["https://beachkila.github.io/IR/"]},"bp-nmap-subway":{"n":"nmap subway","u":"https://board.studiowetware.com/p/nmap-subway/"},"here":{"n":"S.We.T.A. Map","u":"https://board.studiowetware.com/p/sweta-map/","a":["https://beachkila.github.io/SiteMap/"]}},"lines":[{"id":"red","n":"Cyanotype Process","k":"P","c":"#E3242B","dash":0,"b":[["SW","process","light","salt","thinkneg","seepos"]]},{"id":"orange","n":"Cyanotype Step-by-step","k":"S","c":"#F28C28","dash":0,"b":[["SW","sbs","step1","step2","step3","step4"]]},{"id":"blue","n":"The Cyanotype Network","k":"N","c":"#0072CE","dash":0,"b":[["SW","netpage","solat","cmyk","sunprint","enlarger","NET"]]},{"id":"teal","n":"Small Works","k":"S","c":"#00A19C","dash":0,"b":[["SW","SMW"]]},{"id":"green","n":"Gallery","k":"G","c":"#00964A","dash":0,"b":[["SW","galleries","cyanogal","lino","pendergal","irgal","neggal","digigal","ui","undisc"]]},{"id":"purple","n":"GitBeach","k":"G","c":"#7B2D8E","dash":0,"b":[["SW","gitbeach","picam","atlas","blackbox","bucke","pender","bang","potholes","planes","githoods"]]},{"id":"brown","n":"Board","k":"B","c":"#B07A45","dash":0,"b":[["gitbeach","board","mediums","stack"],["board","here","bp-ai-station","bp-dock-to-stock","bp-beelab","bp-coolpix-ir","bp-droneaware-node","bp-fire-hd8-linux-pad","bp-ink-drawer","bp-redditprofiler","bp-snake-lcd-pi","bp-ir-dev","bp-nmap-subway"]]},{"id":"pages","n":"GitHub Pages","k":"G","c":"#00A19C","dash":1,"b":[["stack","pimaker"]]},{"id":"yellow","n":"Beach Self-Grading","k":"B","c":"#F2BF00","dash":0,"b":[["SW","BSG","create","bsggal","templates"],["BSG","whatis","contact"]]},{"id":"gray","n":"About","k":"A","c":"#8A8D91","dash":0,"b":[["SW","about"]]}]};
   var MAP_URL = "https://beachkila.github.io/SiteMap/";
+  var TRACK = "https://sweta-tracker.kbmallonee.workers.dev"; // Rider counting endpoint. Empty = off.
+
+  // ---- rider counting: anonymous browser ID, handed along links the strip builds ----
+  var RID = "";
+  var OPTOUT = false;
+  try { OPTOUT = navigator.doNotTrack === "1" || window.doNotTrack === "1" || navigator.globalPrivacyControl === true; } catch (e) {}
+  function newId() {
+    var a = new Uint8Array(16), s = "";
+    (window.crypto || window.msCrypto).getRandomValues(a);
+    for (var i = 0; i < a.length; i++) s += (a[i] % 36).toString(36);
+    return s;
+  }
+  (function () {
+    if (!TRACK || OPTOUT) return;
+    try {
+      var q = new URLSearchParams(location.search), h = q.get("swt");
+      if (h && /^[a-z0-9]{8,32}$/.test(h)) {
+        localStorage.setItem("swt_rid", h);
+        q.delete("swt");
+        var qs = q.toString();
+        history.replaceState(history.state, "", location.pathname + (qs ? "?" + qs : "") + location.hash);
+      }
+      RID = localStorage.getItem("swt_rid") || "";
+      if (!/^[a-z0-9]{8,32}$/.test(RID)) { RID = newId(); localStorage.setItem("swt_rid", RID); }
+    } catch (e) { RID = ""; }
+  })();
+  function hand(u) { return RID ? u + (u.indexOf("?") > -1 ? "&" : "?") + "swt=" + RID : u; }
+  function track(type, stop, to) {
+    if (!TRACK || OPTOUT || !RID) return;
+    try {
+      var body = JSON.stringify({ t: type, s: stop || "", o: to || "", r: RID, h: location.hostname, p: location.pathname, k: "strip" });
+      if (navigator.sendBeacon && navigator.sendBeacon(TRACK + "/hit", new Blob([body], { type: "text/plain" }))) return;
+      fetch(TRACK + "/hit", { method: "POST", body: body, keepalive: true, mode: "cors", headers: { "content-type": "text/plain" } }).catch(function () {});
+    } catch (e) {}
+  }
   var S = DATA.stations, LINES = DATA.lines;
 
   function norm(u) {
@@ -45,7 +80,7 @@
   }
 
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
-  function a(id, cls) { return '<a class="' + (cls || "") + '" href="' + esc(S[id].u) + '">' + esc(S[id].n) + "</a>"; }
+  function a(id, cls) { return '<a class="' + (cls || "") + '" data-to="' + id + '" href="' + esc(hand(S[id].u)) + '">' + esc(S[id].n) + "</a>"; }
   function dot(l) { return '<i class="ld" style="background:' + l.c + '"></i>'; }
   function lineChip(l) { return '<span class="chip">' + dot(l) + esc(l.n) + "</span>"; }
 
@@ -70,7 +105,7 @@
     ".st.cur .dot{box-shadow:0 0 0 0 rgba(255,255,255,.55);animation:ping 2.4s ease-out infinite}",
     "@keyframes ping{70%{box-shadow:0 0 0 9px rgba(255,255,255,0)}100%{box-shadow:0 0 0 0 rgba(255,255,255,0)}}",
     ".more{position:absolute;top:8px;color:#888;font-size:13px;letter-spacing:2px}",
-    ".msg{margin-top:6px;border-top:1px solid #2c2d30;padding-top:7px;overflow:hidden;font-size:12px;color:#ddd}",
+    ".msg{margin-top:6px;border-top:1px solid #2c2d30;padding-top:7px;font-size:12px;color:#ddd;display:flex;align-items:center;gap:14px}",".mqw{flex:1;min-width:0;overflow:hidden}",".priv{flex:none;color:#8d8f94;font:11px Arial;text-decoration:underline;text-underline-offset:2px;padding:4px 0}",".priv:hover,.priv:focus{color:#fff}",
     ".mq{display:flex;gap:0;white-space:nowrap;width:max-content;align-items:center}",
     ".mq .grp{display:flex;align-items:center;gap:9px;padding-right:36px}",
     ".mq b{color:#fff}",
@@ -85,7 +120,7 @@
     ".go:hover .mq{animation-play-state:paused}",
     "@keyframes go{to{transform:translateX(-50%)}}",
     "@media (prefers-reduced-motion:reduce){.go .mq{animation:none;width:auto;flex-wrap:wrap;white-space:normal}.go .grp+.grp{display:none}.st.cur .dot{animation:none}}",
-    ".narrow .lname{font-size:11px}.narrow .in{padding:0 14px}.narrow .track{margin:2px 38px 0;height:58px}.narrow .lab{font-size:11px;top:32px;padding:6px 0}.narrow .msg{font-size:13px}.narrow .mq{width:auto;white-space:normal;flex-wrap:wrap}.narrow .mq .grp{flex-wrap:wrap;gap:6px 9px;padding-right:0}.narrow .chips a{padding:8px 12px;font-size:13px}.wide .lab{font-size:12px}.wide .lname{font-size:12px}.wide .msg{font-size:13px}"
+    ".narrow .lname{font-size:11px}.narrow .in{padding:0 14px}.narrow .track{margin:2px 38px 0;height:58px}.narrow .lab{font-size:11px;top:32px;padding:6px 0}.narrow .msg{font-size:13px;flex-wrap:wrap;gap:2px}.narrow .mqw{flex:1 1 100%}.narrow .priv{margin-left:auto;padding:8px 0 2px}.narrow .mq{width:auto;white-space:normal;flex-wrap:wrap}.narrow .mq .grp{flex-wrap:wrap;gap:6px 9px;padding-right:0}.narrow .chips a{padding:8px 12px;font-size:13px}.wide .lab{font-size:12px}.wide .lname{font-size:12px}.wide .msg{font-size:13px}"
   ].join("");
 
   function windowOf(seq, i, size) {
@@ -104,10 +139,10 @@
     var here = S[id];
 
     if (p.hub) {
-      html = '<div class="row"><div class="badge" style="background:#E3242B">S</div><div class="lname">' + esc(here.n) + '</div><span class="sp"></span><a class="map" href="' + MAP_URL + '">MAP</a></div>' +
+      html = '<div class="row"><div class="badge" style="background:#E3242B">S</div><div class="lname">' + esc(here.n) + '</div><span class="sp"></span><a class="map" data-to="map" href="' + esc(hand(MAP_URL)) + '">MAP</a></div>' +
         '<div class="chips">' + p.lines.map(function (l) {
           var first = l.b[0].filter(function (x) { return x !== id && S[x]; })[0];
-          return '<a href="' + esc(S[first].u) + '">' + dot(l) + esc(l.n) + "</a>";
+          return '<a data-to="' + first + '" href="' + esc(hand(S[first].u)) + '">' + dot(l) + esc(l.n) + "</a>";
         }).join("") + "</div>";
       msg = '<span class="tag">YOU ARE HERE</span><b>' + esc(here.n) + '</b><span>\u00b7</span><span>Hub station. Pick a line to ride.</span>';
     } else {
@@ -123,7 +158,7 @@
       }).join("");
       var more = (win.s > 0 ? '<span class="more" style="left:-26px">\u2026</span>' : "") + (win.e < seq.length ? '<span class="more" style="right:-26px">\u2026</span>' : "");
       var light = m.line.c === "#F2BF00";
-      html = '<div class="row"><div class="badge" style="background:' + m.line.c + ";color:" + (light ? "#121314" : "#fff") + '">' + esc(m.line.k) + '</div><div class="lname">' + esc(m.line.n) + ' line</div><span class="sp"></span><a class="map" href="' + MAP_URL + '">MAP</a></div>' +
+      html = '<div class="row"><div class="badge" style="background:' + m.line.c + ";color:" + (light ? "#121314" : "#fff") + '">' + esc(m.line.k) + '</div><div class="lname">' + esc(m.line.n) + ' line</div><span class="sp"></span><a class="map" data-to="map" href="' + esc(hand(MAP_URL)) + '">MAP</a></div>' +
         '<div class="track" style="--lw:' + lw + 'px"><div class="bar" style="background:' + m.line.c + '"></div>' + stops + more + "</div>";
       var next = seq[i + 1];
       msg = '<span class="tag">' + (p.transfers.length ? "TRANSFER" : "YOU ARE HERE") + "</span>" +
@@ -133,9 +168,16 @@
         (p.transfers.length ? "<span>\u00b7</span><span>Change here for " + p.transfers.map(function (l) { return "<b>" + esc(l.n) + "</b>"; }).join(", ") + "</span>" : "");
     }
     root.innerHTML = "<style>" + CSS + '</style><div class="' + (host.hasAttribute("data-contained") ? "contained " : "") + '"><div class="tk' + (narrow ? " narrow" : wide ? " wide" : "") + '" role="navigation" aria-label="Station strip"><div class="in">' + html +
-      '<div class="msg"><div class="mq"><div class="grp">' + msg + "</div></div></div></div></div></div>";
+      '<div class="msg"><div class="mqw"><div class="mq"><div class="grp">' + msg + '</div></div></div><a class="priv" data-to="privacy" href="' + esc(hand(MAP_URL + "?privacy=1")) + '">Privacy</a></div></div></div></div>';
 
-    var box = root.querySelector(".msg"), mq = root.querySelector(".mq");
+    if (!root._swt) {
+      root._swt = 1;
+      root.addEventListener("click", function (ev) {
+        var t = ev.target && ev.target.closest ? ev.target.closest("a") : null;
+        if (t) track("click", id, t.getAttribute("data-to") || "");
+      });
+    }
+    var box = root.querySelector(".mqw"), mq = root.querySelector(".mq");
     if (!narrow && mq.scrollWidth > box.clientWidth + 2) {
       var g = mq.firstChild.cloneNode(true);
       g.setAttribute("aria-hidden", "true");
@@ -163,6 +205,7 @@
     if (!id || !S[id]) id = byUrl[norm(location.href)];
     if (!id) { el.style.display = "none"; return; }
     fit(el); render(el, id);
+    track("view", id, "");
     var tm;
     window.addEventListener("resize", function () {
       clearTimeout(tm);

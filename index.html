@@ -123,6 +123,15 @@ svg text{font-family:var(--display)}
   h1{font-size:18px;flex:1}
   .ctrls{top:auto;bottom:12px;transform:none}
 }
+html.embed .bar,html.embed .privlink{display:none}
+.privlink{position:absolute;left:10px;bottom:8px;z-index:3;font-size:11px;color:var(--ink);opacity:.65;background:var(--bg);border:1px solid var(--rule);border-radius:999px;padding:2px 9px;text-decoration:none;cursor:pointer}
+.privlink:hover,.privlink:focus-visible{opacity:1}
+.pv{position:absolute;inset:0;z-index:8;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.35);padding:16px}
+.pv[hidden]{display:none}
+.pv div{background:var(--bg);color:var(--ink);border:2px solid var(--ink);border-radius:14px;max-width:360px;padding:16px 18px;box-shadow:0 8px 24px var(--shade);font-size:14px;line-height:1.45}
+.pv b{display:block;font-size:16px;margin-bottom:6px}
+.pv p{margin:0 0 8px}
+.pv button{font:inherit;font-weight:700;border:2px solid var(--ink);background:var(--bg);color:var(--ink);border-radius:999px;padding:4px 14px;cursor:pointer}
 </style>
 </head>
 <body>
@@ -142,6 +151,8 @@ svg text{font-family:var(--display)}
       <button class="btn fit" id="fit" aria-label="Show whole map">Fit</button>
     </div>
     <div class="sheet" id="sheet" hidden></div>
+    <a class="privlink" id="privlink" href="?privacy=1">Privacy</a>
+    <div class="pv" id="pv" hidden role="dialog" aria-label="Privacy"><div><b>Privacy</b><p>S.We.T.A. counts anonymous rides between stops. No names or emails, and your IP is never stored.</p><p>Turn on Do Not Track or Global Privacy Control and nothing is counted.</p><button type="button" id="pvx">Close</button></div></div>
     <aside class="panel" id="panel" hidden aria-label="Lines and stations">
       <header>
         <div class="tabs" role="tablist">
@@ -323,6 +334,9 @@ function render(){
     const g=el("g",{class:"stn",tabindex:"0",role:"button","aria-label":s.n,"data-id":id,opacity:dim?.25:1},gS);
     el("circle",{cx:p[0],cy:p[1],r:Math.max(r,24*k),fill:"transparent"},g);
     if(s.here){const rr=9*Math.max(zs,.7)*k;el("circle",{cx:p[0],cy:p[1],r:rr+7*k,fill:col("--here"),"fill-opacity":.18,class:"pulse"},g);el("circle",{cx:p[0],cy:p[1],r:rr,fill:col("--here"),stroke:col("--ink"),"stroke-width":2.6*k},g);el("circle",{cx:p[0],cy:p[1],r:rr*.38,fill:col("--stn")},g);if(s.pages)el("circle",{cx:p[0],cy:p[1],r:rr+4.5*k,fill:"none",stroke:col("--teal"),"stroke-width":2*k,"stroke-dasharray":`${3*k} ${2.5*k}`},g);hereTag(p,rr,k,gT,obst,labels);obst.push({x0:p[0]-rr,y0:p[1]-rr,x1:p[0]+rr,y1:p[1]+rr,dim});labels.push(...labelCands(id,s,p,rr/k,k,dim,onF));continue}
+    if(HEAT){const mx=Math.max(1,...Object.values(HEAT)),v=HEAT[id]||0,f=v/mx;
+      if(v>0){const hr=r+(10+34*Math.sqrt(f))*k*zs;el("circle",{cx:p[0],cy:p[1],r:hr,fill:`hsl(${Math.round(48-48*f)} 95% 52%)`,"fill-opacity":.28+.35*f,class:"heat"},g);
+        el("circle",{cx:p[0],cy:p[1],r:hr*.62,fill:`hsl(${Math.round(48-48*f)} 95% 52%)`,"fill-opacity":.35+.3*f},g)}}
     el("circle",{cx:p[0],cy:p[1],r,fill:col("--stn"),stroke:sel===id?col("--focus"):s.closed?col("--gray"):col("--ink"),"stroke-width":(s.hub||s.xfer||inter?3.5:2.6)*k,"stroke-dasharray":s.closed?`${2*k} ${2.5*k}`:"none"},g);
     if(s.pages)el("circle",{cx:p[0],cy:p[1],r:r+4.5*k,fill:"none",stroke:col("--teal"),"stroke-width":2*k,"stroke-dasharray":`${3*k} ${2.5*k}`},g);
     if(sel===id)el("circle",{cx:p[0],cy:p[1],r:r+5*k,fill:"none",stroke:col("--focus"),"stroke-width":2.5*k},g);
@@ -416,6 +430,7 @@ function centerStation(id){
 const sheetOpenBottom=()=>!sheet.hidden&&sheet.classList.contains("bottom");
 function rideFor(id){if(ride&&ORDER[ride]&&ORDER[ride].includes(id))return ride;if(follow&&ORDER[follow].includes(id))return follow;const ls=realLines(id).filter(l=>l.id!=="gray");return(ls[0]||linesAt(id)[0]).id}
 function openStation(id,mode){
+  if(mode!=="peek"&&(sel!==id||!pinned))track("station",id,"");
   sel=id;const s=S[id];const mob=narrow();pinned=mode!=="peek";ride=rideFor(id);
   const order=ORDER[ride],i=order.indexOf(id),prev=order[i-1],next=order[i+1],ln=L.find(l=>l.id===ride);
   const th=imgURL(s);
@@ -518,6 +533,47 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(!panel.hidden)cl
 document.getElementById("zin").onclick=()=>{zoomBy(.75);render()};
 document.getElementById("zout").onclick=()=>{zoomBy(1.33);render()};
 document.getElementById("fit").onclick=()=>{setFollow(null);fitAll()};
+
+// ---------- rider counting (off until an endpoint is set) ----------
+const TRACK_URL="https://sweta-tracker.kbmallonee.workers.dev";
+let RID="",OPTOUT=false,HEAT=null;
+try{OPTOUT=navigator.doNotTrack==="1"||window.doNotTrack==="1"||navigator.globalPrivacyControl===true}catch(e){}
+(function(){
+  if(!TRACK_URL||OPTOUT)return;
+  try{
+    const q=new URLSearchParams(location.search),h=q.get("swt");
+    if(h&&/^[a-z0-9]{8,32}$/.test(h))localStorage.setItem("swt_rid",h);
+    RID=localStorage.getItem("swt_rid")||"";
+    if(!/^[a-z0-9]{8,32}$/.test(RID)){const a=new Uint8Array(16);crypto.getRandomValues(a);RID=[...a].map(v=>(v%36).toString(36)).join("");localStorage.setItem("swt_rid",RID)}
+  }catch(e){RID=""}
+})();
+const hand=u=>RID?u+(u.includes("?")?"&":"?")+"swt="+RID:u;
+function track(t,stop,to){
+  if(!TRACK_URL||OPTOUT||!RID)return;
+  try{
+    const body=JSON.stringify({t,s:stop||"",o:to||"",r:RID,h:location.hostname,p:location.pathname,k:"map"});
+    if(navigator.sendBeacon&&navigator.sendBeacon(TRACK_URL+"/hit",new Blob([body],{type:"text/plain"})))return;
+    fetch(TRACK_URL+"/hit",{method:"POST",body,keepalive:true,mode:"cors",headers:{"content-type":"text/plain"}}).catch(()=>{});
+  }catch(e){}
+}
+if(new URLSearchParams(location.search).get("embed")==="1")document.documentElement.classList.add("embed");
+// privacy notice
+const pv=document.getElementById("pv");
+const showPrivacy=()=>{pv.hidden=false;document.getElementById("pvx").focus()};
+document.getElementById("privlink").onclick=e=>{e.preventDefault();showPrivacy()};
+document.getElementById("pvx").onclick=()=>{pv.hidden=true};
+pv.addEventListener("click",e=>{if(e.target===pv)pv.hidden=true});
+// links out of the map carry the rider ID and are counted
+sheet.addEventListener("click",e=>{const a=e.target.closest("a.go");if(!a)return;
+  track("click","map",sel||"");
+  if(RID&&a.href&&!/[?&]swt=/.test(a.href))a.href=hand(a.href)});
+// heat overlay: the private dashboard sends counts to this page when it embeds it
+addEventListener("message",e=>{
+  const d=e.data;if(!d||d.swt!=="heat"||e.source!==parent||parent===window)return;
+  HEAT=d.data&&Object.keys(d.data).length?d.data:null;render();
+});
+if(new URLSearchParams(location.search).get("privacy")==="1")showPrivacy();
+track("view","map","");
 
 // ---------- start ----------
 function startView(){

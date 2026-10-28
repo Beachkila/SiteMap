@@ -119,7 +119,7 @@
       }).join("");
       var more = (win.s > 0 ? '<span class="more" style="left:-26px">\u2026</span>' : "") + (win.e < seq.length ? '<span class="more" style="right:-26px">\u2026</span>' : "");
       var light = m.line.c === "#F2BF00";
-      html = '<div class="row"><div class="badge" style="background:' + m.line.c + ";color:" + (light ? "#121314" : "#fff") + '">' + esc(m.line.n[0]) + '</div><div class="lname">' + esc(m.line.n) + ' line</div><span class="sp"></span><a class="map" href="' + MAP_URL + '">MAP</a></div>' +
+      html = '<div class="row"><div class="badge" style="background:' + m.line.c + ";color:" + (light ? "#121314" : "#fff") + '">' + esc(m.line.k) + '</div><div class="lname">' + esc(m.line.n) + ' line</div><span class="sp"></span><a class="map" href="' + MAP_URL + '">MAP</a></div>' +
         '<div class="track" style="--lw:' + lw + 'px"><div class="bar" style="background:' + m.line.c + '"></div>' + stops + more + "</div>";
       var next = seq[i + 1];
       msg = '<span class="tag">' + (p.transfers.length ? "TRANSFER" : "YOU ARE HERE") + "</span>" +

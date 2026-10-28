@@ -13,7 +13,8 @@ const code = html.slice(start, end) + "\nreturn {S,L};";
 const { S, L } = new Function(code)();
 const stations = {};
 for (const [id, s] of Object.entries(S)) stations[id] = { n: s.n, u: s.u };
-const lines = L.map(l => ({ id: l.id, n: l.n, c: vars[l.c.replace("--", "")], dash: l.dash ? 1 : 0,
+const KEY = { red: "P", orange: "S", blue: "N", teal: "S", green: "G", purple: "G", brown: "B", yellow: "B", gray: "A" };
+const lines = L.map(l => ({ id: l.id, n: l.n, k: KEY[l.id] || l.n[0], c: vars[l.c.replace("--", "")], dash: l.dash ? 1 : 0,
   b: l.b.map(br => br.filter(x => !x.startsWith("@") && !x.startsWith("~"))) }));
 const out = fs.readFileSync(path.join(__dirname, "strip.template.js"), "utf8")
   .replace("/*DATA*/null", JSON.stringify({ stations, lines }).replace(/[\u0080-\uffff]/g, c => "\\u" + c.charCodeAt(0).toString(16).padStart(4, "0")));

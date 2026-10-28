@@ -13,12 +13,15 @@
     } catch (e) { return ""; }
   }
   var byUrl = {};
-  Object.keys(S).forEach(function (id) { byUrl[norm(S[id].u)] = id; });
+  Object.keys(S).forEach(function (id) {
+    byUrl[norm(S[id].u)] = id;
+    (S[id].a || []).forEach(function (u) { if (!byUrl[norm(u)]) byUrl[norm(u)] = id; });
+  });
 
-  function placements(id) {
+  function placements(id, withDash) {
     var out = [];
     LINES.forEach(function (l, li) {
-      if (l.dash) return;
+      if (l.dash && !withDash) return;
       l.b.forEach(function (br, bi) {
         var i = br.indexOf(id);
         if (i > -1) out.push({ li: li, line: l, bi: bi, seq: br, i: i });
@@ -29,6 +32,7 @@
 
   function plan(id) {
     var ps = placements(id);
+    if (!ps.length) ps = placements(id, true); // stops only on the dashed GitHub Pages line
     if (!ps.length) return null;
     var mid = ps.filter(function (p) { return p.i > 0; });
     var lineIds = {};
@@ -125,7 +129,7 @@
       msg = '<span class="tag">' + (p.transfers.length ? "TRANSFER" : "YOU ARE HERE") + "</span>" +
         (p.transfers.length ? '<span class="chip">' + dot(m.line) + p.transfers.map(dot).join("") + "</span>" : "") +
         "<b>" + esc(here.n) + "</b><span>\u00b7</span>" +
-        (next ? "<span>Next stop: " + a(next) + "</span>" : "<span>Last stop on the " + esc(m.line.n) + " line</span>") +
+        (next ? "<span>Next stop: " + a(next) + "</span>" : "<span>Last stop on " + (/^the /i.test(m.line.n) ? "" : "the ") + esc(m.line.n) + " line</span>") +
         (p.transfers.length ? "<span>\u00b7</span><span>Change here for " + p.transfers.map(function (l) { return "<b>" + esc(l.n) + "</b>"; }).join(", ") + "</span>" : "");
     }
     root.innerHTML = "<style>" + CSS + '</style><div class="' + (host.hasAttribute("data-contained") ? "contained " : "") + '"><div class="tk' + (narrow ? " narrow" : wide ? " wide" : "") + '" role="navigation" aria-label="Station strip"><div class="in">' + html +

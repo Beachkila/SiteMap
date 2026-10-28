@@ -11,8 +11,19 @@ const start = html.indexOf('const SW="https');
 const end = html.indexOf("const LAYOUT");
 const code = html.slice(start, end) + "\nreturn {S,L};";
 const { S, L } = new Function(code)();
+// Extra addresses that show the same stop: a project's board page and its live GitHub Pages site.
+const BOARD = "https://board.studiowetware.com/p/";
+const BOARD_SLUGS = { picam: "pi-cam-ir-a", atlas: "atlas", blackbox: "black-box", bucke: "buck-e", pender: "pender", bang: "bang",
+  planes: "plane-spotter", githoods: "githoods", BSG: "beach-self-grading", NET: "the-cyanotype-network", cyanogal: "cyanotype",
+  lino: "linocuts", pendergal: "pender-art", irgal: "infrared-photography", pimaker: "the-sandbox" };
 const stations = {};
-for (const [id, s] of Object.entries(S)) stations[id] = { n: s.n, u: s.u };
+for (const [id, s] of Object.entries(S)) {
+  stations[id] = { n: s.n, u: s.u };
+  const a = [];
+  if (BOARD_SLUGS[id]) a.push(BOARD + BOARD_SLUGS[id] + "/");
+  if (s.live) a.push(s.live);
+  if (a.length) stations[id].a = a;
+}
 const KEY = { red: "P", orange: "S", blue: "N", teal: "S", green: "G", purple: "G", brown: "B", yellow: "B", gray: "A" };
 const lines = L.map(l => ({ id: l.id, n: l.n, k: KEY[l.id] || l.n[0], c: vars[l.c.replace("--", "")], dash: l.dash ? 1 : 0,
   b: l.b.map(br => br.filter(x => !x.startsWith("@") && !x.startsWith("~"))) }));

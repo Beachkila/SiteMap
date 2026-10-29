@@ -20,7 +20,7 @@ html,body{margin:0}
   --bg:#ffffff; --board:#fbfbf8; --ink:#1b1c1e; --muted:#62656b; --rule:#dcdcd6; --stn:#ffffff; --shade:rgba(20,20,20,.18);
   --display:"Overpass","Helvetica Neue",Arial,sans-serif;
   --mono:"Overpass Mono",ui-monospace,Menlo,monospace;
-  --red:#E3242B; --orange:#F28C28; --yellow:#F2BF00; --green:#00964A; --blue:#0072CE; --purple:#7B2D8E; --brown:#8C5A2B; --teal:#00A19C; --gray:#8A8D91; --focus:#0072CE; --here:#E3242B;
+  --red:#E3242B; --orange:#F28C28; --yellow:#F2BF00; --green:#00964A; --blue:#0072CE; --purple:#7B2D8E; --brown:#8C5A2B; --teal:#00A19C; --pink:#D6459B; --gray:#8A8D91; --focus:#0072CE; --here:#E3242B;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#121314;--board:#17181a;--ink:#ececE8;--muted:#a3a6ab;--rule:#2d2f32;--stn:#17181a;--brown:#B07A45;--shade:rgba(0,0,0,.5);color-scheme:dark}}
 :root[data-theme="dark"]{--bg:#121314;--board:#17181a;--ink:#ececE8;--muted:#a3a6ab;--rule:#2d2f32;--stn:#17181a;--brown:#B07A45;--shade:rgba(0,0,0,.5);color-scheme:dark}
@@ -168,17 +168,26 @@ html.embed .bar,html.embed .privlink{display:none}
 </div>
 
 <script>
-const SW="https://studiowetware.com", BSGU="https://beachselfgrading.com", BRD="https://board.studiowetware.com";
+const SW="https://studiowetware.com", NETU="https://network.studiowetware.com", BSGU="https://beachselfgrading.com", BRD="https://board.studiowetware.com";
 // Stations. img: the page's featured (og:image) path from the crawl; null = none found; "logo" = only the site logo.
 const S={
  SW:{n:"Studio Wetware",u:SW+"/",hub:1,dom:"studiowetware.com",site:"sw",img:null},
  about:{n:"About Beach",u:SW+"/aboutbeach/",site:"sw",img:"i0/2026/07/untitled-235.png"},
- netpage:{n:"Network page",u:SW+"/network/",site:"sw",img:"sw/2026/07/tcn_post.jpg"},
- solat:{n:"SoLaT negatives",u:SW+"/solat-digital-negatives/",site:"sw",img:"i0/2026/08/img_6499.jpg"},
- cmyk:{n:"CMYK for UV",u:SW+"/cmyk/",site:"sw",img:"sw/2026/07/img_6307.png"},
- sunprint:{n:"Sunprint UVI",u:SW+"/sunprint/",site:"sw",img:"i0/2026/07/tcn_sunprint-e1785622534642.jpg"},
- enlarger:{n:"Negative enlarger",u:SW+"/negative-enlarger/",site:"sw",img:"i0/2026/09/Screenshot-2026-09-27-154049.png"},
+ netpage:{n:"The Network (write-up)",u:SW+"/network/",site:"sw",img:"sw/2026/07/tcn_post.jpg"},
+ solat:{n:"SoLaT (write-up)",u:SW+"/solat-digital-negatives/",site:"sw",img:"i0/2026/08/img_6499.jpg"},
+ cmyk:{n:"CMYK for UV (write-up)",u:SW+"/cmyk/",site:"sw",img:"sw/2026/07/img_6307.png"},
+ sunprint:{n:"Sunprint UVI (write-up)",u:SW+"/sunprint/",site:"sw",img:"i0/2026/07/tcn_sunprint-e1785622534642.jpg"},
+ enlarger:{n:"Enlarger (write-up)",u:SW+"/negative-enlarger/",site:"sw",img:"i0/2026/09/Screenshot-2026-09-27-154049.png"},
  NET:{n:"The Cyanotype Network",u:"https://network.studiowetware.com/",hub:1,dom:"network.studiowetware.com",site:"net",img:null},
+ n_feed:{n:"Feed",u:NETU+"/#/feed",site:"net",img:null},
+ n_neg:{n:"Negatives (tool)",u:NETU+"/#/negatives",site:"net",img:null},
+ n_cmyk:{n:"CMYK (tool)",u:NETU+"/#/cmyk",site:"net",img:null},
+ n_enl:{n:"Enlarger (tool)",u:NETU+"/#/enlarger",site:"net",img:null},
+ n_forecast:{n:"UV Forecast (tool)",u:NETU+"/#/forecast",site:"net",img:null},
+ n_bench:{n:"Gallery Bench",u:NETU+"/#/gallerybench",site:"net",img:null},
+ n_tags:{n:"Tags",u:NETU+"/#/tags",site:"net",img:null},
+ n_mine:{n:"Profile",u:NETU+"/#/mine",site:"net",img:null},
+ n_learn:{n:"Learn",u:NETU+"/",nm:1,site:"net",img:null},
  SMW:{n:"Small Works",u:"https://smallworks.studiowetware.com/",pages:1,hub:1,dom:"smallworks.studiowetware.com",site:"smw",img:null},
  gitbeach:{n:"GitBeach",u:SW+"/gitbeach/",site:"sw",img:"i0/2026/10/img_8407.jpg"},
  picam:{n:"Pi-Cam-IR-A",u:SW+"/pi-cam-ir-a/",site:"sw",img:"i0/2026/08/img_6445.jpg"},
@@ -231,7 +240,8 @@ S.here={n:"S.We.T.A. Map",u:BRD+"/p/sweta-map/",live:"https://beachkila.github.i
 const L=[
  {id:"red",n:"Cyanotype Process",c:"--red",b:[["SW","process","light","salt","thinkneg","seepos"]]},
  {id:"orange",n:"Cyanotype Step-by-step",c:"--orange",b:[["SW","sbs","@or","step1","step2","step3","step4"]]},
- {id:"blue",n:"The Cyanotype Network",c:"--blue",b:[["SW","netpage","@blA","solat","cmyk","sunprint","@blB","enlarger","NET"]]},
+ {id:"blue",n:"The Cyanotype Network",c:"--blue",b:[["SW","@blT","NET","n_feed","n_neg","n_cmyk","n_enl","n_forecast","n_bench","n_tags","n_mine","n_learn"]]},
+ {id:"writeups",n:"Tool write-ups",c:"--pink",b:[["SW","@wA","netpage","solat","cmyk","enlarger","sunprint"]]},
  {id:"teal",n:"Small Works",c:"--teal",b:[["SW","@te","SMW"]]},
  {id:"green",n:"Gallery",c:"--green",b:[["SW","@gr","galleries","cyanogal","lino","pendergal","irgal","neggal","digigal","ui","undisc"]]},
  {id:"purple",n:"GitBeach",c:"--purple",b:[["SW","gitbeach","picam","atlas","blackbox","bucke","pender","bang","potholes","planes","githoods"]]},
@@ -241,29 +251,37 @@ const L=[
  {id:"gray",n:"About",c:"--gray",b:[["SW","about"]]}
 ];
 
+// Connections that are not lines. "w": same subject, an interchange you can walk between. "l": Learn links back to its pages.
+const LINKS=[["thinkneg","step1","w"],["thinkneg","solat","w"],["netpage","NET","w"],["solat","n_neg","w"],["cmyk","n_cmyk","w"],["enlarger","n_enl","w"],["sunprint","n_forecast","w"],["n_learn","process","l"],["n_learn","sbs","l"],["n_learn","solat","l"],["n_learn","sunprint","l"]];
+const linksOf=id=>LINKS.filter(k=>k[0]===id||k[1]===id).map(k=>({id:k[0]===id?k[1]:k[0],t:k[2]}));
+
 // Two hand-placed layouts. p: id -> [x, y, label side]. Label sides: r l t b br, and 45° ur dl dr. h: hub label offsets.
 const LAYOUT={
  wide:{
-  p:{SW:[500,400],about:[555,345,"r"],netpage:[600,400,"t"],solat:[740,360,"r"],cmyk:[785,315,"r"],sunprint:[830,270,"r"],enlarger:[930,225,"b"],NET:[1020,225],SMW:[760,470],
+  p:{SW:[500,400],about:[555,345,"r"],netpage:[755,306,"r"],solat:[960,215,"t"],cmyk:[1032,215,"t"],enlarger:[1104,215,"t"],sunprint:[1176,215,"t"],NET:[755,400,"br"],
+   n_feed:[850,400,"t"],n_neg:[960,400,"dr"],n_cmyk:[1032,400,"dr"],n_enl:[1104,400,"dr"],n_forecast:[1176,400,"dr"],n_bench:[1248,400,"dr"],n_tags:[1320,400,"dr"],n_mine:[1392,400,"dr"],n_learn:[1464,400,"dr"],SMW:[760,470],
    gitbeach:[500,510,"r"],picam:[545,555,"r"],atlas:[590,600,"r"],blackbox:[635,645,"l"],bucke:[695,645,"ur"],pender:[755,645,"ur"],bang:[815,645,"ur"],potholes:[875,645,"ur"],planes:[935,645,"ur"],githoods:[995,645,"ur"],
    board:[500,700],mediums:[600,700,"b"],stack:[700,700,"b"],pimaker:[800,700,"b"],
    BSG:[320,580],create:[320,625,"r"],bsggal:[320,665,"r"],templates:[320,705,"r"],whatis:[240,580,"t"],contact:[70,580,"t"],
    galleries:[450,400,"dl"],cyanogal:[395,400,"dl"],lino:[340,400,"dl"],pendergal:[285,400,"dl"],irgal:[230,400,"dl"],neggal:[175,400,"dl"],digigal:[130,355,"l"],ui:[130,310,"l"],undisc:[130,265,"l"],
-   process:[500,330,"r"],light:[500,285,"r"],salt:[500,240,"r"],thinkneg:[500,195,"r"],seepos:[500,150,"r"],
+   process:[500,330,"r"],light:[500,285,"r"],salt:[500,240,"r"],thinkneg:[500,195,"l"],seepos:[500,150,"r"],
    sbs:[455,355,"l"],step1:[410,310,"l"],step2:[365,265,"l"],step3:[320,220,"l"],step4:[275,175,"l"]},
-  bend:{or:[],blA:[[700,400]],blB:[[875,225]],te:[[570,470]],gr:[],brA:[],brP:[[600,800]]},
-  h:{SW:{n:[48,28,"start"],d:[48,44]},NET:{n:[22,4,"start"],d:[22,20]},SMW:{n:[0,34,"middle"],d:[0,50]},BSG:{n:[-12,30,"end"],d:[-12,46]},board:{n:[18,-16,"start"]}},
+  lr:{sunprint:[[1464,215]],solat:[[1464,125],[960,125]],process:[[1464,125],[620,125],[620,330]],sbs:[[1464,125],[455,125]]},
+  bend:{or:[],blT:[],wA:[[600,375]],te:[[570,470]],gr:[],brA:[],brP:[[600,800]]},
+  h:{SW:{n:[48,28,"start"],d:[48,44]},SMW:{n:[0,34,"middle"],d:[0,50]},BSG:{n:[-12,30,"end"],d:[-12,46]},board:{n:[18,-16,"start"]}},
   proj:i=>[635+i*50,800,"dr"]
  },
  tall:{
-  p:{SW:[380,560],about:[425,515,"r"],netpage:[450,560,"br"],solat:[550,455,"r"],cmyk:[550,400,"r"],sunprint:[550,345,"r"],enlarger:[550,290,"r"],NET:[550,220],SMW:[660,600],
+  p:{SW:[380,560],about:[425,515,"r"],netpage:[640,520,"l"],solat:[640,410,"l"],cmyk:[640,355,"l"],enlarger:[640,300,"l"],sunprint:[640,245,"l"],NET:[760,520],
+   n_feed:[760,465,"r"],n_neg:[760,410,"r"],n_cmyk:[760,355,"r"],n_enl:[760,300,"r"],n_forecast:[760,245,"r"],n_bench:[760,190,"r"],n_tags:[760,135,"r"],n_mine:[760,80,"r"],n_learn:[760,25,"r"],SMW:[660,600],
    gitbeach:[380,630,"r"],picam:[380,690,"r"],atlas:[380,745,"r"],blackbox:[380,800,"r"],bucke:[380,855,"r"],pender:[380,910,"r"],bang:[380,965,"r"],potholes:[380,1020,"r"],planes:[380,1075,"r"],githoods:[380,1130,"r"],
    board:[600,670],mediums:[690,670,"b"],stack:[780,670,"b"],pimaker:[870,670,"b"],
    BSG:[240,700],create:[240,760,"l"],bsggal:[240,815,"l"],templates:[240,870,"l"],whatis:[140,700,"b"],contact:[40,700,"b"],
    galleries:[40,505,"r"],cyanogal:[40,450,"r"],lino:[40,395,"r"],pendergal:[40,340,"r"],irgal:[40,285,"r"],neggal:[40,230,"r"],digigal:[40,175,"r"],ui:[40,120,"r"],undisc:[40,65,"r"],
    process:[380,490,"r"],light:[380,435,"r"],salt:[380,380,"r"],thinkneg:[380,325,"r"],seepos:[380,270,"r"],
    sbs:[300,480,"l"],step1:[210,335,"r"],step2:[210,280,"r"],step3:[210,225,"r"],step4:[210,170,"r"]},
-  bend:{or:[[210,390]],blA:[[500,560],[550,510]],blB:[],te:[[420,600]],gr:[[40,560]],brA:[[400,650],[580,650]],brP:[]},
+  lr:{sunprint:[[640,25]],solat:[[585,25],[585,410]],process:[[520,25],[520,490]],sbs:[[300,25]]},
+  bend:{or:[[210,390]],blT:[[560,575],[700,575]],wA:[[520,525]],te:[[420,600]],gr:[[40,560]],brA:[[400,650],[580,650]],brP:[]},
   h:{SW:{n:[-35,-15,"end"],d:[-45,-32]},NET:{n:[22,6,"start"],d:[22,22]},SMW:{n:[22,6,"start"],d:[22,22]},BSG:{n:[-14,-22,"end"],d:[-14,-40]},board:{n:[18,-18,"start"]}},
   proj:i=>[600,750+i*55,"r"]
  }
@@ -320,12 +338,19 @@ function hereTag(p,rr,k,g){
 function render(){
   const k=kNow(),zs=Math.min(1,Math.max(.45,1.7/k));
   svg.innerHTML="";svg.setAttribute("viewBox",`${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
-  const gL=el("g",{},svg),gS=el("g",{},svg),gT=el("g",{},svg);
+  const gL=el("g",{},svg),gK=el("g",{},svg),gS=el("g",{},svg),gT=el("g",{},svg);
   const fl=follow?L.find(l=>l.id===follow):null, onF=fl?new Set(ORDER[fl.id]):null;
   L.forEach(l=>{
     const dim=fl&&fl.id!==l.id&&!(fl.id==="brown"&&l.id==="pages");
     BR(l).forEach(br=>{const P2=pts(br);
       el("path",{d:"M"+P2.map(p=>p.join(" ")).join(" L"),fill:"none",stroke:col(l.c),"stroke-width":(l.dash?4.5:6.5)*k*Math.max(.6,zs),"stroke-linecap":"round","stroke-linejoin":"round","stroke-dasharray":l.dash?`${9*k} ${8*k}`:"none",opacity:dim?.14:1},gL)})});
+  // links: interchanges you can walk between (solid) and Learn's links back to its pages (faint, dashed)
+  LINKS.forEach(([a,b,t])=>{
+    const pa=P(a),pb=P(b),hot=sel===a||sel===b,dimK=onF&&!(onF.has(a)||onF.has(b))&&!hot;
+    if(t==="w")el("path",{d:`M${pa[0]} ${pa[1]} L${pb[0]} ${pb[1]}`,fill:"none",stroke:col("--ink"),"stroke-width":4*k*Math.max(.6,zs),"stroke-linecap":"round",opacity:dimK?.2:1},gK);
+    else{const via=(LAYOUT[lay].lr||{})[b]||[],q=[pa,...via,pb];
+      el("path",{d:"M"+q.map(r=>r[0]+" "+r[1]).join(" L"),fill:"none",stroke:col("--gray"),"stroke-width":(hot?3.4:2.2)*k*Math.max(.6,zs),"stroke-linecap":"round","stroke-linejoin":"round","stroke-dasharray":`${8*k} ${7*k}`,opacity:dimK?.12:hot?1:.55},gK)}
+  });
   // stations
   const obst=[],labels=[];
   for(const id in S){
@@ -437,12 +462,13 @@ function openStation(id,mode){
   sheet.className="sheet "+(mob?"bottom":"float")+(pinned?" pinned":"");
   sheet.innerHTML=`<div class="grab"><span></span></div><div class="media">${th?`<img class="img" src="${th}" alt="${s.n}" onerror="this.outerHTML='<div class=noimg>Image unavailable</div>'">`:`<div class="noimg">No featured image</div>`}<button class="x" aria-label="Close">×</button></div>
    <div class="body"><div class="chips">${linesAt(id).map(l=>`<button class="chip" data-ride="${l.id}" aria-pressed="${l.id===ride}"><i style="background:var(${l.c})"></i>${l.n}</button>`).join("")}</div>
-   ${s.here?`<span class="youhere">You are here</span>`:""}<b>${s.n}${s.closed?" (closed)":""}</b><span class="u">${s.u.replace("https://","").replace(/\/$/,"")}</span>
+   ${linksOf(id).length?`<div class="chips lk">${linksOf(id).map(q=>`<button class="chip" data-link="${q.id}">${q.t==="l"?"Learn link":"Connects to"}: ${S[q.id].n}</button>`).join("")}</div>`:""}${s.here?`<span class="youhere">You are here</span>`:""}<b>${s.n}${s.closed?" (closed)":""}</b><span class="u">${s.u.replace("https://","").replace(/\/$/,"")}</span>
    <div class="row2"><a class="go" href="${s.u}" target="_blank" rel="noopener">Visit page ↗</a>${s.live?`<a class="go alt" href="${s.live}" target="_blank" rel="noopener">Live site ↗</a>`:""}</div>
    <div class="ride" aria-label="Ride the ${ln.n} line"><button data-go="${prev||""}" ${prev?"":"disabled"}>← ${prev?S[prev].n:"End of line"}<span>${ln.n} line</span></button><button data-go="${next||""}" ${next?"":"disabled"}>${next?S[next].n:"End of line"} →<span>${ln.n} line</span></button></div></div>`;
   sheet.hidden=false;
   sheet.querySelector(".x").onclick=()=>hideSheet();
   sheet.querySelectorAll("[data-ride]").forEach(b=>b.onclick=()=>{ride=b.dataset.ride;openStation(id,"pin")});
+  sheet.querySelectorAll("[data-link]").forEach(b=>b.onclick=()=>goTo(b.dataset.link));
   sheet.querySelectorAll(".ride [data-go]").forEach(b=>b.onclick=()=>{if(b.dataset.go)goTo(b.dataset.go)});
   if(!mob)placeFloat(id);
   render();

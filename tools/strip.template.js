@@ -41,17 +41,26 @@
   }
   var S = DATA.stations, LINES = DATA.lines;
 
+  // The Network site is one page that switches by #/route, so the route is part of the address.
   function norm(u) {
     try {
       var a = new URL(u, location.href);
-      return (a.hostname.replace(/^www\./, "") + a.pathname.replace(/\/+$/, "")).toLowerCase();
+      var h = /^#\/[^\/?]+/.exec(a.hash);
+      return (a.hostname.replace(/^www\./, "") + a.pathname.replace(/\/+$/, "") + (h ? h[0] : "")).toLowerCase();
     } catch (e) { return ""; }
   }
   var byUrl = {};
   Object.keys(S).forEach(function (id) {
+    if (S[id].nm) return;
     byUrl[norm(S[id].u)] = id;
     (S[id].a || []).forEach(function (u) { if (!byUrl[norm(u)]) byUrl[norm(u)] = id; });
   });
+  function here() {
+    var n = norm(location.href);
+    if (byUrl[n]) return byUrl[n];
+    var m = /^([^#\/]+)(\/[^#]*)?#\//.exec(n); // an unknown route on a site with routes opens its first screen
+    return m ? (byUrl[m[1] + "#/feed"] || null) : null;
+  }
 
   function placements(id, withDash) {
     var out = [];
@@ -165,6 +174,7 @@
         (p.transfers.length ? '<span class="chip">' + dot(m.line) + p.transfers.map(dot).join("") + "</span>" : "") +
         "<b>" + esc(here.n) + "</b><span>\u00b7</span>" +
         (next ? "<span>Next stop: " + a(next) + "</span>" : "<span>Last stop on " + (/^the /i.test(m.line.n) ? "" : "the ") + esc(m.line.n) + " line</span>") +
+        (S[id].x ? "<span>\u00b7</span><span>Connects to " + S[id].x.map(function (q) { return a(q); }).join(", ") + "</span>" : "") +
         (p.transfers.length ? "<span>\u00b7</span><span>Change here for " + p.transfers.map(function (l) { return "<b>" + esc(l.n) + "</b>"; }).join(", ") + "</span>" : "");
     }
     root.innerHTML = "<style>" + CSS + '</style><div class="' + (host.hasAttribute("data-contained") ? "contained " : "") + '"><div class="tk' + (narrow ? " narrow" : wide ? " wide" : "") + '" role="navigation" aria-label="Station strip"><div class="in">' + html +
@@ -201,16 +211,19 @@
   }
 
   function mount(el) {
-    var id = el.getAttribute("data-stop");
-    if (!id || !S[id]) id = byUrl[norm(location.href)];
-    if (!id) { el.style.display = "none"; return; }
-    fit(el); render(el, id);
-    track("view", id, "");
-    var tm;
-    window.addEventListener("resize", function () {
-      clearTimeout(tm);
-      tm = setTimeout(function () { fit(el); render(el, id); }, 120);
-    });
+    var fixed = el.getAttribute("data-stop");
+    if (fixed && !S[fixed]) fixed = null;
+    var cur = null, tm;
+    function show() {
+      var id = fixed || here();
+      if (!id) { el.style.display = "none"; cur = null; return; }
+      el.style.display = "";
+      fit(el); render(el, id);
+      if (id !== cur) { cur = id; track("view", id, ""); }
+    }
+    show();
+    window.addEventListener("resize", function () { clearTimeout(tm); tm = setTimeout(show, 120); });
+    window.addEventListener("hashchange", show); // the Network site switches screens by #/route
   }
 
   function start() {

@@ -199,6 +199,8 @@ tr.click:hover td{background:var(--panel2)}
       var a = META.stops[f.from], b = META.stops[f.to];
       if (!a || !b || f.n < 3) return;
       var shared = a.lines.some(function (l) { return b.lines.indexOf(l) > -1; });
+      var linked = (META.links || []).some(function (k) { return (k[0] === f.from && k[1] === f.to) || (k[1] === f.from && k[0] === f.to); });
+      if (linked) return;
       if (!shared) items.push({ w: f.n, tag: "ok", t: "Riders already cross: " + nm(f.from) + " → " + nm(f.to), d: f.n + " moves between stops on different lines" + (f.assisted ? ", " + f.assisted + " using S.We.T.A" : "") + ". A transfer or a direct link would make this official." });
     });
     var unassisted = SUM.totals.moves - SUM.totals.assistedMoves;

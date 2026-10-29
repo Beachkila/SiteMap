@@ -30,7 +30,12 @@
       if (!/^[a-z0-9]{8,32}$/.test(RID)) { RID = newId(); localStorage.setItem("swt_rid", RID); }
     } catch (e) { RID = ""; }
   })();
-  function hand(u) { return RID ? u + (u.indexOf("?") > -1 ? "&" : "?") + "swt=" + RID : u; }
+  // The id goes before any #route, so the Network site's hash routes (#/cmyk) stay intact.
+  function hand(u) {
+    if (!RID) return u;
+    var i = u.indexOf("#"), base = i > -1 ? u.slice(0, i) : u, hash = i > -1 ? u.slice(i) : "";
+    return base + (base.indexOf("?") > -1 ? "&" : "?") + "swt=" + RID + hash;
+  }
   function track(type, stop, to) {
     if (!TRACK || OPTOUT || !RID) return;
     try {

@@ -78,6 +78,7 @@ button:focus-visible,a:focus-visible{outline:3px solid var(--focus);outline-offs
 .tag-here text{fill:#fff;font-weight:800;font-family:var(--display)}
 @media (prefers-reduced-motion:no-preference){.pulse{transform-box:fill-box;transform-origin:center;animation:pulse 1.8s ease-out infinite}@keyframes pulse{0%{transform:scale(.6);opacity:1}100%{transform:scale(1.6);opacity:0}}}
 .sheet b{font-size:19px;font-weight:800;line-height:1.2}
+.sheet .note{margin:4px 0 2px;font-size:13.5px;line-height:1.45;color:var(--ink);white-space:pre-line;overflow-wrap:anywhere}
 .sheet .u{font-family:var(--mono);font-size:11px;color:var(--muted);word-break:break-all}
 .row2{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .go{display:inline-flex;align-items:center;height:38px;padding:0 14px;border-radius:8px;background:var(--ink);color:var(--bg);font-weight:600;font-size:14px;text-decoration:none}
@@ -452,6 +453,7 @@ for(const k in LAYOUT)PROJ.forEach((id,i)=>{if(!LAYOUT[k].p[id])LAYOUT[k].p[id]=
 const SITES={sw:"studiowetware.com",net:"The Cyanotype Network",smw:"Small Works",bsg:"Beach Self-Grading",board:"Project Board",gh:"GitHub Pages"};
 
 function imgURL(s){
+  if(s.imgX)return new URL(s.imgX,location.href).href;
   if(!s.img||s.img==="logo")return null;
   const [src,...rest]=s.img.split("/"),path=rest.join("/");
   if(src==="bsg")return "https://beachselfgrading.com/wp-content/uploads/"+path+"?w=640";
@@ -476,6 +478,9 @@ const stopsOf=l=>{const s=[];l.b.forEach(br=>br.forEach(q=>{if(q[0]!=="@"&&!s.in
 const ORDER={};L.forEach(l=>ORDER[l.id]=stopsOf(l));
 const linesAt=id=>L.filter(l=>ORDER[l.id].includes(id));
 const realLines=id=>linesAt(id).filter(l=>!l.dash);
+// Tap targets never reach past half the distance to the nearest other stop, so neighbours (and capsule tracks) stay separately selectable.
+const NNC={};
+function nnOf(id){const c=NNC[lay]||(NNC[lay]={});if(c[id]!==undefined)return c[id];const p=P(id);let m=1e9;for(const o in S){if(o===id)continue;const q=P(o);if(!q)continue;const d=Math.hypot(p[0]-q[0],p[1]-q[1]);if(d<m)m=d}return c[id]=Math.max(m,6)}
 function rect(){return svg.getBoundingClientRect()}
 function kNow(){return vb.w/Math.max(1,rect().width)}
 function setView(cx,cy,k){const R=rect();vb={x:cx-R.width*k/2,y:cy-R.height*k/2,w:R.width*k,h:R.height*k}}
@@ -563,7 +568,7 @@ function render(){
     const s=S[id],p=P(id),inter=realLines(id).length>1;const dim=onF&&!onF.has(id)&&sel!==id;
     const G=GM[id],rpx=(G?8.5:s.hub?11:s.xfer?9:inter?7.5:5.5)*zs,r=(G?3.4*zs:rpx)*k;
     const g=el("g",{class:"stn",tabindex:"0",role:"button","aria-label":s.n,"data-id":id,opacity:dim?.25:1},gS);
-    el("circle",{cx:p[0],cy:p[1],r:G&&((LAYOUT[lay].ga||{})[G.id]||G.a)!==id?Math.max(r,4*k):Math.max(r,24*k),fill:"transparent"},g);
+    el("circle",{cx:p[0],cy:p[1],r:Math.max(Math.min(r,nnOf(id)*.48),Math.min(24*k,nnOf(id)*.48)),fill:"transparent"},g);
     if(s.here){const rr=9*Math.max(zs,.7)*k;el("circle",{cx:p[0],cy:p[1],r:rr+7*k,fill:col("--here"),"fill-opacity":.18,class:"pulse"},g);el("circle",{cx:p[0],cy:p[1],r:rr,fill:col("--here"),stroke:col("--ink"),"stroke-width":2.6*k},g);el("circle",{cx:p[0],cy:p[1],r:rr*.38,fill:col("--stn")},g);if(s.pages)el("circle",{cx:p[0],cy:p[1],r:rr+4.5*k,fill:"none",stroke:col("--teal"),"stroke-width":2*k,"stroke-dasharray":`${3*k} ${2.5*k}`},g);hereTag(p,rr,k,gT);obst.push({x0:p[0]-rr,y0:p[1]-rr,x1:p[0]+rr,y1:p[1]+rr,dim});labels.push(...labelCands(id,s,p,rr/k,k,dim,onF));continue}
     if(HEAT){const mx=Math.max(1,...Object.values(HEAT)),v=HEAT[id]||0,f=v/mx;
       if(v>0){const hr=r+(10+34*Math.sqrt(f))*k*zs;el("circle",{cx:p[0],cy:p[1],r:hr,fill:`hsl(${Math.round(48-48*f)} 95% 52%)`,"fill-opacity":.28+.35*f,class:"heat"},g);
@@ -571,7 +576,7 @@ function render(){
     if(p[3]&&(!G||((LAYOUT[lay].ga||{})[G.id]||G.a)===id)){const sd=(G?LAYOUT[lay].gs[G.id]:p[2])||"r",v={r:[1,0],l:[-1,0],t:[0,-1],b:[0,1],ur:[.7071,-.7071],dr:[.7071,.7071],dl:[-.7071,.7071]}[sd]||[1,0],tl=p[3]+(rpx+2)*k;el("line",{x1:p[0],y1:p[1],x2:p[0]+v[0]*tl,y2:p[1]+v[1]*tl,stroke:col("--ink"),"stroke-width":1.7*k,"stroke-linecap":"round",opacity:.7},g)}
     if(G){const lc=realLines(id)[0];el("circle",{cx:p[0],cy:p[1],r,fill:col(lc.c)},g)}else el("circle",{cx:p[0],cy:p[1],r,fill:col("--stn"),stroke:sel===id?col("--focus"):s.closed?col("--gray"):col("--ink"),"stroke-width":(s.hub||s.xfer||inter?3.5:2.6)*k,"stroke-dasharray":s.closed?`${2*k} ${2.5*k}`:"none"},g);
     if(s.pages)el("circle",{cx:p[0],cy:p[1],r:r+4.5*k,fill:"none",stroke:col("--teal"),"stroke-width":2*k,"stroke-dasharray":`${3*k} ${2.5*k}`},g);
-    if(sel===id)el("circle",{cx:p[0],cy:p[1],r:r+5*k,fill:"none",stroke:col("--focus"),"stroke-width":2.5*k},g);
+    if(sel===id)el("circle",{cx:p[0],cy:p[1],r:Math.min(r+5*k,nnOf(id)*.5),fill:"none",stroke:col("--focus"),"stroke-width":2.5*k},g);
     if(FROM===id){const rw=(G?10:9)*Math.max(zs,.7)*k;el("circle",{cx:p[0],cy:p[1],r:rw+7*k,fill:col("--was"),"fill-opacity":.2,class:"pulse"},g);el("circle",{cx:p[0],cy:p[1],r:rw,fill:"none",stroke:col("--was"),"stroke-width":3.4*k},g);el("circle",{cx:p[0],cy:p[1],r:rw*.4,fill:col("--was")},g);hereTag(p,rw,k,gT,"You were here","tag-was","--was")}
     if(!G)obst.push({x0:p[0]-r,y0:p[1]-r,x1:p[0]+r,y1:p[1]+r,dim});
     labels.push(...labelCands(id,s,p,rpx,k,dim,onF));
@@ -671,7 +676,7 @@ function openStation(id,mode){
   sheet.className="sheet "+(mob?"bottom":"float")+(pinned?" pinned":"");
   sheet.innerHTML=`<div class="grab"><span></span></div><div class="media">${th?`<img class="img" src="${th}" alt="${s.n}" onerror="this.outerHTML='<div class=noimg>Image unavailable</div>'">`:`<div class="noimg">No featured image</div>`}<button class="x" aria-label="Close">×</button></div>
    <div class="body"><div class="chips">${linesAt(id).map(l=>`<button class="chip" data-ride="${l.id}" aria-pressed="${l.id===ride}"><i style="background:var(${l.c})"></i>${l.n}</button>`).join("")}</div>
-   ${linksOf(id).length?`<div class="chips lk">${linksOf(id).map(q=>`<button class="chip" data-link="${q.id}">${q.t==="l"?"Learn link":"Same stop"}: ${S[q.id].n}</button>`).join("")}</div>`:""}${s.here?`<span class="youhere">You are here</span>`:""}${id===FROM?`<span class="youhere was">You were here</span>`:""}<b>${s.n}${s.closed?" (closed)":""}</b><span class="u">${s.u.replace("https://","").replace(/\/$/,"")}</span>
+   ${linksOf(id).length?`<div class="chips lk">${linksOf(id).map(q=>`<button class="chip" data-link="${q.id}">${q.t==="l"?"Learn link":"Same stop"}: ${S[q.id].n}</button>`).join("")}</div>`:""}${s.here?`<span class="youhere">You are here</span>`:""}${id===FROM?`<span class="youhere was">You were here</span>`:""}<b>${s.n}${s.closed?" (closed)":""}</b>${s.note?`<p class="note">${String(s.note).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}</p>`:""}<span class="u">${s.u.replace("https://","").replace(/\/$/,"")}</span>
    <div class="row2"><a class="go" href="${s.u}" target="_blank" rel="noopener">Visit page ↗</a>${s.live?`<a class="go alt" href="${s.live}" target="_blank" rel="noopener">Live site ↗</a>`:""}</div>
    <div class="ride" aria-label="Ride the ${ln.n} line"><button data-go="${prev||""}" ${prev?"":"disabled"}>← ${prev?S[prev].n:"End of line"}<span>${ln.n} line</span></button><button data-go="${next||""}" ${next?"":"disabled"}>${next?S[next].n:"End of line"} →<span>${ln.n} line</span></button></div></div>`;
   sheet.hidden=false;
@@ -811,6 +816,13 @@ if(new URLSearchParams(location.search).get("privacy")==="1")showPrivacy();
 track("view","map","");
 
 // ---------- start ----------
+// Notes and featured-image overrides live in data/stops.json, written only by editor.html (GitHub commits).
+fetch("data/stops.json",{cache:"no-cache"}).then(r=>r.ok?r.json():null).then(j=>{
+  if(!j||!j.stops)return;let n=0;
+  for(const id in j.stops){const s=S[id],e=j.stops[id];if(!s||!e)continue;
+    if(typeof e.note==="string"&&e.note.trim()){s.note=e.note.trim().slice(0,600);n++}
+    if(typeof e.img==="string"&&/^data\/img\/[\w.-]+$/.test(e.img)){s.imgX=e.img;n++}}
+  if(n&&sel&&S[sel])openStation(sel,pinned?"pin":"peek")}).catch(()=>{});
 function startView(){
   lay=pickLayout();
   {const B=bounds();fitBox(B.x0,B.y0,B.x1,B.y1)}

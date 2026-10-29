@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src https: data: blob:; connect-src https://api.github.com; base-uri 'none'; form-action 'none'">
+<title>S.We.T.A. stop editor</title>
+<style>
+:root{--bg:#FAFAF6;--card:#fff;--ink:#1a1a1a;--muted:#666;--line:#d9d9d2;--ok:#1E9E55;--bad:#C62828;--focus:#1a1a1a}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141414;--card:#1d1d1d;--ink:#f2f2ee;--muted:#a0a09a;--line:#363633;--ok:#3ecf80;--bad:#ff6b6b;--focus:#f2f2ee}}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 Inter,system-ui,-apple-system,Segoe UI,sans-serif}
+body{padding:16px;max-width:1100px;margin:0 auto}
+h1{font-size:20px;margin:0 0 2px}
+.sub{color:var(--muted);margin:0 0 14px;font-size:13px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+input[type=password],input[type=text],input[type=search],textarea{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:10px;padding:9px 11px}
+textarea{min-height:110px;resize:vertical}
+input:focus,textarea:focus,button:focus-visible{outline:2px solid var(--focus);outline-offset:1px}
+button{font:inherit;font-weight:700;color:var(--bg);background:var(--ink);border:0;border-radius:10px;padding:9px 14px;cursor:pointer}
+button.alt{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+button:disabled{opacity:.45;cursor:default}
+label{font-weight:700;font-size:13px;display:block;margin:12px 0 4px}
+.msg{font-size:13px;margin-top:8px;min-height:18px}
+.msg.ok{color:var(--ok)}.msg.bad{color:var(--bad)}
+#app{display:none;margin-top:14px;gap:14px;grid-template-columns:300px 1fr}
+#app.on{display:grid}
+@media (max-width:760px){#app.on{grid-template-columns:1fr}}
+#list{max-height:70vh;overflow:auto;margin-top:8px;border-top:1px solid var(--line)}
+#list button{display:flex;width:100%;justify-content:space-between;align-items:center;text-align:left;background:transparent;color:var(--ink);border:0;border-bottom:1px solid var(--line);border-radius:0;padding:9px 4px;font-weight:600}
+#list button[aria-current=true]{background:var(--bg);outline:2px solid var(--focus);outline-offset:-2px}
+#list small{color:var(--muted);font-weight:500}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--ok);flex:none}
+.pv{border:1px solid var(--line);border-radius:12px;overflow:hidden;max-width:360px;background:var(--card)}
+.pv .m{aspect-ratio:16/9;background:var(--bg);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:13px}
+.pv .m img{width:100%;height:100%;object-fit:cover;display:block}
+.pv .b{padding:10px 12px}
+.pv b{font-size:18px;font-weight:800;display:block}
+.pv .n{white-space:pre-line;font-size:13.5px;margin:4px 0 2px;overflow-wrap:anywhere}
+.pv .u{font:11px ui-monospace,Menlo,monospace;color:var(--muted);word-break:break-all}
+.cnt{font-size:12px;color:var(--muted);text-align:right}
+.hint{font-size:12.5px;color:var(--muted)}
+</style>
+</head>
+<body>
+<h1>S.We.T.A. stop editor</h1>
+<p class="sub">Edits the Notes and featured image of each stop popup. Saves are commits to the SiteMap repo, so only a GitHub token with write access can change anything.</p>
+
+<div class="card" id="auth">
+  <label for="tok" style="margin-top:0">GitHub token (fine-grained, SiteMap repo only, Contents: read and write)</label>
+  <div class="row"><input id="tok" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_…" style="flex:1;min-width:220px"><button id="go">Connect</button></div>
+  <div class="row" style="margin-top:8px"><label style="margin:0;font-weight:500"><input type="checkbox" id="rem"> Remember on this device</label><button class="alt" id="forget" type="button">Forget token</button></div>
+  <div class="msg" id="amsg"></div>
+</div>
+
+<div id="app">
+  <div class="card">
+    <input type="search" id="q" placeholder="Find a stop" aria-label="Find a stop">
+    <div id="list" role="list"></div>
+  </div>
+  <div class="card" id="pane">
+    <div class="hint" id="empty">Choose a stop.</div>
+    <div id="ed" hidden>
+      <div class="pv" id="pv"><div class="m" id="pvm"></div><div class="b"><b id="pvt"></b><p class="n" id="pvn"></p><span class="u" id="pvu"></span></div></div>
+      <label for="note">Notes <span class="hint">(shown between the title and the address)</span></label>
+      <textarea id="note" maxlength="600"></textarea>
+      <div class="cnt"><span id="cn">0</span>/600</div>
+      <label for="file">Featured image</label>
+      <div class="row"><input type="file" id="file" accept="image/*"><button class="alt" id="noimg" type="button">Use the original image</button></div>
+      <div class="hint" id="imgnote"></div>
+      <div class="row" style="margin-top:14px"><button id="save">Save to GitHub</button><button class="alt" id="revert" type="button">Discard changes</button></div>
+      <div class="msg" id="msg" role="status"></div>
+      <div class="hint">The map shows saved changes about a minute after the commit.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+const DATA={"stations":{"SW":{"n":"Studio Wetware","u":"https://studiowetware.com/","img":null},"about":{"n":"About Beach","u":"https://studiowetware.com/aboutbeach/","img":"i0/2026/07/untitled-235.png"},"netpage":{"n":"The Network (write-up)","u":"https://studiowetware.com/network/","img":"sw/2026/07/tcn_post.jpg"},"solat":{"n":"SoLaT (write-up)","u":"https://studiowetware.com/solat-digital-negatives/","img":"i0/2026/08/img_6499.jpg"},"cmyk":{"n":"CMYK for UV (write-up)","u":"https://studiowetware.com/cmyk/","img":"sw/2026/07/img_6307.png"},"sunprint":{"n":"Sunprint UVI (write-up)","u":"https://studiowetware.com/sunprint/","img":"i0/2026/07/tcn_sunprint-e1785622534642.jpg"},"enlarger":{"n":"Enlarger (write-up)","u":"https://studiowetware.com/negative-enlarger/","img":"i0/2026/09/Screenshot-2026-09-27-154049.png"},"NET":{"n":"The Cyanotype Network","u":"https://network.studiowetware.com/","img":null},"n_feed":{"n":"Feed","u":"https://network.studiowetware.com/#/feed","img":null},"n_neg":{"n":"SoLaT Negatives (tool)","u":"https://network.studiowetware.com/#/negatives","img":null},"n_cmyk":{"n":"CMYK (tool)","u":"https://network.studiowetware.com/#/cmyk","img":null},"n_enl":{"n":"Enlarger (tool)","u":"https://network.studiowetware.com/#/enlarger","img":null},"n_forecast":{"n":"UV Forecast (tool)","u":"https://network.studiowetware.com/#/forecast","img":null},"n_bench":{"n":"Gallery Bench","u":"https://network.studiowetware.com/#/gallerybench","img":null},"n_tags":{"n":"Tags","u":"https://network.studiowetware.com/#/tags","img":null},"n_mine":{"n":"Profile","u":"https://network.studiowetware.com/#/mine","img":null},"n_learn":{"n":"Learn","u":"https://network.studiowetware.com/","img":null},"SMW":{"n":"Small Works","u":"https://smallworks.studiowetware.com/","img":null},"gitbeach":{"n":"GitBeach","u":"https://studiowetware.com/gitbeach/","img":null},"picam":{"n":"Pi-Cam-IR-A","u":"https://studiowetware.com/pi-cam-ir-a/","img":"i0/2026/08/img_6445.jpg"},"atlas":{"n":"Atlas","u":"https://studiowetware.com/atlas/","img":"i0/2026/09/image-6.jpg"},"blackbox":{"n":"Black Box","u":"https://studiowetware.com/black-box/","img":"sw/2026/07/image-11.jpg"},"bucke":{"n":"Buck-E","u":"https://studiowetware.com/buck-e-musical-cipher/","img":"i0/2026/09/img_7598.jpg"},"pender":{"n":"PENDER Studios","u":"https://studiowetware.com/pender-studios/","img":"i0/2026/08/Screenshot-2026-08-11-121834.png"},"bang":{"n":"Bang!","u":"https://studiowetware.com/bang/","img":"sw/2026/06/img_5927-1.png"},"potholes":{"n":"Adopt-a-Pothole","u":"https://studiowetware.com/potholes/","img":"i0/2026/09/100d6cb7-c66f-4d73-99b4-c718f9d59241.png"},"planes":{"n":"Plane Spotter","u":"https://studiowetware.com/plane-spotter/","img":"i0/2026/10/img_7816.jpg"},"githoods":{"n":"GitHoods","u":"https://studiowetware.com/githoods/","img":"i0/2026/10/img_8327.jpg"},"board":{"n":"Project Board","u":"https://board.studiowetware.com/","img":null},"mediums":{"n":"Mediums","u":"https://board.studiowetware.com/spectra/","img":null},"stack":{"n":"Stack","u":"https://board.studiowetware.com/skills/","img":null},"pimaker":{"n":"Pi-Maker","u":"https://beachkila.github.io/Pi-Maker/","img":null},"BSG":{"n":"Beach Self-Grading","u":"https://beachselfgrading.com/","img":"bsg/2026/02/763e6748-7d35-44af-a8de-e0b1ca1c0a4f.png"},"create":{"n":"Create a Beach-Tag","u":"https://tag.beachselfgrading.com/","img":null},"bsggal":{"n":"Beach-Tag Gallery","u":"https://beachselfgrading.com/gallery/","img":"bsg/2026/01/beach-tag-7.jpg"},"templates":{"n":"Printable templates","u":"https://beachselfgrading.com/templates/","img":"logo"},"whatis":{"n":"What are Beach-Tags?","u":"https://beachselfgrading.com/what-are-beach-tags/","img":"logo"},"contact":{"n":"Tip / Contact","u":"https://beachselfgrading.com/contact-me/","img":"logo"},"galleries":{"n":"All galleries","u":"https://studiowetware.com/galleries/","img":"i0/2026/02/img_3301-e1785119950881.jpg"},"cyanogal":{"n":"Cyanotypes","u":"https://studiowetware.com/cyanotype-gallery/","img":"sw/2026/02/image-4-2.jpg"},"lino":{"n":"Linocuts","u":"https://studiowetware.com/linocut-gallery/","img":"sw/2026/02/image-6.jpg"},"pendergal":{"n":"PENDER plotter","u":"https://studiowetware.com/pender-3d-gallery/","img":"sw/2026/06/image-1-1.jpg"},"irgal":{"n":"IR photography","u":"https://studiowetware.com/infrared-photography-gallery/","img":"i0/2026/08/img_6573-1-1.jpg"},"neggal":{"n":"Negatives","u":"https://studiowetware.com/negatives-gallery/","img":"sw/2026/02/img_3254.png"},"digigal":{"n":"Digital","u":"https://studiowetware.com/digital-gallery/","img":"i0/2026/06/untitled-207.png"},"ui":{"n":"Interfaces","u":"https://studiowetware.com/program-gallery/","img":"i0/2026/06/screenshot-2026-06-21-210024-edited.png"},"undisc":{"n":"Undisciplined","u":"https://studiowetware.com/undisciplined-gallery/","img":"sw/2026/02/img_2517.jpg"},"process":{"n":"Cyanotype process","u":"https://studiowetware.com/how-cyanotype-works/","img":"sw/2026/08/img_5222-e1785799609222-1024x875.jpg"},"light":{"n":"Light","u":"https://studiowetware.com/light/","img":"i0/2026/02/img_3786-e1786146249309.jpg"},"salt":{"n":"Salt","u":"https://studiowetware.com/salt/","img":"sw/2026/02/img_3784.jpg"},"thinkneg":{"n":"Think Negative","u":"https://studiowetware.com/think-negative/","img":"sw/2026/02/img_3254.png"},"seepos":{"n":"See Positive","u":"https://studiowetware.com/see-positive/","img":"i0/2026/02/img_3343-e1785484573900.jpg"},"sbs":{"n":"Step-by-step","u":"https://studiowetware.com/step-by-step/","img":"i0/2026/02/image-3.jpg"},"step1":{"n":"Step 1 \u00b7 Negative","u":"https://studiowetware.com/step-1/","img":"sw/2026/02/img_5238.jpg"},"step2":{"n":"Step 2 \u00b7 Preparation","u":"https://studiowetware.com/step-2/","img":"i0/2026/02/img_3867-e1785483768208.jpg"},"step3":{"n":"Step 3 \u00b7 UV exposure","u":"https://studiowetware.com/step-3/","img":"i0/2026/07/tcn_sunprint-e1785622534642.jpg"},"step4":{"n":"Step 4 \u00b7 Wash","u":"https://studiowetware.com/step-4/","img":"sw/2026/02/img_3262-edited.jpg"},"bp-pi-cam-ir-a":{"n":"Pi-Cam-IR-A","u":"https://board.studiowetware.com/p/pi-cam-ir-a/","img":null},"bp-atlas":{"n":"Atlas","u":"https://board.studiowetware.com/p/atlas/","img":null},"bp-black-box":{"n":"Black Box","u":"https://board.studiowetware.com/p/black-box/","img":null},"bp-buck-e":{"n":"Buck-E","u":"https://board.studiowetware.com/p/buck-e/","img":null},"bp-pender":{"n":"Pender","u":"https://board.studiowetware.com/p/pender/","img":null},"bp-bang":{"n":"Bang","u":"https://board.studiowetware.com/p/bang/","img":null},"bp-plane-spotter":{"n":"Plane Spotter","u":"https://board.studiowetware.com/p/plane-spotter/","img":null},"bp-githoods":{"n":"GitHoods","u":"https://board.studiowetware.com/p/githoods/","img":null},"bp-ai-station":{"n":"AI Station","u":"https://board.studiowetware.com/p/ai-station/","img":null},"bp-dock-to-stock":{"n":"Dock to Stock","u":"https://board.studiowetware.com/p/dock-to-stock/","img":null},"bp-beelab":{"n":"BeeLab","u":"https://board.studiowetware.com/p/beelab/","img":null},"bp-coolpix-ir":{"n":"Coolpix IR conversion","u":"https://board.studiowetware.com/p/coolpix-ir/","img":null},"bp-droneaware-node":{"n":"DroneAware node","u":"https://board.studiowetware.com/p/droneaware-node/","img":null},"bp-fire-hd8-linux-pad":{"n":"Fire HD 8 Linux pad","u":"https://board.studiowetware.com/p/fire-hd8-linux-pad/","img":null},"bp-ink-drawer":{"n":"Ink Drawer","u":"https://board.studiowetware.com/p/ink-drawer/","img":null},"bp-redditprofiler":{"n":"redditprofiler","u":"https://board.studiowetware.com/p/redditprofiler/","img":null},"bp-snake-lcd-pi":{"n":"Snake LCD Pi","u":"https://board.studiowetware.com/p/snake-lcd-pi/","img":null},"bp-ir-dev":{"n":"IR DEV","u":"https://board.studiowetware.com/p/ir-dev/","img":null},"bp-nmap-subway":{"n":"nmap subway","u":"https://board.studiowetware.com/p/nmap-subway/","img":null},"bp-beach-self-grading":{"n":"Beach Self Grading","u":"https://board.studiowetware.com/p/beach-self-grading/","img":null},"bp-the-cyanotype-network":{"n":"The Cyanotype Network","u":"https://board.studiowetware.com/p/the-cyanotype-network/","img":null},"here":{"n":"S.We.T.A. Map","u":"https://board.studiowetware.com/p/sweta-map/","img":null}}};            // {stations:{id:{n,u,img}}}
+const REPO="Beachkila/SiteMap",BRANCH="main",JSON_PATH="data/stops.json",API="https://api.github.com";
+const $=id=>document.getElementById(id);
+const LS="swta-editor-token";
+let tok="",stops={},sha=null,cur=null,pendingImg=null,removeImg=false;
+
+try{const t=localStorage.getItem(LS);if(t){$("tok").value=t;$("rem").checked=true}}catch(e){}
+
+const H=()=>({Authorization:"Bearer "+tok,Accept:"application/vnd.github+json","X-GitHub-Api-Version":"2022-11-28"});
+async function gh(path,opt={}){
+  const r=await fetch(API+path,{...opt,headers:{...H(),...(opt.body?{"Content-Type":"application/json"}:{})}});
+  let j=null;try{j=await r.json()}catch(e){}
+  if(!r.ok){const e=new Error((j&&j.message)||("HTTP "+r.status));e.status=r.status;throw e}
+  return j;
+}
+const b64=s=>btoa(unescape(encodeURIComponent(s)));
+const unb64=s=>decodeURIComponent(escape(atob(s.replace(/\n/g,""))));
+const say=(id,t,c)=>{const e=$(id);e.textContent=t||"";e.className="msg"+(c?" "+c:"")};
+
+// original image address, same rules as the map
+function origImg(s){
+  if(!s||!s.img||s.img==="logo")return null;
+  const [src,...rest]=s.img.split("/"),path=rest.join("/");
+  if(src==="bsg")return "https://beachselfgrading.com/wp-content/uploads/"+path+"?w=640";
+  return "https://i0.wp.com/studiowetware.com/wp-content/uploads/"+path+"?w=640";
+}
+const rawImg=p=>"https://raw.githubusercontent.com/"+REPO+"/"+BRANCH+"/"+p+"?t="+Date.now();
+
+async function loadStops(){
+  try{
+    const j=await gh(`/repos/${REPO}/contents/${JSON_PATH}?ref=${BRANCH}`);
+    sha=j.sha;const d=JSON.parse(unb64(j.content));stops=(d&&d.stops)||{};
+  }catch(e){if(e.status===404){sha=null;stops={}}else throw e}
+}
+
+$("go").onclick=async()=>{
+  tok=$("tok").value.trim();if(!tok){say("amsg","Paste your token first.","bad");return}
+  say("amsg","Checking…");$("go").disabled=true;
+  try{
+    const u=await gh("/user");
+    const r=await gh(`/repos/${REPO}`);
+    if(!(r.permissions&&r.permissions.push))throw new Error("This token cannot write to "+REPO+".");
+    await loadStops();
+    try{if($("rem").checked)localStorage.setItem(LS,tok);else localStorage.removeItem(LS)}catch(e){}
+    say("amsg","Connected as "+u.login+". Saves go to "+REPO+" ("+BRANCH+").","ok");
+    $("app").classList.add("on");buildList();
+  }catch(e){tok="";say("amsg",e.status===401?"GitHub rejected that token.":e.message,"bad");$("app").classList.remove("on")}
+  $("go").disabled=false;
+};
+$("forget").onclick=()=>{try{localStorage.removeItem(LS)}catch(e){}tok="";$("tok").value="";$("rem").checked=false;$("app").classList.remove("on");say("amsg","Token forgotten on this device.","ok")};
+
+function buildList(){
+  const q=$("q").value.trim().toLowerCase(),box=$("list");box.textContent="";
+  Object.entries(DATA.stations).filter(([id,s])=>!q||s.n.toLowerCase().includes(q)||id.includes(q))
+   .sort((a,b)=>a[1].n.localeCompare(b[1].n)).forEach(([id,s])=>{
+    const b=document.createElement("button");b.type="button";b.setAttribute("role","listitem");
+    if(id===cur)b.setAttribute("aria-current","true");
+    const l=document.createElement("span");l.textContent=s.n;
+    const sm=document.createElement("small");sm.textContent=" "+id;l.appendChild(sm);b.appendChild(l);
+    if(stops[id]&&(stops[id].note||stops[id].img)){const d=document.createElement("i");d.className="dot";d.title="Has edits";b.appendChild(d)}
+    b.onclick=()=>pick(id);box.appendChild(b)});
+}
+$("q").oninput=buildList;
+
+function pick(id){
+  cur=id;pendingImg=null;removeImg=false;$("file").value="";
+  const s=DATA.stations[id],e=stops[id]||{};
+  $("empty").hidden=true;$("ed").hidden=false;
+  $("note").value=e.note||"";say("msg","");
+  paint();buildList();
+}
+function paint(){
+  const s=DATA.stations[cur],e=stops[cur]||{};
+  $("cn").textContent=$("note").value.length;
+  $("pvt").textContent=s.n;$("pvn").textContent=$("note").value.trim();$("pvn").hidden=!$("note").value.trim();
+  $("pvu").textContent=s.u.replace("https://","").replace(/\/$/,"");
+  let src=null,why="";
+  if(pendingImg){src=pendingImg.url;why="New image (not saved yet)."}
+  else if(removeImg){src=origImg(s);why="Will go back to the original image."}
+  else if(e.img){src=rawImg(e.img);why="Custom image: "+e.img}
+  else{src=origImg(s);why=src?"Original image from the site.":"No featured image."}
+  const m=$("pvm");m.textContent="";
+  if(src){const im=document.createElement("img");im.alt="";im.src=src;im.onerror=()=>{m.textContent="Image unavailable"};m.appendChild(im)}else m.textContent="No featured image";
+  $("imgnote").textContent=why;
+  $("noimg").hidden=!(pendingImg||e.img)&&!removeImg;
+}
+$("note").oninput=paint;
+$("noimg").onclick=()=>{pendingImg=null;removeImg=true;$("file").value="";paint()};
+$("revert").onclick=()=>pick(cur);
+
+$("file").onchange=async()=>{
+  const f=$("file").files[0];if(!f)return;
+  try{
+    const url=URL.createObjectURL(f),im=await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=()=>rej(new Error("That file is not an image I can read."));i.src=url});
+    const MAX=900,sc=Math.min(1,MAX/Math.max(im.naturalWidth,im.naturalHeight)),w=Math.round(im.naturalWidth*sc),h=Math.round(im.naturalHeight*sc);
+    const c=document.createElement("canvas");c.width=w;c.height=h;const x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,w,h);x.drawImage(im,0,0,w,h);
+    const d=c.toDataURL("image/jpeg",.85);URL.revokeObjectURL(url);
+    pendingImg={url:d,b64:d.split(",")[1]};removeImg=false;paint();say("msg","Resized to "+w+"×"+h+". Save to publish.","");
+  }catch(e){say("msg",e.message,"bad")}
+};
+
+async function putFile(path,content,message,fileSha){
+  return gh(`/repos/${REPO}/contents/${path}`,{method:"PUT",body:JSON.stringify({message,content,branch:BRANCH,...(fileSha?{sha:fileSha}:{})})});
+}
+$("save").onclick=async()=>{
+  if(!cur)return;$("save").disabled=true;say("msg","Saving…");
+  const id=cur,s=DATA.stations[id];
+  try{
+    let newPath=null;
+    if(pendingImg){newPath="data/img/"+id.replace(/[^\w-]/g,"_")+"-"+Date.now().toString(36)+".jpg";await putFile(newPath,pendingImg.b64,"Stop image: "+s.n)}
+    for(let attempt=0;attempt<2;attempt++){
+      await loadStops();
+      const prev=stops[id]||{},e={...prev};
+      const note=$("note").value.trim();
+      if(note)e.note=note;else delete e.note;
+      if(newPath)e.img=newPath;else if(removeImg)delete e.img;
+      if(e.note||e.img)stops[id]=e;else delete stops[id];
+      const body=JSON.stringify({v:1,stops},null,1)+"\n";
+      try{
+        await putFile(JSON_PATH,b64(body),"Stop notes: "+s.n,sha);
+        if((newPath||removeImg)&&prev.img&&prev.img!==e.img){ // tidy the replaced upload
+          try{const m=await gh(`/repos/${REPO}/contents/${prev.img}?ref=${BRANCH}`);await gh(`/repos/${REPO}/contents/${prev.img}`,{method:"DELETE",body:JSON.stringify({message:"Remove replaced image",sha:m.sha,branch:BRANCH})})}catch(x){}
+        }
+        break;
+      }catch(e2){if(attempt===1||!(e2.status===409||e2.status===422))throw e2}
+    }
+    await loadStops();pendingImg=null;removeImg=false;$("file").value="";
+    say("msg","Saved. It shows on the map in about a minute.","ok");paint();buildList();
+  }catch(e){say("msg","Not saved: "+e.message,"bad")}
+  $("save").disabled=false;
+};
+</script>
+</body>
+</html>

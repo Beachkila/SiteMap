@@ -13,9 +13,7 @@ const code = html.slice(start, end) + "\nreturn {S,L,LINKS};";
 const { S, L, LINKS } = new Function(code)();
 // Extra addresses that show the same stop: a project's board page and its live GitHub Pages site.
 const BOARD = "https://board.studiowetware.com/p/";
-const BOARD_SLUGS = { picam: "pi-cam-ir-a", atlas: "atlas", blackbox: "black-box", bucke: "buck-e", pender: "pender", bang: "bang",
-  planes: "plane-spotter", githoods: "githoods", BSG: "beach-self-grading", NET: "the-cyanotype-network", cyanogal: "cyanotype",
-  lino: "linocuts", pendergal: "pender-art", irgal: "infrared-photography", pimaker: "the-sandbox" };
+const BOARD_SLUGS = { cyanogal: "cyanotype", lino: "linocuts", pendergal: "pender-art", irgal: "infrared-photography", pimaker: "the-sandbox" };
 // The Network site is one page that switches by #/route. These routes belong to the stop named here.
 const NETU = "https://network.studiowetware.com/";
 const HASH_ALIASES = { n_feed: ["#/print"], n_mine: ["#/upload", "#/edit", "#/account", "#/collected"],

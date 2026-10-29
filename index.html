@@ -20,12 +20,15 @@ html,body{margin:0}
   --bg:#ffffff; --board:#fbfbf8; --ink:#1b1c1e; --muted:#62656b; --rule:#dcdcd6; --stn:#ffffff; --shade:rgba(20,20,20,.18);
   --display:"Overpass","Helvetica Neue",Arial,sans-serif;
   --mono:"Overpass Mono",ui-monospace,Menlo,monospace;
-  --red:#E3242B; --orange:#F28C28; --yellow:#F2BF00; --green:#00964A; --blue:#0072CE; --purple:#7B2D8E; --brown:#8C5A2B; --teal:#00A19C; --pink:#D6459B; --gray:#8A8D91; --focus:#0072CE; --here:#E3242B;
+  --red:#E3242B; --orange:#F28C28; --yellow:#F2BF00; --green:#00964A; --blue:#0072CE; --purple:#7B2D8E; --brown:#8C5A2B; --teal:#00A19C; --pink:#D6459B; --gray:#8A8D91; --focus:#0072CE; --here:#E3242B;--was:#1E9E55;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#121314;--board:#17181a;--ink:#ececE8;--muted:#a3a6ab;--rule:#2d2f32;--stn:#17181a;--brown:#B07A45;--shade:rgba(0,0,0,.5);color-scheme:dark}}
 :root[data-theme="dark"]{--bg:#121314;--board:#17181a;--ink:#ececE8;--muted:#a3a6ab;--rule:#2d2f32;--stn:#17181a;--brown:#B07A45;--shade:rgba(0,0,0,.5);color-scheme:dark}
 [hidden]{display:none!important}
-html,body{height:100%}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+html,body{height:100%;height:100dvh}
+.bs{display:none}
+#linesBtn{flex:none;white-space:nowrap}
 body{background:var(--bg);color:var(--ink);font-family:var(--display);font-size:14px;line-height:1.45;overflow:hidden;box-sizing:border-box;padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 .app{height:100%;display:flex;flex-direction:column;gap:8px;max-width:1500px;margin:0 auto}
 .bar{display:flex;align-items:center;gap:6px 16px;border-bottom:3px solid var(--ink);padding-bottom:6px;min-width:0}
@@ -51,7 +54,7 @@ button:focus-visible,a:focus-visible{outline:3px solid var(--focus);outline-offs
 /* station window */
 .sheet{position:absolute;z-index:5;background:var(--bg);border:2px solid var(--ink);overflow:hidden;box-shadow:0 8px 24px var(--shade);display:flex;flex-direction:column}
 .sheet.float{width:270px;border-radius:12px}
-.sheet.bottom{left:0;right:0;bottom:0;border-radius:16px 16px 0 0;border-width:2px 0 0;max-height:62%;padding-bottom:env(safe-area-inset-bottom,0px);touch-action:pan-y}
+.sheet.bottom{left:0;right:0;bottom:0;border-radius:16px 16px 0 0;border-width:2px 0 0;max-height:min(62%,68dvh);padding-bottom:env(safe-area-inset-bottom,0px);touch-action:pan-y}
 .sheet .grab{height:18px;display:flex;justify-content:center;align-items:center;flex:none}
 .sheet .grab span{width:40px;height:4px;border-radius:2px;background:var(--rule)}
 .sheet.float .grab{display:none}
@@ -69,6 +72,9 @@ button:focus-visible,a:focus-visible{outline:3px solid var(--focus);outline-offs
 .chip[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
 .youhere{align-self:flex-start;background:var(--here);color:#fff;font-weight:800;font-size:12px;border-radius:999px;padding:2px 10px;letter-spacing:.02em}
 .tag-here rect{fill:var(--here)}
+.tag-was rect{fill:var(--was)}
+.tag-was text{fill:#fff;font-weight:800;font-family:var(--display)}
+.youhere.was{background:var(--was)}
 .tag-here text{fill:#fff;font-weight:800;font-family:var(--display)}
 @media (prefers-reduced-motion:no-preference){.pulse{transform-box:fill-box;transform-origin:center;animation:pulse 1.8s ease-out infinite}@keyframes pulse{0%{transform:scale(.6);opacity:1}100%{transform:scale(1.6);opacity:0}}}
 .sheet b{font-size:19px;font-weight:800;line-height:1.2}
@@ -120,7 +126,11 @@ svg text{font-family:var(--display)}
 @media (max-width:699px){
   body{padding-block:6px}
   .legend{display:none}
-  h1{font-size:18px;flex:1}
+  .bar{align-items:flex-end;gap:8px}
+  h1{display:flex;flex-direction:column;flex:1;min-width:0;white-space:normal;line-height:1.1;font-size:20px}
+  h1 .t-abbr{order:-1;font-size:21px}
+  h1 .t-main{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.02em}
+  .bl{display:none}.bs{display:inline}
   .ctrls{top:auto;bottom:12px;transform:none}
 }
 html.embed .bar,html.embed .privlink{display:none}
@@ -137,9 +147,9 @@ html.embed .bar,html.embed .privlink{display:none}
 <body>
 <div class="app">
   <div class="bar">
-    <h1>Studio Wetware Transit Authority (S.We.T.A.) </h1>
+    <h1><span class="t-main">Studio Wetware Transit Authority</span> <span class="t-abbr">(S.We.T.A.)</span></h1>
     <div class="legend" id="legend" aria-label="Follow a line"></div>
-    <button class="btn" id="linesBtn" aria-expanded="false">Lines &amp; stations</button>
+    <button class="btn" id="linesBtn" aria-expanded="false"><span class="bl">Lines &amp; stations</span><span class="bs">Lines</span></button>
   </div>
   <div class="board" id="board">
     <svg id="map" role="img" aria-label="Subway-style map of Studio Wetware web pages"></svg>
@@ -180,7 +190,7 @@ const S={
  enlarger:{n:"Enlarger (write-up)",u:SW+"/negative-enlarger/",site:"sw",img:"i0/2026/09/Screenshot-2026-09-27-154049.png"},
  NET:{n:"The Cyanotype Network",u:"https://network.studiowetware.com/",hub:1,dom:"network.studiowetware.com",site:"net",img:null},
  n_feed:{n:"Feed",u:NETU+"/#/feed",site:"net",img:null},
- n_neg:{n:"Negatives (tool)",u:NETU+"/#/negatives",site:"net",img:null},
+ n_neg:{n:"SoLaT Negatives (tool)",u:NETU+"/#/negatives",site:"net",img:null},
  n_cmyk:{n:"CMYK (tool)",u:NETU+"/#/cmyk",site:"net",img:null},
  n_enl:{n:"Enlarger (tool)",u:NETU+"/#/enlarger",site:"net",img:null},
  n_forecast:{n:"UV Forecast (tool)",u:NETU+"/#/forecast",site:"net",img:null},
@@ -189,7 +199,7 @@ const S={
  n_mine:{n:"Profile",u:NETU+"/#/mine",site:"net",img:null},
  n_learn:{n:"Learn",u:NETU+"/",nm:1,site:"net",img:null},
  SMW:{n:"Small Works",u:"https://smallworks.studiowetware.com/",pages:1,hub:1,dom:"smallworks.studiowetware.com",site:"smw",img:null},
- gitbeach:{n:"GitBeach",u:SW+"/gitbeach/",site:"sw",img:"i0/2026/10/img_8407.jpg"},
+ gitbeach:{n:"GitBeach",u:SW+"/gitbeach/",site:"sw",img:null},
  picam:{n:"Pi-Cam-IR-A",u:SW+"/pi-cam-ir-a/",site:"sw",img:"i0/2026/08/img_6445.jpg"},
  atlas:{n:"Atlas",u:SW+"/atlas/",site:"sw",img:"i0/2026/09/image-6.jpg"},
  blackbox:{n:"Black Box",u:SW+"/black-box/",site:"sw",img:"sw/2026/07/image-11.jpg"},
@@ -230,63 +240,215 @@ const S={
  step4:{n:"Step 4 · Wash",u:SW+"/step-4/",site:"sw",img:"sw/2026/02/img_3262-edited.jpg"}
 };
 // Board projects with no page elsewhere: stops on the Board line, linking to their board pages.
-const BOARD_PROJECTS=[["ai-station","AI Station"],["dock-to-stock","Dock to Stock"],["beelab","BeeLab"],["coolpix-ir","Coolpix IR conversion"],["droneaware-node","DroneAware node"],["fire-hd8-linux-pad","Fire HD 8 Linux pad"],["ink-drawer","Ink Drawer"],["redditprofiler","redditprofiler"],["snake-lcd-pi","Snake LCD Pi"],["ir-dev","IR DEV"],["nmap-subway","nmap subway"]];
+const BOARD_PROJECTS=[["pi-cam-ir-a","Pi-Cam-IR-A"],["atlas","Atlas"],["black-box","Black Box"],["buck-e","Buck-E"],["pender","Pender"],["bang","Bang"],["plane-spotter","Plane Spotter"],["githoods","GitHoods"],["ai-station","AI Station"],["dock-to-stock","Dock to Stock"],["beelab","BeeLab"],["coolpix-ir","Coolpix IR conversion"],["droneaware-node","DroneAware node"],["fire-hd8-linux-pad","Fire HD 8 Linux pad"],["ink-drawer","Ink Drawer"],["redditprofiler","redditprofiler"],["snake-lcd-pi","Snake LCD Pi"],["ir-dev","IR DEV"],["nmap-subway","nmap subway"],["beach-self-grading","Beach Self Grading"],["the-cyanotype-network","The Cyanotype Network"]];
 const PROJ=BOARD_PROJECTS.map(([slug,n])=>{const id="bp-"+slug;S[id]={n,u:BRD+"/p/"+slug+"/",site:"board",img:null};return id});
 Object.assign(S["bp-ir-dev"],{pages:1,live:"https://beachkila.github.io/IR/"});
 // This map: its own board project, last stop on the Board projects branch, drawn as the red "You are here" stop.
-S.here={n:"S.We.T.A. Map",u:BRD+"/p/sweta-map/",live:"https://beachkila.github.io/SiteMap/",pages:1,site:"board",img:null,here:1};PROJ.unshift("here");
+S.here={n:"S.We.T.A. Map",u:BRD+"/p/sweta-map/",live:"https://beachkila.github.io/SiteMap/",pages:1,site:"board",img:null,here:1};PROJ.splice(8,0,"here");
 
 // Lines. "@name" is a bend token; each layout says where its bends go (zero or more points).
 const L=[
- {id:"red",n:"Cyanotype Process",c:"--red",b:[["SW","process","light","salt","thinkneg","seepos"]]},
- {id:"orange",n:"Cyanotype Step-by-step",c:"--orange",b:[["SW","sbs","@or","step1","step2","step3","step4"]]},
- {id:"blue",n:"The Cyanotype Network",c:"--blue",b:[["SW","@blT","NET","n_feed","n_neg","n_cmyk","n_enl","n_forecast","n_bench","n_tags","n_mine","n_learn"]]},
+ {id:"red",n:"Cyanotype Process",c:"--red",b:[["SW","@rR","process","thinkneg","salt","light","@rT","seepos"]]},
+ {id:"orange",n:"Cyanotype Step-by-step",c:"--orange",b:[["SW","@oR","sbs","step1","step2","step3","@oT","step4"]]},
+ {id:"blue",n:"The Cyanotype Network",c:"--blue",b:[["SW","@blT","NET","n_feed","n_neg","n_cmyk","n_enl","n_forecast","@bT","n_bench","n_tags","n_mine","n_learn"]]},
  {id:"writeups",n:"Tool write-ups",c:"--pink",b:[["SW","@wA","netpage","solat","cmyk","enlarger","sunprint"]]},
  {id:"teal",n:"Small Works",c:"--teal",b:[["SW","@te","SMW"]]},
- {id:"green",n:"Gallery",c:"--green",b:[["SW","@gr","galleries","cyanogal","lino","pendergal","irgal","neggal","digigal","ui","undisc"]]},
- {id:"purple",n:"GitBeach",c:"--purple",b:[["SW","gitbeach","picam","atlas","blackbox","bucke","pender","bang","potholes","planes","githoods"]]},
- {id:"brown",n:"Board",c:"--brown",b:[["gitbeach","@brA","board","mediums","stack"],["board","@brP",...PROJ]]},
- {id:"pages",n:"GitHub Pages",c:"--teal",dash:1,b:[["stack","pimaker"]]},
- {id:"yellow",n:"Beach Self-Grading",c:"--yellow",b:[["SW","BSG","create","bsggal","templates"],["BSG","whatis","contact"]]},
+ {id:"green",n:"All Galleries",c:"--green",b:[["SW","@gr","galleries","cyanogal","lino","pendergal","irgal","@gr2","neggal","digigal","ui","undisc"]]},
+ {id:"purple",n:"GitBeach",c:"--purple",b:[["SW","gitbeach","@puB","picam","atlas","blackbox","bucke","pender","bang","potholes","planes","githoods"]]},
+ {id:"brown",n:"Board",c:"--brown",b:[["gitbeach","@brA","board"],["board","mediums","stack","pimaker"],["board","@brP",...PROJ.slice(0,8),"@brU",...PROJ.slice(8)]]},
+ {id:"yellow",n:"Beach Self-Grading",c:"--yellow",b:[["SW","@yb","BSG","create","bsggal","templates"],["BSG","whatis","contact"]]},
  {id:"gray",n:"About",c:"--gray",b:[["SW","about"]]}
 ];
 
 // Connections that are not lines. "w": same subject, an interchange you can walk between. "l": Learn links back to its pages.
-const LINKS=[["thinkneg","step1","w"],["thinkneg","solat","w"],["netpage","NET","w"],["solat","n_neg","w"],["cmyk","n_cmyk","w"],["enlarger","n_enl","w"],["sunprint","n_forecast","w"],["n_learn","process","l"],["n_learn","sbs","l"],["n_learn","solat","l"],["n_learn","sunprint","l"]];
+// Shared stations: one capsule across every line that stops there. m: member stops (page per line), a: the member the label hangs from, n: station name.
+const GROUPS=[{id:"net",n:"The Network",a:"NET",m:["netpage","NET"]},{id:"neg",n:"SoLaT Negatives",a:"n_neg",m:["thinkneg","step1","solat","n_neg"]},{id:"cmyk",n:"CMYK",a:"n_cmyk",m:["cmyk","n_cmyk"]},{id:"enl",n:"Enlarger",a:"n_enl",m:["enlarger","n_enl"]},{id:"uv",n:"UV exposure",a:"n_forecast",m:["light","step3","sunprint","n_forecast"]}];
+GROUPS.push({id:"g_picam",n:"Pi-Cam-IR-A",a:"picam",m:["picam","bp-pi-cam-ir-a"]},{id:"g_atlas",n:"Atlas",a:"atlas",m:["atlas","bp-atlas"]},{id:"g_blackbox",n:"Black Box",a:"blackbox",m:["blackbox","bp-black-box"]},{id:"g_bucke",n:"Buck-E",a:"bucke",m:["bucke","bp-buck-e"]},{id:"g_pender",n:"PENDER Studios",a:"pender",m:["pender","bp-pender"]},{id:"g_bang",n:"Bang!",a:"bang",m:["bang","bp-bang"]},{id:"g_planes",n:"Plane Spotter",a:"planes",m:["planes","bp-plane-spotter"]},{id:"g_githoods",n:"GitHoods",a:"githoods",m:["githoods","bp-githoods"]});
+const GM={};GROUPS.forEach(g=>g.m.forEach(id=>GM[id]=g));
+const LINKS=[];GROUPS.forEach(g=>{for(let i=0;i<g.m.length;i++)for(let j=i+1;j<g.m.length;j++)LINKS.push([g.m[i],g.m[j],"w"])});
+LINKS.push(["n_learn","process","l"],["n_learn","sbs","l"],["n_learn","solat","l"],["n_learn","sunprint","l"]);
 const linksOf=id=>LINKS.filter(k=>k[0]===id||k[1]===id).map(k=>({id:k[0]===id?k[1]:k[0],t:k[2]}));
 
 // Two hand-placed layouts. p: id -> [x, y, label side]. Label sides: r l t b br, and 45° ur dl dr. h: hub label offsets.
 const LAYOUT={
  wide:{
-  p:{SW:[500,400],about:[555,345,"r"],netpage:[755,306,"r"],solat:[960,215,"t"],cmyk:[1032,215,"t"],enlarger:[1104,215,"t"],sunprint:[1176,215,"t"],NET:[755,400,"br"],
-   n_feed:[850,400,"t"],n_neg:[960,400,"dr"],n_cmyk:[1032,400,"dr"],n_enl:[1104,400,"dr"],n_forecast:[1176,400,"dr"],n_bench:[1248,400,"dr"],n_tags:[1320,400,"dr"],n_mine:[1392,400,"dr"],n_learn:[1464,400,"dr"],SMW:[760,470],
-   gitbeach:[500,510,"r"],picam:[545,555,"r"],atlas:[590,600,"r"],blackbox:[635,645,"l"],bucke:[695,645,"ur"],pender:[755,645,"ur"],bang:[815,645,"ur"],potholes:[875,645,"ur"],planes:[935,645,"ur"],githoods:[995,645,"ur"],
-   board:[500,700],mediums:[600,700,"b"],stack:[700,700,"b"],pimaker:[800,700,"b"],
-   BSG:[320,580],create:[320,625,"r"],bsggal:[320,665,"r"],templates:[320,705,"r"],whatis:[240,580,"t"],contact:[70,580,"t"],
-   galleries:[450,400,"dl"],cyanogal:[395,400,"dl"],lino:[340,400,"dl"],pendergal:[285,400,"dl"],irgal:[230,400,"dl"],neggal:[175,400,"dl"],digigal:[130,355,"l"],ui:[130,310,"l"],undisc:[130,265,"l"],
-   process:[500,330,"r"],light:[500,285,"r"],salt:[500,240,"r"],thinkneg:[500,195,"l"],seepos:[500,150,"r"],
-   sbs:[455,355,"l"],step1:[410,310,"l"],step2:[365,265,"l"],step3:[320,220,"l"],step4:[275,175,"l"]},
-  lr:{sunprint:[[1464,215]],solat:[[1464,125],[960,125]],process:[[1464,125],[620,125],[620,330]],sbs:[[1464,125],[455,125]]},
-  bend:{or:[],blT:[],wA:[[600,375]],te:[[570,470]],gr:[],brA:[],brP:[[600,800]]},
-  h:{SW:{n:[48,28,"start"],d:[48,44]},SMW:{n:[0,34,"middle"],d:[0,50]},BSG:{n:[-12,30,"end"],d:[-12,46]},board:{n:[18,-16,"start"]}},
+  p:{"process":[588,349,"ur"],
+   "netpage":[664,383,"ur",54],
+   "NET":[664,400,"ur"],
+   "sbs":[742,366,"ur",29],
+   "n_feed":[832,368,"dr"],
+   "thinkneg":[904,279,"dr"],
+   "step1":[904,296,"dr"],
+   "solat":[904,313,"dr"],
+   "n_neg":[904,330,"dr"],
+   "salt":[970,279,"ur"],
+   "cmyk":[1036,313,"dr"],
+   "n_cmyk":[1036,330,"dr"],
+   "step2":[1096,276,"ur",29],
+   "enlarger":[1176,253,"dr"],
+   "n_enl":[1176,270,"dr"],
+   "light":[1238,219,"dr"],
+   "step3":[1238,236,"dr"],
+   "sunprint":[1238,253,"dr"],
+   "n_forecast":[1238,270,"dr"],
+   "seepos":[1299,166,"l"],
+   "step4":[1316,114,"l"],
+   "n_bench":[1350,62,"r"],
+   "n_tags":[1350,10,"r"],
+   "n_mine":[1350,-42,"r"],
+   "n_learn":[1350,-94,"r"],
+   "picam":[595,592,"dr"],
+   "bp-pi-cam-ir-a":[595,575,"dr"],
+   "atlas":[655,592,"dr"],
+   "bp-atlas":[655,575,"dr"],
+   "blackbox":[770,632,"dr"],
+   "bp-black-box":[770,615,"dr"],
+   "bucke":[830,632,"dr"],
+   "bp-buck-e":[830,615,"dr"],
+   "pender":[890,632,"dr"],
+   "bp-pender":[890,615,"dr"],
+   "bang":[950,632,"dr"],
+   "bp-bang":[950,615,"dr"],
+   "potholes":[1030,612,"dr"],
+   "planes":[1080,592,"dr"],
+   "bp-plane-spotter":[1080,575,"dr"],
+   "githoods":[1150,592,"dr"],
+   "bp-githoods":[1150,575,"dr"],
+   "SW":[500,400],
+   "about":[500,320,"t"],
+   "SMW":[300,400],
+   "BSG":[330,330],
+   "create":[330,285,"r"],
+   "bsggal":[290,170,"r"],
+   "templates":[290,115,"r"],
+   "whatis":[270,330,"t"],
+   "contact":[160,290,"t"],
+   "galleries":[360,490,"dl"],
+   "cyanogal":[300,490,"dl"],
+   "lino":[240,490,"dl"],
+   "pendergal":[130,530,"dl"],
+   "irgal":[70,530,"dl"],
+   "neggal":[80,690,"dr"],
+   "digigal":[140,690,"dr"],
+   "ui":[250,730,"dr"],
+   "undisc":[310,730,"dr"],
+   "gitbeach":[500,510,"l"],
+   "board":[517,545],
+   "mediums":[610,545,"t"],
+   "stack":[700,545,"t"],
+   "pimaker":[850,510,"t"],
+   "here":[1215,740,"dl"],
+   "bp-ai-station":[1163,740,"dl"],
+   "bp-dock-to-stock":[1111,740,"dl"],
+   "bp-beelab":[1059,740,"dl"],
+   "bp-coolpix-ir":[1007,740,"dl"],
+   "bp-droneaware-node":[955,740,"dl"],
+   "bp-fire-hd8-linux-pad":[903,740,"dl"],
+   "bp-ink-drawer":[851,740,"dl"],
+   "bp-redditprofiler":[730,790,"dl"],
+   "bp-snake-lcd-pi":[678,790,"dl"],
+   "bp-ir-dev":[626,790,"dl"],
+   "bp-nmap-subway":[574,790,"dl"],
+   "bp-beach-self-grading":[522,790,"dl"],
+   "bp-the-cyanotype-network":[470,790,"dl"]},
+  lr:{},
+  eb:{"process>thinkneg":[[779,349],[849,279]],"salt>light":[[1069,279],[1129,219]],"light>seepos":[[1259,219],[1299,179]],"sbs>step1":[[786,366],[856,296]],"step1>step2":[[1076,296]],"step2>step3":[[1136,236]],"step3>step4":[[1266,236],[1316,186]],"NET>n_feed":[[800,400]],"n_feed>n_neg":[[870,330]],"n_cmyk>n_enl":[[1090,330],[1150,270]],"n_forecast>n_bench":[[1280,270],[1350,200]],"netpage>solat":[[793,383],[863,313]],"cmyk>enlarger":[[1083,313],[1143,253]],"atlas>blackbox":[[700,592],[740,632]],"bang>potholes":[[1010,632]],"potholes>planes":[[1050,592]],"bp-atlas>bp-black-box":[[707,575],[747,615]],"bp-bang>bp-plane-spotter":[[1003,615],[1043,575]],"create>bsggal":[[330,250],[290,210]],"whatis>contact":[[240,330],[200,290]],"lino>pendergal":[[205,490],[165,530]],"digigal>ui":[[175,690],[215,730]],"stack>pimaker":[[740,545],[775,510]],"bp-ink-drawer>bp-redditprofiler":[[820,740],[770,790]]},
+  bend:{"rT":[],"oT":[],"bT":[],"rR":[[551,349]],"oR":[[534,366]],"wA":[[517,383]],"blT":[],"yb":[[430,330]],"gr":[[410,490]],"gr2":[[30,530],[0,570],[0,650],[30,690]],"te":[],"puB":[[500,592]],"brA":[[517,527]],"brP":[[517,575]],"brU":[[1250,575],[1295,620],[1295,695],[1250,740]]},
+  gs:{"net":"ur","neg":"dr","cmyk":"dr","enl":"dr","uv":"dr","g_picam":"dr","g_atlas":"dr","g_blackbox":"dr","g_bucke":"dr","g_pender":"dr","g_bang":"dr","g_planes":"dr","g_githoods":"dr"},
+  ga:{"net":"netpage"},
+  h:{"SW":{"n":[44,52,"start"],"d":[44,68]},"SMW":{"n":[0,34,"middle"],"d":[0,50]},"BSG":{"n":[-12,30,"end"],"d":[-12,46]},"board":{"n":[-18,34,"end"]}},
   proj:i=>[635+i*50,800,"dr"]
  },
  tall:{
-  p:{SW:[380,560],about:[425,515,"r"],netpage:[640,520,"l"],solat:[640,410,"l"],cmyk:[640,355,"l"],enlarger:[640,300,"l"],sunprint:[640,245,"l"],NET:[760,520],
-   n_feed:[760,465,"r"],n_neg:[760,410,"r"],n_cmyk:[760,355,"r"],n_enl:[760,300,"r"],n_forecast:[760,245,"r"],n_bench:[760,190,"r"],n_tags:[760,135,"r"],n_mine:[760,80,"r"],n_learn:[760,25,"r"],SMW:[660,600],
-   gitbeach:[380,630,"r"],picam:[380,690,"r"],atlas:[380,745,"r"],blackbox:[380,800,"r"],bucke:[380,855,"r"],pender:[380,910,"r"],bang:[380,965,"r"],potholes:[380,1020,"r"],planes:[380,1075,"r"],githoods:[380,1130,"r"],
-   board:[600,670],mediums:[690,670,"b"],stack:[780,670,"b"],pimaker:[870,670,"b"],
-   BSG:[240,700],create:[240,760,"l"],bsggal:[240,815,"l"],templates:[240,870,"l"],whatis:[140,700,"b"],contact:[40,700,"b"],
-   galleries:[40,505,"r"],cyanogal:[40,450,"r"],lino:[40,395,"r"],pendergal:[40,340,"r"],irgal:[40,285,"r"],neggal:[40,230,"r"],digigal:[40,175,"r"],ui:[40,120,"r"],undisc:[40,65,"r"],
-   process:[380,490,"r"],light:[380,435,"r"],salt:[380,380,"r"],thinkneg:[380,325,"r"],seepos:[380,270,"r"],
-   sbs:[300,480,"l"],step1:[210,335,"r"],step2:[210,280,"r"],step3:[210,225,"r"],step4:[210,170,"r"]},
-  lr:{sunprint:[[640,25]],solat:[[585,25],[585,410]],process:[[520,25],[520,490]],sbs:[[300,25]]},
-  bend:{or:[[210,390]],blT:[[560,575],[700,575]],wA:[[520,525]],te:[[420,600]],gr:[[40,560]],brA:[[400,650],[580,650]],brP:[]},
-  h:{SW:{n:[-35,-15,"end"],d:[-45,-32]},NET:{n:[22,6,"start"],d:[22,22]},SMW:{n:[22,6,"start"],d:[22,22]},BSG:{n:[-14,-22,"end"],d:[-14,-40]},board:{n:[18,-18,"start"]}},
+  p:{"process":[470,742,"r",51],
+   "netpage":[504,696,"r"],
+   "NET":[521,696,"r"],
+   "sbs":[487,650,"r",34],
+   "n_feed":[541,595,"r"],
+   "thinkneg":[510,545,"r"],
+   "step1":[527,545,"r"],
+   "solat":[544,545,"r"],
+   "n_neg":[561,545,"r"],
+   "salt":[510,499,"r",51],
+   "cmyk":[544,453,"r"],
+   "n_cmyk":[561,453,"r"],
+   "step2":[527,407,"r",34],
+   "enlarger":[504,307,"r"],
+   "n_enl":[521,307,"r"],
+   "light":[470,261,"r"],
+   "step3":[487,261,"r"],
+   "sunprint":[504,261,"r"],
+   "n_forecast":[521,261,"r"],
+   "seepos":[510,115,"r",51],
+   "step4":[527,69,"r",34],
+   "n_bench":[561,23,"r"],
+   "n_tags":[561,-23,"r"],
+   "n_mine":[561,-69,"r"],
+   "n_learn":[561,-115,"r"],
+   "picam":[470,1013,"l"],
+   "bp-pi-cam-ir-a":[487,1013,"r"],
+   "atlas":[470,1059,"l"],
+   "bp-atlas":[487,1059,"r"],
+   "blackbox":[470,1105,"l"],
+   "bp-black-box":[487,1105,"r"],
+   "bucke":[470,1151,"l"],
+   "bp-buck-e":[487,1151,"r"],
+   "pender":[510,1253,"l"],
+   "bp-pender":[527,1253,"r"],
+   "bang":[510,1299,"l"],
+   "bp-bang":[527,1299,"r"],
+   "potholes":[510,1345,"l"],
+   "planes":[510,1391,"l"],
+   "bp-plane-spotter":[527,1391,"r"],
+   "githoods":[510,1437,"l"],
+   "bp-githoods":[527,1437,"r"],
+   "SW":[470,820],
+   "about":[560,820,"r"],
+   "SMW":[330,820],
+   "BSG":[300,760],
+   "create":[300,715,"l"],
+   "bsggal":[260,600,"l"],
+   "templates":[260,555,"l"],
+   "whatis":[250,760,"t"],
+   "contact":[140,720,"t"],
+   "galleries":[340,890,"dl"],
+   "cyanogal":[285,890,"dl"],
+   "lino":[230,890,"dl"],
+   "pendergal":[130,920,"dl"],
+   "irgal":[75,920,"dl"],
+   "neggal":[70,1050,"dr"],
+   "digigal":[125,1050,"dr"],
+   "ui":[220,1080,"dr"],
+   "undisc":[275,1080,"dr"],
+   "gitbeach":[470,900,"l"],
+   "board":[487,950],
+   "mediums":[535,950,"t"],
+   "stack":[580,950,"t"],
+   "pimaker":[625,950,"t"],
+   "here":[690,1440,"r"],
+   "bp-ai-station":[690,1402,"r"],
+   "bp-dock-to-stock":[690,1364,"r"],
+   "bp-beelab":[690,1326,"r"],
+   "bp-coolpix-ir":[690,1288,"r"],
+   "bp-droneaware-node":[690,1250,"r"],
+   "bp-fire-hd8-linux-pad":[690,1212,"r"],
+   "bp-ink-drawer":[690,1174,"r"],
+   "bp-redditprofiler":[690,1136,"r"],
+   "bp-snake-lcd-pi":[690,1098,"r"],
+   "bp-ir-dev":[690,1060,"r"],
+   "bp-nmap-subway":[690,1022,"r"],
+   "bp-beach-self-grading":[690,984,"r"],
+   "bp-the-cyanotype-network":[690,946,"r"]},
+  lr:{},
+  eb:{"process>thinkneg":[[470,594],[510,554]],"salt>light":[[510,396],[470,356]],"light>seepos":[[470,164],[510,124]],"sbs>step1":[[487,601],[527,561]],"step2>step3":[[527,389],[487,349]],"step3>step4":[[487,171],[527,131]],"NET>n_feed":[[521,615]],"n_feed>n_neg":[[561,575]],"n_cmyk>n_enl":[[561,375],[521,335]],"n_forecast>n_bench":[[521,185],[561,145]],"netpage>solat":[[504,608],[544,568]],"cmyk>enlarger":[[544,382],[504,342]],"bucke>pender":[[470,1185],[510,1225]],"bp-buck-e>bp-pender":[[487,1178],[527,1218]],"create>bsggal":[[300,685],[260,645]],"whatis>contact":[[215,760],[180,720]],"lino>pendergal":[[195,890],[165,920]],"digigal>ui":[[155,1050],[185,1080]]},
+  bend:{"rT":[],"oT":[],"bT":[],"rR":[],"oR":[[487,803]],"wA":[[504,786]],"blT":[[521,769]],"yb":[[410,760]],"gr":[[400,890]],"gr2":[[40,920],[10,950],[10,1020],[40,1050]],"te":[],"puB":[],"brA":[[487,917]],"brP":[],"brU":[[527,1470],[560,1498],[650,1498],[690,1458]]},
+  gs:{"net":"r","neg":"r","cmyk":"r","enl":"r","uv":"r","g_picam":"r","g_atlas":"r","g_blackbox":"r","g_bucke":"r","g_pender":"r","g_bang":"r","g_planes":"r","g_githoods":"r"},
+  ga:{"g_picam":"bp-pi-cam-ir-a","g_atlas":"bp-atlas","g_blackbox":"bp-black-box","g_bucke":"bp-buck-e","g_pender":"bp-pender","g_bang":"bp-bang","g_planes":"bp-plane-spotter","g_githoods":"bp-githoods"},
+  h:{"SW":{"n":[-35,-15,"end"],"d":[-45,-32]},"SMW":{"n":[0,30,"middle"],"d":[0,46]},"BSG":{"n":[10,28,"start"],"d":[10,44]},"board":{"n":[-14,6,"end"]}},
   proj:i=>[600,750+i*55,"r"]
  }
 };
-for(const k in LAYOUT)PROJ.forEach((id,i)=>LAYOUT[k].p[id]=LAYOUT[k].proj(i));
+for(const k in LAYOUT)PROJ.forEach((id,i)=>{if(!LAYOUT[k].p[id])LAYOUT[k].p[id]=LAYOUT[k].proj(i)});
 const SITES={sw:"studiowetware.com",net:"The Cyanotype Network",smw:"Small Works",bsg:"Beach Self-Grading",board:"Project Board",gh:"GitHub Pages"};
 
 function imgURL(s){
@@ -305,7 +467,10 @@ const col=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim
 const reduced=matchMedia("(prefers-reduced-motion: reduce)").matches;
 function el(t,a,p){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e}
 const P=id=>LAYOUT[lay].p[id];
-function pts(br){const out=[];br.forEach(q=>{if(q[0]==="@")LAYOUT[lay].bend[q.slice(1)].forEach(b=>out.push(b));else{const p=P(q);out.push([p[0],p[1]])}});return out}
+// Edge bends: LAYOUT.eb["a>b"] adds bend points between two consecutive stops, after any named bend token.
+function expandBr(br){const o=[];let prev=null;br.forEach(q=>{if(q[0]!=="@"){const e=(LAYOUT[lay].eb||{})[prev+">"+q];if(prev&&e)o.push("@~"+prev+">"+q);prev=q}o.push(q)});return o}
+const bendOf=q=>q[1]==="~"?LAYOUT[lay].eb[q.slice(2)]:LAYOUT[lay].bend[q.slice(1)];
+function pts(br){const out=[];expandBr(br).forEach(q=>{if(q[0]==="@")bendOf(q).forEach(b=>out.push(b));else{const p=P(q);out.push([p[0],p[1]])}});return out}
 const BR=l=>lay==="tall"&&l.bt?l.bt:l.b;
 const stopsOf=l=>{const s=[];l.b.forEach(br=>br.forEach(q=>{if(q[0]!=="@"&&!s.includes(q))s.push(q)}));return s};
 const ORDER={};L.forEach(l=>ORDER[l.id]=stopsOf(l));
@@ -322,16 +487,47 @@ const FS={stop:15,hub:18,dom:12,ov:13};
 function tw(text,kind){mctx.font=kind==="dom"?`400 ${FS.dom}px "Overpass Mono", monospace`:kind==="hub"?`800 ${FS.hub}px Overpass, Arial`:kind==="ov"?`800 ${FS.ov}px Overpass, Arial`:`600 ${FS.stop}px Overpass, Arial`;return mctx.measureText(text).width}
 
 // ---------- render ----------
+// "You were here": the page the rider came from. The strip passes ?from=<stop>; otherwise the referrer is matched to a stop.
+let FROM=null;
+(function(){
+  try{
+    const q=new URLSearchParams(location.search),f=q.get("from");
+    if(f&&S[f]){FROM=f}
+    else if(document.referrer){
+      const u=new URL(document.referrer),h=u.hostname.replace(/^www\./,""),cut=x=>x.replace(/[#?].*$/,"").replace(/\/+$/,"");
+      const hub={"studiowetware.com":"SW","network.studiowetware.com":"NET","beachselfgrading.com":"BSG","smallworks.studiowetware.com":"SMW","board.studiowetware.com":"board"};
+      const hit=Object.keys(S).find(id=>S[id].u&&!S[id].nm&&id!=="here"&&cut(S[id].u)===cut(u.origin+u.pathname));
+      FROM=hit||hub[h]||null;
+    }
+  }catch(e){}
+  if(FROM==="here"||new URLSearchParams(location.search).get("embed")==="1")FROM=null;
+})();
+// shortest ride between two stops along the drawn lines (shared stops are free to switch at)
+function traceTo(a,b){
+  const adj={},add=(u,v,g,w)=>{(adj[u]=adj[u]||[]).push({v,g,w})},len=g=>{let t=0;for(let i=1;i<g.length;i++)t+=Math.hypot(g[i][0]-g[i-1][0],g[i][1]-g[i-1][1]);return t};
+  L.forEach(l=>{if(l.dash)return;BR(l).forEach(br=>{let prev=null,mid=[];expandBr(br).forEach(q=>{
+    if(q[0]==="@"){bendOf(q).forEach(x=>mid.push(x));return}
+    if(prev){const A=P(prev),B=P(q),g=[[A[0],A[1]],...mid,[B[0],B[1]]],w=len(g);add(prev,q,g,w);add(q,prev,g.slice().reverse(),w)}
+    prev=q;mid=[]})})});
+  GROUPS.forEach(G=>{for(let i=0;i<G.m.length;i++)for(let j=i+1;j<G.m.length;j++){const A=P(G.m[i]),B=P(G.m[j]);add(G.m[i],G.m[j],[[A[0],A[1]],[B[0],B[1]]],1);add(G.m[j],G.m[i],[[B[0],B[1]],[A[0],A[1]]],1)}});
+  const dist={[a]:0},prevE={},done=new Set();
+  for(;;){let u=null;for(const id in dist)if(!done.has(id)&&(u===null||dist[id]<dist[u]))u=id;if(u===null||u===b)break;done.add(u);
+    (adj[u]||[]).forEach(e=>{const d=dist[u]+e.w;if(dist[e.v]===undefined||d<dist[e.v]){dist[e.v]=d;prevE[e.v]={u,g:e.g}}})}
+  if(dist[b]===undefined)return null;
+  const segs=[];for(let c=b;c!==a;c=prevE[c].u)segs.unshift(prevE[c].g);
+  const out=[];segs.forEach(g=>g.forEach(p=>{const l=out[out.length-1];if(!l||l[0]!==p[0]||l[1]!==p[1])out.push(p)}));
+  return out;
+}
 // "You are here" tag beside the map's own stop, drawn at a fixed screen size.
 let hereBoxes=[];
-function hereTag(p,rr,k,g){
+function hereTag(p,rr,k,g,txt0,cls0,fill0){
   if(p[0]<vb.x||p[0]>vb.x+vb.w||p[1]<vb.y||p[1]>vb.y+vb.h)return; // stop is off screen
-  const txt="You are here",fs=13*k,w=tw(txt,"stop")*13/15*k+20*k,h=24*k,gap=8*k;
+  const txt=txt0||"You are here",fs=13*k,w=tw(txt,"stop")*13/15*k+20*k,h=24*k,gap=8*k;
   const m=8*k,side=lay==="tall"; // portrait: the stop sits on a vertical line, so the tag goes to its left
   const x=side?p[0]-rr-gap-w-6*k:Math.min(Math.max(p[0]-w/2,vb.x+m),vb.x+vb.w-w-m),y=side?p[1]-h/2:p[1]-rr-gap-h-6*k;
-  const t=el("g",{class:"tag-here"},g);
+  const t=el("g",{class:cls0||"tag-here"},g);
   el("rect",{x,y,width:w,height:h,rx:h/2},t);
-  el("path",{d:side?`M${x+w-1} ${p[1]-5*k} L${x+w+6*k} ${p[1]} L${x+w-1} ${p[1]+5*k}Z`:`M${p[0]-5*k} ${y+h-1} L${p[0]} ${y+h+6*k} L${p[0]+5*k} ${y+h-1}Z`,fill:col("--here")},t);
+  el("path",{d:side?`M${x+w-1} ${p[1]-5*k} L${x+w+6*k} ${p[1]} L${x+w-1} ${p[1]+5*k}Z`:`M${p[0]-5*k} ${y+h-1} L${p[0]} ${y+h+6*k} L${p[0]+5*k} ${y+h-1}Z`,fill:col(fill0||"--here")},t);
   const tx=el("text",{x:x+w/2,y:y+h/2+fs*.36,"text-anchor":"middle","font-size":fs},t);tx.textContent=txt;
   hereBoxes.push({x0:x,y0:y,x1:x+w+6*k,y1:y+h+6*k});
 }
@@ -347,32 +543,44 @@ function render(){
   // links: interchanges you can walk between (solid) and Learn's links back to its pages (faint, dashed)
   LINKS.forEach(([a,b,t])=>{
     const pa=P(a),pb=P(b),hot=sel===a||sel===b,dimK=onF&&!(onF.has(a)||onF.has(b))&&!hot;
-    if(t==="w")el("path",{d:`M${pa[0]} ${pa[1]} L${pb[0]} ${pb[1]}`,fill:"none",stroke:col("--ink"),"stroke-width":4*k*Math.max(.6,zs),"stroke-linecap":"round",opacity:dimK?.2:1},gK);
-    else{const via=(LAYOUT[lay].lr||{})[b]||[],q=[pa,...via,pb];
+    if(t==="w"){}else if(false)el("path",{d:`M${pa[0]} ${pa[1]} L${pb[0]} ${pb[1]}`,fill:"none",stroke:col("--ink"),"stroke-width":4*k*Math.max(.6,zs),"stroke-linecap":"round",opacity:dimK?.2:1},gK);
+    else if((LAYOUT[lay].lr||{})[b]){const via=LAYOUT[lay].lr[b],G2=GM[b],pb2=G2?G2.m.map(P).sort((u,v)=>u[1]-v[1]||u[0]-v[0])[0]:pb,q=[pa,...via,pb2];
       el("path",{d:"M"+q.map(r=>r[0]+" "+r[1]).join(" L"),fill:"none",stroke:col("--gray"),"stroke-width":(hot?3.4:2.2)*k*Math.max(.6,zs),"stroke-linecap":"round","stroke-linejoin":"round","stroke-dasharray":`${8*k} ${7*k}`,opacity:dimK?.12:hot?1:.55},gK)}
   });
+  // the ride from where you came from to this map
+  if(FROM){const tp=traceTo(FROM,"here");if(tp&&tp.length>1){
+    const d="M"+tp.map(q=>q.join(" ")).join(" L"),z=Math.max(.6,zs),base={d,fill:"none","stroke-linecap":"round","stroke-linejoin":"round"};
+    el("path",{...base,stroke:col("--was"),"stroke-width":22*k*z,opacity:.12},gK);
+    el("path",{...base,stroke:col("--was"),"stroke-width":12*k*z,opacity:.25},gK);
+    const core=el("path",{...base,stroke:col("--was"),"stroke-width":4.2*k*z,opacity:.95,"stroke-dasharray":`${9*k*z} ${12*k*z}`},gK);
+    if(!reduced)el("animate",{attributeName:"stroke-dashoffset",from:0,to:-21*k*z,dur:"1.3s",repeatCount:"indefinite"},core)}}
   // stations
   const obst=[],labels=[];
+  GROUPS.forEach(g=>{const ps=g.m.map(P),xs=ps.map(p=>p[0]),ys=ps.map(p=>p[1]),x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys),rr=8.5*zs*k,dm=onF&&!g.m.some(m=>onF.has(m))&&!g.m.includes(sel);
+    el("rect",{x:x0-rr,y:y0-rr,width:x1-x0+2*rr,height:y1-y0+2*rr,rx:rr,fill:col("--stn"),stroke:col("--ink"),"stroke-width":3.2*k*Math.max(.7,zs),opacity:dm?.25:1},gS);
+    obst.push({x0:x0-rr,y0:y0-rr,x1:x1+rr,y1:y1+rr,dim:dm})});
   for(const id in S){
     const s=S[id],p=P(id),inter=realLines(id).length>1;const dim=onF&&!onF.has(id)&&sel!==id;
-    const rpx=(s.hub?11:s.xfer?9:inter?7.5:5.5)*zs,r=rpx*k;
+    const G=GM[id],rpx=(G?8.5:s.hub?11:s.xfer?9:inter?7.5:5.5)*zs,r=(G?3.4*zs:rpx)*k;
     const g=el("g",{class:"stn",tabindex:"0",role:"button","aria-label":s.n,"data-id":id,opacity:dim?.25:1},gS);
-    el("circle",{cx:p[0],cy:p[1],r:Math.max(r,24*k),fill:"transparent"},g);
-    if(s.here){const rr=9*Math.max(zs,.7)*k;el("circle",{cx:p[0],cy:p[1],r:rr+7*k,fill:col("--here"),"fill-opacity":.18,class:"pulse"},g);el("circle",{cx:p[0],cy:p[1],r:rr,fill:col("--here"),stroke:col("--ink"),"stroke-width":2.6*k},g);el("circle",{cx:p[0],cy:p[1],r:rr*.38,fill:col("--stn")},g);if(s.pages)el("circle",{cx:p[0],cy:p[1],r:rr+4.5*k,fill:"none",stroke:col("--teal"),"stroke-width":2*k,"stroke-dasharray":`${3*k} ${2.5*k}`},g);hereTag(p,rr,k,gT,obst,labels);obst.push({x0:p[0]-rr,y0:p[1]-rr,x1:p[0]+rr,y1:p[1]+rr,dim});labels.push(...labelCands(id,s,p,rr/k,k,dim,onF));continue}
+    el("circle",{cx:p[0],cy:p[1],r:G&&((LAYOUT[lay].ga||{})[G.id]||G.a)!==id?Math.max(r,4*k):Math.max(r,24*k),fill:"transparent"},g);
+    if(s.here){const rr=9*Math.max(zs,.7)*k;el("circle",{cx:p[0],cy:p[1],r:rr+7*k,fill:col("--here"),"fill-opacity":.18,class:"pulse"},g);el("circle",{cx:p[0],cy:p[1],r:rr,fill:col("--here"),stroke:col("--ink"),"stroke-width":2.6*k},g);el("circle",{cx:p[0],cy:p[1],r:rr*.38,fill:col("--stn")},g);if(s.pages)el("circle",{cx:p[0],cy:p[1],r:rr+4.5*k,fill:"none",stroke:col("--teal"),"stroke-width":2*k,"stroke-dasharray":`${3*k} ${2.5*k}`},g);hereTag(p,rr,k,gT);obst.push({x0:p[0]-rr,y0:p[1]-rr,x1:p[0]+rr,y1:p[1]+rr,dim});labels.push(...labelCands(id,s,p,rr/k,k,dim,onF));continue}
     if(HEAT){const mx=Math.max(1,...Object.values(HEAT)),v=HEAT[id]||0,f=v/mx;
       if(v>0){const hr=r+(10+34*Math.sqrt(f))*k*zs;el("circle",{cx:p[0],cy:p[1],r:hr,fill:`hsl(${Math.round(48-48*f)} 95% 52%)`,"fill-opacity":.28+.35*f,class:"heat"},g);
         el("circle",{cx:p[0],cy:p[1],r:hr*.62,fill:`hsl(${Math.round(48-48*f)} 95% 52%)`,"fill-opacity":.35+.3*f},g)}}
-    el("circle",{cx:p[0],cy:p[1],r,fill:col("--stn"),stroke:sel===id?col("--focus"):s.closed?col("--gray"):col("--ink"),"stroke-width":(s.hub||s.xfer||inter?3.5:2.6)*k,"stroke-dasharray":s.closed?`${2*k} ${2.5*k}`:"none"},g);
+    if(p[3]&&(!G||((LAYOUT[lay].ga||{})[G.id]||G.a)===id)){const sd=(G?LAYOUT[lay].gs[G.id]:p[2])||"r",v={r:[1,0],l:[-1,0],t:[0,-1],b:[0,1],ur:[.7071,-.7071],dr:[.7071,.7071],dl:[-.7071,.7071]}[sd]||[1,0],tl=p[3]+(rpx+2)*k;el("line",{x1:p[0],y1:p[1],x2:p[0]+v[0]*tl,y2:p[1]+v[1]*tl,stroke:col("--ink"),"stroke-width":1.7*k,"stroke-linecap":"round",opacity:.7},g)}
+    if(G){const lc=realLines(id)[0];el("circle",{cx:p[0],cy:p[1],r,fill:col(lc.c)},g)}else el("circle",{cx:p[0],cy:p[1],r,fill:col("--stn"),stroke:sel===id?col("--focus"):s.closed?col("--gray"):col("--ink"),"stroke-width":(s.hub||s.xfer||inter?3.5:2.6)*k,"stroke-dasharray":s.closed?`${2*k} ${2.5*k}`:"none"},g);
     if(s.pages)el("circle",{cx:p[0],cy:p[1],r:r+4.5*k,fill:"none",stroke:col("--teal"),"stroke-width":2*k,"stroke-dasharray":`${3*k} ${2.5*k}`},g);
     if(sel===id)el("circle",{cx:p[0],cy:p[1],r:r+5*k,fill:"none",stroke:col("--focus"),"stroke-width":2.5*k},g);
-    obst.push({x0:p[0]-r,y0:p[1]-r,x1:p[0]+r,y1:p[1]+r,dim});
+    if(FROM===id){const rw=(G?10:9)*Math.max(zs,.7)*k;el("circle",{cx:p[0],cy:p[1],r:rw+7*k,fill:col("--was"),"fill-opacity":.2,class:"pulse"},g);el("circle",{cx:p[0],cy:p[1],r:rw,fill:"none",stroke:col("--was"),"stroke-width":3.4*k},g);el("circle",{cx:p[0],cy:p[1],r:rw*.4,fill:col("--was")},g);hereTag(p,rw,k,gT,"You were here","tag-was","--was")}
+    if(!G)obst.push({x0:p[0]-r,y0:p[1]-r,x1:p[0]+r,y1:p[1]+r,dim});
     labels.push(...labelCands(id,s,p,rpx,k,dim,onF));
   }
   // place labels by priority, skipping any that collide
   const vx0=vb.x-40*k,vy0=vb.y-40*k,vx1=vb.x+vb.w+40*k,vy1=vb.y+vb.h+40*k;
   labels.sort((a,b)=>b.pri-a.pri);
   const placed=[...hereBoxes];hereBoxes=[];
-  const overview=k>2.2;
+  const overview=k>(lay==="tall"?4.6:3.2);
   const ov=(a,b)=>!(a.x1<b.x0||a.x0>b.x1||a.y1<b.y0||a.y0>b.y1);
   for(const lb of labels){
     const bx=lb.box;if(bx.x1<vx0||bx.x0>vx1||bx.y1<vy0||bx.y0>vy1)continue;
@@ -389,6 +597,7 @@ function render(){
   drawMini();
 }
 function labelCands(id,s,p,rpx,k,dim,onF){
+  const G=GM[id];if(G&&((LAYOUT[lay].ga||{})[G.id]||G.a)!==id)return [];
   const out=[],H=LAYOUT[lay].h[id],pri=(sel===id?100:0)+(s.hub?60:s.xfer?40:s.here?45:0)+(onF&&onF.has(id)?30:0)+(dim?-20:0);
   const mk=(text,kind,x,y,anchor,rot,p2)=>{
     const w=tw(text,kind)*k,h=FS[kind]*k;
@@ -401,13 +610,13 @@ function labelCands(id,s,p,rpx,k,dim,onF){
       b={x0:Math.min(...parts.map(a=>a.x0)),x1:Math.max(...parts.map(a=>a.x1)),y0:Math.min(...parts.map(a=>a.y0)),y1:Math.max(...parts.map(a=>a.y1))}}
     return{id,fol:!!(onF&&onF.has(id)),text,kind,x,y,anchor,rot,box:b,parts,pri:p2,ax:p[0],ay:p[1],dim,closed:s.closed};
   };
-  if(H&&k>2.2){ // overview: small hub names above each hub, kept inside the view
+  if(H&&k>(lay==="tall"?4.6:3.2)){ // overview: small hub names above each hub, kept inside the view
     const lb=mk(s.n,"ov",p[0],p[1]-(rpx+7)*k,"middle",0,90),m=8*k,dx=Math.max(0,vb.x+m-lb.box.x0)-Math.max(0,lb.box.x1-(vb.x+vb.w-m));
     lb.x+=dx;lb.box.x0+=dx;lb.box.x1+=dx;lb.parts=[lb.box];out.push(lb);return out}
   if(H){const z=Math.min(1,k);out.push(mk(s.n,"hub",p[0]+H.n[0]*z,p[1]+H.n[1]*z,H.n[2],0,pri+20));if(H.d&&s.dom)out.push(mk(s.dom,"dom",p[0]+H.d[0]*z,p[1]+H.d[1]*z,H.n[2],0,pri-30));return out}
-  const side=p[2]||"r",pad=(rpx+6)*k,d=(rpx*.7+4)*k;
-  const o={r:[pad,5*k,"start"],l:[-pad,5*k,"end"],t:[0,-pad-3*k,"middle"],b:[0,pad+13*k,"middle"],br:[-4*k,pad+13*k,"start"],ur:[d+2*k,-d,"start",-45],dl:[-d,d+2*k,"end",-45],dr:[d+2*k,d+4*k,"start",45]}[side];
-  out.push(mk(s.n,"stop",p[0]+o[0],p[1]+o[1],o[2],o[3]||0,pri+10));
+  const side=(G?LAYOUT[lay].gs[G.id]:p[2])||"r",pad=(rpx+6)*k,d=(rpx*.7+4)*k,ex=p[3]||0,e7=ex*.7071;
+  const o={r:[pad+ex,5*k,"start"],l:[-pad-ex,5*k,"end"],t:[0,-pad-3*k-ex,"middle"],b:[0,pad+13*k+ex,"middle"],br:[-4*k,pad+13*k+ex,"start"],ur:[d+2*k+e7,-d-e7,"start",-45],dl:[-d-e7,d+2*k+e7,"end",-45],dr:[d+2*k+e7,d+4*k+e7,"start",45]}[side];
+  out.push(mk(G?G.n:s.n,"stop",p[0]+o[0],p[1]+o[1],o[2],o[3]||0,pri+10));
   return out;
 }
 
@@ -427,7 +636,7 @@ mini.addEventListener("click",e=>{const r=mini.getBoundingClientRect(),v=mini.vi
 function fitBox(x0,y0,x1,y1,opts={}){
   const R=rect(),mob=narrow();
   const panelH=(!panel.hidden&&panel.classList.contains("bottom"))?panel.offsetHeight:0;
-  const L0=mob?14:30,Rt=mob?(opts.line?120:24):(lay==="wide"?(opts.line?215:180):170)+56,T=mob?(follow?52:14):(follow?56:30),Bt=(mob?(panelH?panelH+10:64):(lay==="wide"&&!opts.noBottomLabels?110:30))+(sheetOpenBottom()?sheet.offsetHeight:0);
+  const L0=mob?(lay==="tall"?64:44):(lay==="wide"?150:90),Rt=mob?(opts.line?120:(lay==="tall"?96:24)):(lay==="wide"?(opts.line?215:180):170)+56,T=mob?(follow?52:14):(follow?56:30),Bt=(mob?(panelH?panelH+10:64):(lay==="wide"&&!opts.noBottomLabels?110:30))+(sheetOpenBottom()?sheet.offsetHeight:0);
   const k=Math.max((x1-x0)/Math.max(60,R.width-L0-Rt),(y1-y0)/Math.max(60,R.height-T-Bt),opts.minK||0);
   const cx=x0-L0*k+(R.width*k)/2+((R.width-L0-Rt)*k-(x1-x0))/2*0, cy=y0-T*k+(R.height*k)/2;
   vb={x:x0-L0*k-((R.width-L0-Rt)*k-(x1-x0))/2,y:y0-T*k-((R.height-T-Bt)*k-(y1-y0))/2,w:R.width*k,h:R.height*k};
@@ -462,7 +671,7 @@ function openStation(id,mode){
   sheet.className="sheet "+(mob?"bottom":"float")+(pinned?" pinned":"");
   sheet.innerHTML=`<div class="grab"><span></span></div><div class="media">${th?`<img class="img" src="${th}" alt="${s.n}" onerror="this.outerHTML='<div class=noimg>Image unavailable</div>'">`:`<div class="noimg">No featured image</div>`}<button class="x" aria-label="Close">×</button></div>
    <div class="body"><div class="chips">${linesAt(id).map(l=>`<button class="chip" data-ride="${l.id}" aria-pressed="${l.id===ride}"><i style="background:var(${l.c})"></i>${l.n}</button>`).join("")}</div>
-   ${linksOf(id).length?`<div class="chips lk">${linksOf(id).map(q=>`<button class="chip" data-link="${q.id}">${q.t==="l"?"Learn link":"Connects to"}: ${S[q.id].n}</button>`).join("")}</div>`:""}${s.here?`<span class="youhere">You are here</span>`:""}<b>${s.n}${s.closed?" (closed)":""}</b><span class="u">${s.u.replace("https://","").replace(/\/$/,"")}</span>
+   ${linksOf(id).length?`<div class="chips lk">${linksOf(id).map(q=>`<button class="chip" data-link="${q.id}">${q.t==="l"?"Learn link":"Same stop"}: ${S[q.id].n}</button>`).join("")}</div>`:""}${s.here?`<span class="youhere">You are here</span>`:""}${id===FROM?`<span class="youhere was">You were here</span>`:""}<b>${s.n}${s.closed?" (closed)":""}</b><span class="u">${s.u.replace("https://","").replace(/\/$/,"")}</span>
    <div class="row2"><a class="go" href="${s.u}" target="_blank" rel="noopener">Visit page ↗</a>${s.live?`<a class="go alt" href="${s.live}" target="_blank" rel="noopener">Live site ↗</a>`:""}</div>
    <div class="ride" aria-label="Ride the ${ln.n} line"><button data-go="${prev||""}" ${prev?"":"disabled"}>← ${prev?S[prev].n:"End of line"}<span>${ln.n} line</span></button><button data-go="${next||""}" ${next?"":"disabled"}>${next?S[next].n:"End of line"} →<span>${ln.n} line</span></button></div></div>`;
   sheet.hidden=false;
@@ -604,7 +813,7 @@ track("view","map","");
 // ---------- start ----------
 function startView(){
   lay=pickLayout();
-  if(narrow()){const p=P("SW");setView(p[0]+(lay==="tall"?-10:110),p[1]+20,READ_K)}else{const B=bounds();fitBox(B.x0,B.y0,B.x1,B.y1)}
+  {const B=bounds();fitBox(B.x0,B.y0,B.x1,B.y1)}
   render();
 }
 let lastLay=null,rT=null;

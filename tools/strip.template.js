@@ -88,6 +88,7 @@
     return { hub: false, id: id, main: main, transfers: transfers };
   }
 
+  function mapHref(id) { return hand(MAP_URL + "?from=" + encodeURIComponent(id)); }
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
   function a(id, cls) { return '<a class="' + (cls || "") + '" data-to="' + id + '" href="' + esc(hand(S[id].u)) + '">' + esc(S[id].n) + "</a>"; }
   function dot(l) { return '<i class="ld" style="background:' + l.c + '"></i>'; }
@@ -180,14 +181,14 @@
   function sheetHTML(id, p) {
     var here = S[id], h = "", info = "";
     if (p.hub) {
-      h = '<div class="hd"><div class="bd" style="background:#E3242B;color:#fff">S</div><div class="ln">' + esc(here.n) + '</div><a class="mp" data-to="map" href="' + esc(hand(MAP_URL)) + '">MAP</a></div><div class="g">' +
+      h = '<div class="hd"><div class="bd" style="background:#E3242B;color:#fff">S</div><div class="ln">' + esc(here.n) + '</div><a class="mp" data-to="map" href="' + esc(mapHref(id)) + '">MAP</a></div><div class="g">' +
         p.lines.map(function (l) {
           var first = l.b[0].filter(function (x) { return x !== id && S[x]; })[0];
           return '<a class="b w" style="--lc:' + l.c + '" data-to="' + first + '" href="' + esc(hand(S[first].u)) + '"><i></i>' + esc(l.n) + "</a>";
         }).join("") + "</div>";
     } else {
       var m = p.main, seq = m.seq.filter(function (x) { return S[x]; }), light = m.line.c === "#F2BF00";
-      h = '<div class="hd"><div class="bd" style="background:' + m.line.c + ";color:" + (light ? "#121314" : "#fff") + '">' + esc(m.line.k) + '</div><div class="ln">' + esc(m.line.n) + ' line</div><a class="mp" data-to="map" href="' + esc(hand(MAP_URL)) + '">MAP</a></div><div class="g" style="--lc:' + m.line.c + '">' +
+      h = '<div class="hd"><div class="bd" style="background:' + m.line.c + ";color:" + (light ? "#121314" : "#fff") + '">' + esc(m.line.k) + '</div><div class="ln">' + esc(m.line.n) + ' line</div><a class="mp" data-to="map" href="' + esc(mapHref(id)) + '">MAP</a></div><div class="g" style="--lc:' + m.line.c + '">' +
         seq.map(function (sid) {
           var long = S[sid].n.length > 24;
           return sid === id ? '<span class="b cur' + (long ? " w" : "") + '" aria-current="page"><i></i>' + esc(S[sid].n) + "</span>"
@@ -209,7 +210,7 @@
     var here = S[id];
 
     if (p.hub) {
-      html = '<div class="row"><div class="badge" style="background:#E3242B">S</div><div class="lname">' + esc(here.n) + '</div><span class="sp"></span><a class="map" data-to="map" href="' + esc(hand(MAP_URL)) + '">MAP</a></div>' +
+      html = '<div class="row"><div class="badge" style="background:#E3242B">S</div><div class="lname">' + esc(here.n) + '</div><span class="sp"></span><a class="map" data-to="map" href="' + esc(mapHref(id)) + '">MAP</a></div>' +
         '<div class="chips">' + p.lines.map(function (l) {
           var first = l.b[0].filter(function (x) { return x !== id && S[x]; })[0];
           return '<a data-to="' + first + '" href="' + esc(hand(S[first].u)) + '">' + dot(l) + esc(l.n) + "</a>";
@@ -228,7 +229,7 @@
       }).join("");
       var more = (win.s > 0 ? '<span class="more" style="left:-26px">\u2026</span>' : "") + (win.e < seq.length ? '<span class="more" style="right:-26px">\u2026</span>' : "");
       var light = m.line.c === "#F2BF00";
-      html = '<div class="row"><div class="badge" style="background:' + m.line.c + ";color:" + (light ? "#121314" : "#fff") + '">' + esc(m.line.k) + '</div><div class="lname">' + esc(m.line.n) + ' line</div><span class="sp"></span><a class="map" data-to="map" href="' + esc(hand(MAP_URL)) + '">MAP</a></div>' +
+      html = '<div class="row"><div class="badge" style="background:' + m.line.c + ";color:" + (light ? "#121314" : "#fff") + '">' + esc(m.line.k) + '</div><div class="lname">' + esc(m.line.n) + ' line</div><span class="sp"></span><a class="map" data-to="map" href="' + esc(mapHref(id)) + '">MAP</a></div>' +
         '<div class="track" style="--lw:' + lw + 'px"><div class="bar" style="background:' + m.line.c + '"></div>' + stops + more + "</div>";
       var next = seq[i + 1];
       msg = '<span class="tag">' + (p.transfers.length ? "TRANSFER" : "YOU ARE HERE") + "</span>" +

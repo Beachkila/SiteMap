@@ -263,7 +263,7 @@ const L=[
 
 // Connections that are not lines. "w": same subject, an interchange you can walk between. "l": Learn links back to its pages.
 // Shared stations: one capsule across every line that stops there. m: member stops (page per line), a: the member the label hangs from, n: station name.
-const GROUPS=[{id:"net",n:"The Network",a:"NET",m:["netpage","NET"]},{id:"neg",n:"SoLaT Negatives",a:"n_neg",m:["thinkneg","step1","solat","n_neg"]},{id:"cmyk",n:"CMYK",a:"n_cmyk",m:["cmyk","n_cmyk"]},{id:"enl",n:"Enlarger",a:"n_enl",m:["enlarger","n_enl"]},{id:"uv",n:"UV exposure",a:"n_forecast",m:["light","step3","sunprint","n_forecast"]}];
+const GROUPS=[{id:"neg",n:"SoLaT Negatives",a:"n_neg",m:["thinkneg","step1","solat","n_neg"]},{id:"cmyk",n:"CMYK",a:"n_cmyk",m:["cmyk","n_cmyk"]},{id:"enl",n:"Enlarger",a:"n_enl",m:["enlarger","n_enl"]},{id:"uv",n:"UV exposure",a:"n_forecast",m:["light","step3","sunprint","n_forecast"]}];
 GROUPS.push({id:"g_picam",n:"Pi-Cam-IR-A",a:"picam",m:["picam","bp-pi-cam-ir-a"]},{id:"g_atlas",n:"Atlas",a:"atlas",m:["atlas","bp-atlas"]},{id:"g_blackbox",n:"Black Box",a:"blackbox",m:["blackbox","bp-black-box"]},{id:"g_bucke",n:"Buck-E",a:"bucke",m:["bucke","bp-buck-e"]},{id:"g_pender",n:"PENDER Studios",a:"pender",m:["pender","bp-pender"]},{id:"g_bang",n:"Bang!",a:"bang",m:["bang","bp-bang"]},{id:"g_planes",n:"Plane Spotter",a:"planes",m:["planes","bp-plane-spotter"]},{id:"g_githoods",n:"GitHoods",a:"githoods",m:["githoods","bp-githoods"]});
 const GM={};GROUPS.forEach(g=>g.m.forEach(id=>GM[id]=g));
 const LINKS=[];GROUPS.forEach(g=>{for(let i=0;i<g.m.length;i++)for(let j=i+1;j<g.m.length;j++)LINKS.push([g.m[i],g.m[j],"w"])});
@@ -273,10 +273,10 @@ const linksOf=id=>LINKS.filter(k=>k[0]===id||k[1]===id).map(k=>({id:k[0]===id?k[
 // Two hand-placed layouts. p: id -> [x, y, label side]. Label sides: r l t b br, and 45° ur dl dr. h: hub label offsets.
 const LAYOUT={
  wide:{
-  p:{"process":[588,349,"ur"],
-   "netpage":[664,383,"ur",54],
-   "NET":[664,400,"ur"],
-   "sbs":[742,366,"ur",29],
+  p:{"process":[588,336,"ur"],
+   "netpage":[610,370,"ur",54],
+   "NET":[750,400,"dr"],
+   "sbs":[742,353,"ur",29],
    "n_feed":[832,368,"dr"],
    "thinkneg":[904,279,"dr"],
    "step1":[904,296,"dr"],
@@ -298,74 +298,74 @@ const LAYOUT={
    "n_tags":[1350,10,"r"],
    "n_mine":[1350,-42,"r"],
    "n_learn":[1350,-94,"r"],
-   "picam":[595,592,"dr"],
-   "bp-pi-cam-ir-a":[595,575,"dr"],
-   "atlas":[655,592,"dr"],
-   "bp-atlas":[655,575,"dr"],
-   "blackbox":[770,632,"dr"],
-   "bp-black-box":[770,615,"dr"],
-   "bucke":[830,632,"dr"],
-   "bp-buck-e":[830,615,"dr"],
-   "pender":[890,632,"dr"],
-   "bp-pender":[890,615,"dr"],
-   "bang":[950,632,"dr"],
-   "bp-bang":[950,615,"dr"],
-   "potholes":[1030,612,"dr"],
-   "planes":[1080,592,"dr"],
-   "bp-plane-spotter":[1080,575,"dr"],
-   "githoods":[1150,592,"dr"],
-   "bp-githoods":[1150,575,"dr"],
+   "picam":[595,657,"dr"],
+   "bp-pi-cam-ir-a":[595,640,"dr"],
+   "atlas":[655,657,"dr"],
+   "bp-atlas":[655,640,"dr"],
+   "blackbox":[770,697,"dr"],
+   "bp-black-box":[770,680,"dr"],
+   "bucke":[830,697,"dr"],
+   "bp-buck-e":[830,680,"dr"],
+   "pender":[890,697,"dr"],
+   "bp-pender":[890,680,"dr"],
+   "bang":[950,697,"dr"],
+   "bp-bang":[950,680,"dr"],
+   "potholes":[1030,677,"dr"],
+   "planes":[1080,657,"dr"],
+   "bp-plane-spotter":[1080,640,"dr"],
+   "githoods":[1150,657,"dr"],
+   "bp-githoods":[1150,640,"dr"],
    "SW":[500,400],
    "about":[500,320,"t"],
-   "SMW":[300,400],
-   "BSG":[330,330],
-   "whatis":[290,265,"r"],
-   "bsggal":[290,215,"r"],
-   "create":[290,165,"r"],
-   "templates":[290,115,"r"],
-   "contact":[290,65,"r"],
-   "galleries":[360,490,"dl"],
-   "cyanogal":[300,490,"dl"],
-   "lino":[240,490,"dl"],
-   "pendergal":[130,530,"dl"],
-   "irgal":[70,530,"dl"],
-   "neggal":[80,690,"dr"],
-   "digigal":[140,690,"dr"],
-   "ui":[250,730,"dr"],
-   "undisc":[310,730,"dr"],
-   "gitbeach":[500,510,"l"],
-   "board":[517,545],
-   "mediums":[610,545,"t"],
-   "stack":[700,545,"t"],
-   "pimaker":[850,510,"t"],
-   "here":[500,455,"l"],
-   "bp-ai-station":[1163,740,"dl"],
-   "bp-dock-to-stock":[1111,740,"dl"],
-   "bp-beelab":[1059,740,"dl"],
-   "bp-coolpix-ir":[1007,740,"dl"],
-   "bp-droneaware-node":[955,740,"dl"],
-   "bp-fire-hd8-linux-pad":[903,740,"dl"],
-   "bp-ink-drawer":[851,740,"dl"],
-   "bp-redditprofiler":[730,790,"dl"],
-   "bp-snake-lcd-pi":[678,790,"dl"],
-   "bp-ir-dev":[626,790,"dl"],
-   "bp-nmap-subway":[574,790,"dl"],
-   "bp-beach-self-grading":[522,790,"dl"],
-   "bp-the-cyanotype-network":[470,790,"dl"]},
+   "SMW":[390,374],
+   "BSG":[300,300],
+   "whatis":[260,235,"r"],
+   "bsggal":[260,185,"r"],
+   "create":[260,135,"r"],
+   "templates":[260,85,"r"],
+   "contact":[260,35,"r"],
+   "galleries":[395,455,"dl"],
+   "cyanogal":[335,455,"dl"],
+   "lino":[275,455,"dl"],
+   "pendergal":[165,495,"dl"],
+   "irgal":[105,495,"dl"],
+   "neggal":[115,645,"dr"],
+   "digigal":[175,645,"dr"],
+   "ui":[285,685,"dr"],
+   "undisc":[345,685,"dr"],
+   "gitbeach":[500,575,"l"],
+   "board":[517,610],
+   "mediums":[610,610,"t"],
+   "stack":[700,610,"t"],
+   "pimaker":[850,575,"b"],
+   "here":[500,520,"r"],
+   "bp-ai-station":[1163,830,"dl"],
+   "bp-dock-to-stock":[1111,830,"dl"],
+   "bp-beelab":[1059,830,"dl"],
+   "bp-coolpix-ir":[1007,830,"dl"],
+   "bp-droneaware-node":[955,830,"dl"],
+   "bp-fire-hd8-linux-pad":[903,830,"dl"],
+   "bp-ink-drawer":[851,830,"dl"],
+   "bp-redditprofiler":[730,855,"dl"],
+   "bp-snake-lcd-pi":[678,855,"dl"],
+   "bp-ir-dev":[626,855,"dl"],
+   "bp-nmap-subway":[574,855,"dl"],
+   "bp-beach-self-grading":[522,855,"dl"],
+   "bp-the-cyanotype-network":[470,855,"dl"]},
   lr:{},
-  eb:{"process>thinkneg":[[779,349],[849,279]],"salt>light":[[1069,279],[1129,219]],"light>seepos":[[1259,219],[1299,179]],"sbs>step1":[[786,366],[856,296]],"step1>step2":[[1076,296]],"step2>step3":[[1136,236]],"step3>step4":[[1266,236],[1316,186]],"NET>n_feed":[[800,400]],"n_feed>n_neg":[[870,330]],"n_cmyk>n_enl":[[1090,330],[1150,270]],"n_forecast>n_bench":[[1280,270],[1350,200]],"netpage>solat":[[793,383],[863,313]],"cmyk>enlarger":[[1083,313],[1143,253]],"atlas>blackbox":[[700,592],[740,632]],"bang>potholes":[[1010,632]],"potholes>planes":[[1050,592]],"bp-atlas>bp-black-box":[[707,575],[747,615]],"bp-bang>bp-plane-spotter":[[1003,615],[1043,575]],"create>bsggal":[[330,250],[290,210]],"whatis>contact":[[240,330],[200,290]],"lino>pendergal":[[205,490],[165,530]],"digigal>ui":[[175,690],[215,730]],"stack>pimaker":[[740,545],[775,510]],"bp-ink-drawer>bp-redditprofiler":[[820,740],[770,790]]},
-  bend:{"rT":[],"oT":[],"bT":[],"rR":[[551,349]],"oR":[[534,366]],"wA":[[517,383]],"blT":[],"yb":[[430,330]],"gr":[[410,490]],"gr2":[[30,530],[0,570],[0,650],[30,690]],"te":[],"puB":[[500,592]],"brA":[[517,527]],"brP":[[517,575]],"brU":[[1250,575],[1295,620],[1295,695],[1250,740]]},
+  eb:{"process>thinkneg":[[792,336],[849,279]],"salt>light":[[1069,279],[1129,219]],"light>seepos":[[1259,219],[1299,179]],"sbs>step1":[[799,353],[856,296]],"step1>step2":[[1076,296]],"step2>step3":[[1136,236]],"step3>step4":[[1266,236],[1316,186]],"NET>n_feed":[[800,400]],"n_feed>n_neg":[[870,330]],"n_cmyk>n_enl":[[1090,330],[1150,270]],"n_forecast>n_bench":[[1280,270],[1350,200]],"netpage>solat":[[806,370],[863,313]],"cmyk>enlarger":[[1083,313],[1143,253]],"atlas>blackbox":[[700,657],[740,697]],"bang>potholes":[[1010,697]],"potholes>planes":[[1050,657]],"bp-atlas>bp-black-box":[[707,640],[747,680]],"bp-bang>bp-plane-spotter":[[1003,680],[1043,640]],"create>bsggal":[[330,250],[290,210]],"whatis>contact":[[240,330],[200,290]],"lino>pendergal":[[240,455],[200,495]],"digigal>ui":[[210,645],[250,685]],"stack>pimaker":[[740,610],[775,575]],"bp-ink-drawer>bp-redditprofiler":[[820,830],[795,855]]},
+  bend:{"rT":[],"oT":[],"bT":[],"rR":[[564,336]],"oR":[[547,353]],"wA":[[530,370]],"blT":[],"yb":[[400,300]],"gr":[[445,455]],"gr2":[[65,495],[35,525],[35,615],[65,645]],"te":[[488,412],[450,374]],"puB":[[500,657]],"brA":[[517,592]],"brP":[[517,640]],"brU":[[1250,640],[1295,685],[1295,785],[1250,830]]},
   gs:{"net":"ur","neg":"dr","cmyk":"dr","enl":"dr","uv":"dr","g_picam":"dr","g_atlas":"dr","g_blackbox":"dr","g_bucke":"dr","g_pender":"dr","g_bang":"dr","g_planes":"dr","g_githoods":"dr"},
   ga:{"net":"netpage"},
-  h:{"SW":{"n":[44,52,"start"],"d":[44,68]},"SMW":{"n":[0,34,"middle"],"d":[0,50]},"BSG":{"n":[-12,30,"end"],"d":[-12,46]},"board":{"n":[-18,34,"end"]}},
-  proj:i=>[635+i*50,800,"dr"]
+  h:{"SW":{"n":[0,40,"middle"]},"SMW":{"n":[0,40,"middle"]},"BSG":{"n":[0,40,"middle"]},"NET":{"n":[0,40,"middle"]},"board":{"n":[-18,34,"end"]}},
+  proj:i=>[635+i*50,865,"dr"]
  },
  tall:{
-  p:{"process":[470,742,"r",51],
-   "netpage":[504,696,"r"],
-   "NET":[521,696,"r"],
+  p:{"process":[470,700,"l"],
+   "netpage":[504,765,"r"],
+   "NET":[700,820,"r"],
    "sbs":[487,650,"r",34],
-   "n_feed":[541,595,"r"],
+   "n_feed":[700,715,"r"],
    "thinkneg":[510,545,"r"],
    "step1":[527,545,"r"],
    "solat":[544,545,"r"],
@@ -386,63 +386,63 @@ const LAYOUT={
    "n_tags":[561,-23,"r"],
    "n_mine":[561,-69,"r"],
    "n_learn":[561,-115,"r"],
-   "picam":[470,1013,"l"],
-   "bp-pi-cam-ir-a":[487,1013,"r"],
-   "atlas":[470,1059,"l"],
-   "bp-atlas":[487,1059,"r"],
-   "blackbox":[470,1105,"l"],
-   "bp-black-box":[487,1105,"r"],
-   "bucke":[470,1151,"l"],
-   "bp-buck-e":[487,1151,"r"],
-   "pender":[510,1253,"l"],
-   "bp-pender":[527,1253,"r"],
-   "bang":[510,1299,"l"],
-   "bp-bang":[527,1299,"r"],
-   "potholes":[510,1345,"l"],
-   "planes":[510,1391,"l"],
-   "bp-plane-spotter":[527,1391,"r"],
-   "githoods":[510,1437,"l"],
-   "bp-githoods":[527,1437,"r"],
+   "picam":[470,1163,"l"],
+   "bp-pi-cam-ir-a":[487,1163,"r"],
+   "atlas":[470,1209,"l"],
+   "bp-atlas":[487,1209,"r"],
+   "blackbox":[470,1255,"l"],
+   "bp-black-box":[487,1255,"r"],
+   "bucke":[470,1301,"l"],
+   "bp-buck-e":[487,1301,"r"],
+   "pender":[510,1403,"l"],
+   "bp-pender":[527,1403,"r"],
+   "bang":[510,1449,"l"],
+   "bp-bang":[527,1449,"r"],
+   "potholes":[510,1495,"l"],
+   "planes":[510,1541,"l"],
+   "bp-plane-spotter":[527,1541,"r"],
+   "githoods":[510,1587,"l"],
+   "bp-githoods":[527,1587,"r"],
    "SW":[470,820],
-   "about":[560,820,"r"],
-   "SMW":[330,820],
-   "BSG":[300,760],
-   "whatis":[260,690,"l"],
-   "bsggal":[260,645,"l"],
-   "create":[260,600,"l"],
-   "templates":[260,555,"l"],
-   "contact":[260,510,"l"],
-   "galleries":[340,890,"dl"],
-   "cyanogal":[285,890,"dl"],
-   "lino":[230,890,"dl"],
-   "pendergal":[130,920,"dl"],
-   "irgal":[75,920,"dl"],
-   "neggal":[70,1050,"dr"],
+   "about":[540,890,"r"],
+   "SMW":[270,820],
+   "BSG":[270,740],
+   "whatis":[230,700,"l"],
+   "bsggal":[230,655,"l"],
+   "create":[230,610,"l"],
+   "templates":[230,565,"l"],
+   "contact":[230,520,"l"],
+   "galleries":[345,890,"dl"],
+   "cyanogal":[290,890,"dl"],
+   "lino":[235,890,"dl"],
+   "pendergal":[135,920,"dl"],
+   "irgal":[80,920,"dl"],
+   "neggal":[75,1050,"dr"],
    "digigal":[125,1050,"dr"],
-   "ui":[220,1080,"dr"],
-   "undisc":[275,1080,"dr"],
-   "gitbeach":[470,900,"l"],
-   "board":[487,950],
-   "mediums":[535,950,"t"],
-   "stack":[580,950,"t"],
-   "pimaker":[625,950,"t"],
-   "here":[470,860,"r"],
-   "bp-ai-station":[690,1402,"r"],
-   "bp-dock-to-stock":[690,1364,"r"],
-   "bp-beelab":[690,1326,"r"],
-   "bp-coolpix-ir":[690,1288,"r"],
-   "bp-droneaware-node":[690,1250,"r"],
-   "bp-fire-hd8-linux-pad":[690,1212,"r"],
-   "bp-ink-drawer":[690,1174,"r"],
-   "bp-redditprofiler":[690,1136,"r"],
-   "bp-snake-lcd-pi":[690,1098,"r"],
-   "bp-ir-dev":[690,1060,"r"],
-   "bp-nmap-subway":[690,1022,"r"],
-   "bp-beach-self-grading":[690,984,"r"],
-   "bp-the-cyanotype-network":[690,946,"r"]},
+   "ui":[175,1050,"dr"],
+   "undisc":[225,1050,"dr"],
+   "gitbeach":[470,1050,"l"],
+   "board":[487,1100],
+   "mediums":[540,1075,"t"],
+   "stack":[595,1075,"b"],
+   "pimaker":[650,1075,"t"],
+   "here":[470,985,"r"],
+   "bp-ai-station":[720,1552,"r"],
+   "bp-dock-to-stock":[720,1514,"r"],
+   "bp-beelab":[720,1476,"r"],
+   "bp-coolpix-ir":[720,1438,"r"],
+   "bp-droneaware-node":[720,1400,"r"],
+   "bp-fire-hd8-linux-pad":[720,1362,"r"],
+   "bp-ink-drawer":[720,1324,"r"],
+   "bp-redditprofiler":[720,1286,"r"],
+   "bp-snake-lcd-pi":[720,1248,"r"],
+   "bp-ir-dev":[720,1210,"r"],
+   "bp-nmap-subway":[720,1172,"r"],
+   "bp-beach-self-grading":[720,1134,"r"],
+   "bp-the-cyanotype-network":[720,1096,"r"]},
   lr:{},
-  eb:{"process>thinkneg":[[470,594],[510,554]],"salt>light":[[510,396],[470,356]],"light>seepos":[[470,164],[510,124]],"sbs>step1":[[487,601],[527,561]],"step2>step3":[[527,389],[487,349]],"step3>step4":[[487,171],[527,131]],"NET>n_feed":[[521,615]],"n_feed>n_neg":[[561,575]],"n_cmyk>n_enl":[[561,375],[521,335]],"n_forecast>n_bench":[[521,185],[561,145]],"netpage>solat":[[504,608],[544,568]],"cmyk>enlarger":[[544,382],[504,342]],"bucke>pender":[[470,1185],[510,1225]],"bp-buck-e>bp-pender":[[487,1178],[527,1218]],"create>bsggal":[[300,685],[260,645]],"whatis>contact":[[215,760],[180,720]],"lino>pendergal":[[195,890],[165,920]],"digigal>ui":[[155,1050],[185,1080]]},
-  bend:{"rT":[],"oT":[],"bT":[],"rR":[],"oR":[[487,803]],"wA":[[504,786]],"blT":[[521,769]],"yb":[[410,760]],"gr":[[400,890]],"gr2":[[40,920],[10,950],[10,1020],[40,1050]],"te":[],"puB":[],"brA":[[487,917]],"brP":[],"brU":[[527,1470],[560,1498],[650,1498],[690,1458]]},
+  eb:{"process>thinkneg":[[470,594],[510,554]],"salt>light":[[510,396],[470,356]],"light>seepos":[[470,164],[510,124]],"sbs>step1":[[487,601],[527,561]],"step2>step3":[[527,389],[487,349]],"step3>step4":[[487,171],[527,131]],"NET>n_feed":[[700,820]],"n_feed>n_neg":[[700,684]],"n_cmyk>n_enl":[[561,375],[521,335]],"n_forecast>n_bench":[[521,185],[561,145]],"netpage>solat":[[504,608],[544,568]],"cmyk>enlarger":[[544,382],[504,342]],"bucke>pender":[[470,1335],[510,1375]],"bp-buck-e>bp-pender":[[487,1328],[527,1368]],"create>bsggal":[[300,685],[260,645]],"whatis>contact":[[215,760],[180,720]],"lino>pendergal":[[200,890],[170,920]],"digigal>ui":[]},
+  bend:{"rT":[],"oT":[],"bT":[],"rR":[],"oR":[[487,803]],"wA":[[504,786]],"blT":[],"yb":[[390,740]],"gr":[[400,890]],"gr2":[[45,920],[15,950],[15,1020],[45,1050]],"te":[],"puB":[],"brA":[[487,1067]],"brP":[],"brU":[[527,1620],[560,1648],[680,1648],[720,1608]]},
   gs:{"net":"r","neg":"r","cmyk":"r","enl":"r","uv":"r","g_picam":"r","g_atlas":"r","g_blackbox":"r","g_bucke":"r","g_pender":"r","g_bang":"r","g_planes":"r","g_githoods":"r"},
   ga:{"g_picam":"bp-pi-cam-ir-a","g_atlas":"bp-atlas","g_blackbox":"bp-black-box","g_bucke":"bp-buck-e","g_pender":"bp-pender","g_bang":"bp-bang","g_planes":"bp-plane-spotter","g_githoods":"bp-githoods"},
   h:{"SW":{"n":[-35,-15,"end"],"d":[-45,-32]},"SMW":{"n":[0,30,"middle"],"d":[0,46]},"BSG":{"n":[10,28,"start"],"d":[10,44]},"board":{"n":[-14,6,"end"]}},
@@ -488,7 +488,7 @@ function bounds(){let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;for(const id in S){const p=P
 
 // ---------- label measuring ----------
 const mctx=document.createElement("canvas").getContext("2d");
-const FS={stop:15,hub:18,dom:12,ov:13};
+const HUBICON={"SW": ["icons/studio-wetware.png", "#000"], "BSG": ["icons/beach-self-grading.png", "#000"], "SMW": ["icons/small-works.png", "#000"], "NET": ["icons/cyanotype-network.png", "#17355c"], "here": ["icons/sweta.png", "#000"]};const FS={stop:15,hub:18,dom:12,ov:13};
 function tw(text,kind){mctx.font=kind==="dom"?`400 ${FS.dom}px "Overpass Mono", monospace`:kind==="hub"?`800 ${FS.hub}px Overpass, Arial`:kind==="ov"?`800 ${FS.ov}px Overpass, Arial`:`600 ${FS.stop}px Overpass, Arial`;return mctx.measureText(text).width}
 
 // ---------- render ----------
@@ -538,8 +538,9 @@ function hereTag(p,rr,k,g,txt0,cls0,fill0){
 }
 function render(){
   const k=kNow(),zs=Math.min(1,Math.max(.45,1.7/k));
+  const B0=bounds(),R0=rect(),KF=Math.max((B0.x1-B0.x0)/Math.max(60,R0.width*.8),(B0.y1-B0.y0)/Math.max(60,R0.height*.8)),SHOWSTOPS=k<KF*(lay==="tall"?.52:.62)||!!follow;
   svg.innerHTML="";svg.setAttribute("viewBox",`${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
-  const gL=el("g",{},svg),gK=el("g",{},svg),gS=el("g",{},svg),gT=el("g",{},svg);
+  const gL=el("g",{},svg),gP=el("g",{},svg),gK=el("g",{},svg),gS=el("g",{},svg),gO=el("g",{},svg),gT=el("g",{},svg);
   const fl=follow?L.find(l=>l.id===follow):null, onF=fl?new Set(ORDER[fl.id]):null;
   L.forEach(l=>{
     const dim=fl&&fl.id!==l.id&&!(fl.id==="brown"&&l.id==="pages");
@@ -566,16 +567,17 @@ function render(){
     obst.push({x0:x0-rr,y0:y0-rr,x1:x1+rr,y1:y1+rr,dim:dm})});
   for(const id in S){
     const s=S[id],p=P(id),inter=realLines(id).length>1;const dim=onF&&!onF.has(id)&&sel!==id;
-    const G=GM[id],rpx=(G?8.5:s.hub?11:s.xfer?9:inter?7.5:5.5)*zs,r=(G?3.4*zs:rpx)*k;
+    const G=GM[id],rpx=(G?8.5:s.hub?(k>(lay==="tall"?1.8:3.2)?12:19):s.xfer?9:inter?7.5:5.5)*zs,r=(G?3.4*zs:rpx)*k;
     const g=el("g",{class:"stn",tabindex:"0",role:"button","aria-label":s.n,"data-id":id,opacity:dim?.25:1},gS);
     el("circle",{cx:p[0],cy:p[1],r:Math.max(Math.min(r,nnOf(id)*.48),Math.min(24*k,nnOf(id)*.48)),fill:"transparent"},g);
-    if(s.here){const rr=9*Math.max(zs,.7)*k;el("circle",{cx:p[0],cy:p[1],r:rr+7*k,fill:col("--here"),"fill-opacity":.18,class:"pulse"},g);el("circle",{cx:p[0],cy:p[1],r:rr,fill:col("--here"),stroke:col("--ink"),"stroke-width":2.6*k},g);el("circle",{cx:p[0],cy:p[1],r:rr*.38,fill:col("--stn")},g);if(s.pages)el("circle",{cx:p[0],cy:p[1],r:rr+4.5*k,fill:"none",stroke:col("--teal"),"stroke-width":2*k,"stroke-dasharray":`${3*k} ${2.5*k}`},g);hereTag(p,rr,k,gT);obst.push({x0:p[0]-rr,y0:p[1]-rr,x1:p[0]+rr,y1:p[1]+rr,dim});labels.push(...labelCands(id,s,p,rr/k,k,dim,onF));continue}
+    if(s.here){const rr=(k>(lay==="tall"?1.8:3.2)?10:16)*Math.max(zs,.7)*k;if(HUBICON.here){const [u,bg]=HUBICON.here;el("rect",{x:p[0]-rr,y:p[1]-rr,width:2*rr,height:2*rr,rx:rr*.22,fill:bg,stroke:col("--ink"),"stroke-width":3*k},g);el("image",{href:u,x:p[0]-rr*.92,y:p[1]-rr*.92,width:rr*1.84,height:rr*1.84},g);hereTag(p,rr,k,gT);obst.push({x0:p[0]-rr,y0:p[1]-rr,x1:p[0]+rr,y1:p[1]+rr,dim});labels.push(...labelCands(id,s,p,rr/k,k,dim,onF));continue}el("circle",{cx:p[0],cy:p[1],r:rr+7*k,fill:col("--here"),"fill-opacity":.18,class:"pulse"},g);el("circle",{cx:p[0],cy:p[1],r:rr,fill:col("--here"),stroke:col("--ink"),"stroke-width":2.6*k},g);el("circle",{cx:p[0],cy:p[1],r:rr*.38,fill:col("--stn")},g);if(s.pages)el("circle",{cx:p[0],cy:p[1],r:rr+4.5*k,fill:"none",stroke:col("--teal"),"stroke-width":2*k,"stroke-dasharray":`${3*k} ${2.5*k}`},g);hereTag(p,rr,k,gT);obst.push({x0:p[0]-rr,y0:p[1]-rr,x1:p[0]+rr,y1:p[1]+rr,dim});labels.push(...labelCands(id,s,p,rr/k,k,dim,onF));continue}
     if(HEAT){const mx=Math.max(1,...Object.values(HEAT)),v=HEAT[id]||0,f=v/mx;
       if(v>0){const hr=r+(10+34*Math.sqrt(f))*k*zs;el("circle",{cx:p[0],cy:p[1],r:hr,fill:`hsl(${Math.round(48-48*f)} 95% 52%)`,"fill-opacity":.28+.35*f,class:"heat"},g);
         el("circle",{cx:p[0],cy:p[1],r:hr*.62,fill:`hsl(${Math.round(48-48*f)} 95% 52%)`,"fill-opacity":.35+.3*f},g)}}
-    if(p[3]&&(!G||((LAYOUT[lay].ga||{})[G.id]||G.a)===id)){const sd=(G?LAYOUT[lay].gs[G.id]:p[2])||"r",v={r:[1,0],l:[-1,0],t:[0,-1],b:[0,1],ur:[.7071,-.7071],dr:[.7071,.7071],dl:[-.7071,.7071]}[sd]||[1,0],tl=p[3]+(rpx+2)*k;el("line",{x1:p[0],y1:p[1],x2:p[0]+v[0]*tl,y2:p[1]+v[1]*tl,stroke:col("--ink"),"stroke-width":1.7*k,"stroke-linecap":"round",opacity:.7},g)}
+    if(SHOWSTOPS&&p[3]&&(!G||((LAYOUT[lay].ga||{})[G.id]||G.a)===id)){const sd=(G?LAYOUT[lay].gs[G.id]:p[2])||"r",v={r:[1,0],l:[-1,0],t:[0,-1],b:[0,1],ur:[.7071,-.7071],dr:[.7071,.7071],dl:[-.7071,.7071]}[sd]||[1,0],tl=p[3]+(rpx+2)*k;el("line",{x1:p[0],y1:p[1],x2:p[0]+v[0]*tl,y2:p[1]+v[1]*tl,stroke:col("--ink"),"stroke-width":1.7*k,"stroke-linecap":"round",opacity:.7},g)}
     if(G){const lc=realLines(id)[0];el("circle",{cx:p[0],cy:p[1],r,fill:col(lc.c)},g)}else el("circle",{cx:p[0],cy:p[1],r,fill:col("--stn"),stroke:sel===id?col("--focus"):s.closed?col("--gray"):col("--ink"),"stroke-width":(s.hub||s.xfer||inter?3.5:2.6)*k,"stroke-dasharray":s.closed?`${2*k} ${2.5*k}`:"none"},g);
-    if(s.pages)el("circle",{cx:p[0],cy:p[1],r:r+4.5*k,fill:"none",stroke:col("--teal"),"stroke-width":2*k,"stroke-dasharray":`${3*k} ${2.5*k}`},g);
+    if(!G&&(s.hub||s.here)&&HUBICON[id]){const [u,bg]=HUBICON[id],h=s.here?16*Math.max(zs,.7)*k:r;el("rect",{x:p[0]-h,y:p[1]-h,width:2*h,height:2*h,rx:h*.22,fill:bg,stroke:col("--ink"),"stroke-width":3*k*Math.max(.7,zs)},g);const q=s.here?h*.92:h*.78;el("image",{href:u,x:p[0]-q,y:p[1]-q,width:2*q,height:2*q},g);}
+    if(s.pages)el((s.hub&&HUBICON[id])?"rect":"circle",(s.hub&&HUBICON[id])?{x:p[0]-r-5*k,y:p[1]-r-5*k,width:2*r+10*k,height:2*r+10*k,rx:r*.3,fill:"none",stroke:col("--teal"),"stroke-width":2*k,"stroke-dasharray":`${3*k} ${2.5*k}`}:{cx:p[0],cy:p[1],r:r+4.5*k,fill:"none",stroke:col("--teal"),"stroke-width":2*k,"stroke-dasharray":`${3*k} ${2.5*k}`},g);
     if(sel===id)el("circle",{cx:p[0],cy:p[1],r:Math.min(r+5*k,nnOf(id)*.5),fill:"none",stroke:col("--focus"),"stroke-width":2.5*k},g);
     if(FROM===id){const rw=(G?10:9)*Math.max(zs,.7)*k;el("circle",{cx:p[0],cy:p[1],r:rw+7*k,fill:col("--was"),"fill-opacity":.2,class:"pulse"},g);el("circle",{cx:p[0],cy:p[1],r:rw,fill:"none",stroke:col("--was"),"stroke-width":3.4*k},g);el("circle",{cx:p[0],cy:p[1],r:rw*.4,fill:col("--was")},g);hereTag(p,rw,k,gT,"You were here","tag-was","--was")}
     if(!G)obst.push({x0:p[0]-r,y0:p[1]-r,x1:p[0]+r,y1:p[1]+r,dim});
@@ -585,11 +587,14 @@ function render(){
   const vx0=vb.x-40*k,vy0=vb.y-40*k,vx1=vb.x+vb.w+40*k,vy1=vb.y+vb.h+40*k;
   labels.sort((a,b)=>b.pri-a.pri);
   const placed=[...hereBoxes];hereBoxes=[];
-  const overview=k>(lay==="tall"?4.6:3.2);
+  for(const id in S){if(!(S[id].hub&&HUBICON[id]))continue;const q=P(id),hr=(k>(lay==="tall"?1.8:3.2)?12:19)*zs*k;placed.push({x0:q[0]-hr,x1:q[0]+hr,y0:q[1]-hr,y1:q[1]+hr})}
+
+  const overview=k>(lay==="tall"?1.8:3.2);
   const ov=(a,b)=>!(a.x1<b.x0||a.x0>b.x1||a.y1<b.y0||a.y0>b.y1);
   for(const lb of labels){
     const bx=lb.box;if(bx.x1<vx0||bx.x0>vx1||bx.y1<vy0||bx.y0>vy1)continue;
-    if(overview&&lb.pri<60&&!lb.fol)continue; // zoomed far out: hubs only, plus the line being followed
+    if(overview&&lb.pri<60&&!lb.fol)continue;
+    if(!SHOWSTOPS&&lb.kind==="stop"&&!lb.fol&&lb.pri<100)continue; // zoomed far out: hubs only, plus the line being followed
     const hitsPlaced=lb.parts.some(a=>placed.some(b=>ov(a,b)));
     const hitsDot=lb.parts.some(a=>obst.some(b=>ov(a,b)&&!(b.dim&&!lb.dim)&&!(b.x0<=lb.ax&&b.x1>=lb.ax&&b.y0<=lb.ay&&b.y1>=lb.ay)));
     if(lb.pri<90&&(hitsPlaced||hitsDot))continue;
@@ -599,6 +604,41 @@ function render(){
     if(lb.rot)a.transform=`rotate(${lb.rot} ${lb.x} ${lb.y})`;if(lb.dim)a.opacity=.3;
     a["data-id"]=lb.id;const t=el("text",a,gT);t.textContent=lb.text;if(lb.closed)t.style.fill=col("--muted");
   }
+  // line names: one per stretch between stops, on a straight piece of the line, drawn just above the coloured lines and below everything else,
+  // never touching a stop, a capsule, a hub, a pointer line or a label
+  // zoomed out: one name per line, in its clearest straight stretch; it may sit under stop dots (they draw on top) but never under a hub, a capsule, a label or another name
+  if(!SHOWSTOPS){const HB=[...placed],PL=[],fs=10*k,h=14*k,m=2.5*k;
+   for(const id in S){const s=S[id];if(!(s.hub||s.here||s.xfer))continue;const p=P(id),r=(s.here?16:s.hub?19:12)*k;HB.push({x0:p[0]-r,x1:p[0]+r,y0:p[1]-r,y1:p[1]+r})}
+   const CAP=GROUPS.map(g=>{const ps=g.m.map(P),rr=8.5*zs*k;return{x0:Math.min(...ps.map(p=>p[0]))-rr,x1:Math.max(...ps.map(p=>p[0]))+rr,y0:Math.min(...ps.map(p=>p[1]))-rr,y1:Math.max(...ps.map(p=>p[1]))+rr}});
+   const STP=Object.keys(S).map(P).filter(Boolean),ovl=(q,o,mm)=>!(q.x1<o.x0-mm||q.x0>o.x1+mm||q.y1<o.y0-mm||q.y0>o.y1+mm);
+   L.forEach(l=>{if(l.dash)return;const dim=fl&&fl.id!==l.id,txt=l.n.toUpperCase(),w=tw(txt,"stop")*10/15*k*1.12+12*k;let best=null;
+    BR(l).forEach(br=>{const P2=pts(br);let i=1;while(i<P2.length){const a0=Math.atan2(P2[i][1]-P2[i-1][1],P2[i][0]-P2[i-1][0]);let j=i;while(j+1<P2.length&&Math.abs(Math.atan2(P2[j+1][1]-P2[j][1],P2[j+1][0]-P2[j][0])-a0)<1e-3)j++;
+      const A=P2[i-1],B=P2[j],len=Math.hypot(B[0]-A[0],B[1]-A[1]);i=j+1;if(len<w)continue;const ux=(B[0]-A[0])/len,uy=(B[1]-A[1])/len,n=Math.max(1,Math.ceil((w-h)/(h/2)));
+      for(let t=w/2;t<=len-w/2+1e-6;t+=Math.max(1.5*k,len/80)){const cx=A[0]+ux*t,cy=A[1]+uy*t,parts=[];for(let q=0;q<=n;q++){const d=-w/2+h/2+(w-h)*q/n;parts.push({x0:cx+ux*d-h/2,x1:cx+ux*d+h/2,y0:cy+uy*d-h/2,y1:cy+uy*d+h/2})}
+        if(parts.some(q=>HB.some(o=>ovl(q,o,m))||PL.some(o=>ovl(q,o,2*k))))continue;
+        let c=0;CAP.forEach(o=>{if(parts.some(q=>ovl(q,o,m)))c+=3});STP.forEach(q=>{const dx=q[0]-cx,dy=q[1]-cy;if(Math.abs(dx*ux+dy*uy)<w/2+6*k&&Math.abs(-dx*uy+dy*ux)<h/2+6*k)c++});
+        const sc=c*1000+Math.abs(t-len/2)/len-len/1e4;if(!best||sc<best.sc)best={sc,cx,cy,ux,uy,parts}}}});
+    if(!best)return;PL.push(...best.parts);let a=Math.atan2(best.uy,best.ux)*180/Math.PI;if(a>90)a-=180;if(a<=-90)a+=180;const {cx,cy}=best;
+    const g=el("g",{transform:`rotate(${a} ${cx} ${cy})`,opacity:dim?.2:1,"pointer-events":"none"},gO);
+    el("rect",{x:cx-w/2,y:cy-h/2,width:w,height:h,rx:h/2,fill:col(l.c),stroke:col("--stn"),"stroke-width":1.5*k},g);
+    const tx=el("text",{x:cx,y:cy+fs*.36,"text-anchor":"middle","font-size":fs,"font-weight":800,"letter-spacing":.5*k,fill:"#fff","font-family":"Overpass, Arial, sans-serif"},g);tx.textContent=txt})}
+  else  {const OB=[...obst,...placed],PL=[],fs=10*k,h=14*k,m=2.5*k;
+   if(SHOWSTOPS)for(const id in S){const p=P(id);if(!p||!p[3])continue;const G=GM[id];if(G&&((LAYOUT[lay].ga||{})[G.id]||G.a)!==id)continue;const sd=(G?LAYOUT[lay].gs[G.id]:p[2])||"r",v={r:[1,0],l:[-1,0],t:[0,-1],b:[0,1],ur:[.7071,-.7071],dr:[.7071,.7071],dl:[-.7071,.7071]}[sd]||[1,0],tl=p[3]+9*k;
+     for(let d=0;d<=tl;d+=3*k)OB.push({x0:p[0]+v[0]*d-1.5*k,x1:p[0]+v[0]*d+1.5*k,y0:p[1]+v[1]*d-1.5*k,y1:p[1]+v[1]*d+1.5*k})}
+   const hit=q=>OB.some(o=>!(q.x1<o.x0-m||q.x0>o.x1+m||q.y1<o.y0-m||q.y0>o.y1+m))||PL.some(o=>!(q.x1<o.x0-2*k||q.x0>o.x1+2*k||q.y1<o.y0-2*k||q.y0>o.y1+2*k));
+   L.forEach(l=>{if(l.dash)return;const dim=fl&&fl.id!==l.id,txt=l.n.toUpperCase(),w=tw(txt,"stop")*10/15*k*1.12+12*k;
+    BR(l).forEach(br=>{const seq=[];expandBr(br).forEach(q=>{if(q[0]==="@")bendOf(q).forEach(b=>seq.push({p:b,stop:false}));else seq.push({p:P(q),stop:true})});
+      let st=0;for(let e=1;e<seq.length;e++){if(!seq[e].stop)continue;
+        const pieces=[];for(let i=st+1;i<=e;i++){const A=seq[i-1].p,B=seq[i].p,len=Math.hypot(B[0]-A[0],B[1]-A[1]);if(len>0)pieces.push({A,B,len})}
+        st=e;pieces.sort((u,v)=>v.len-u.len);let done=false;
+        for(const pc of pieces){if(done||pc.len<w)continue;const ux=(pc.B[0]-pc.A[0])/pc.len,uy=(pc.B[1]-pc.A[1])/pc.len,n=Math.max(1,Math.ceil((w-h)/(h/2))),mid=pc.len/2,span=pc.len/2-w/2;
+          for(let o=0;o<=span&&!done;o+=Math.max(1.5*k,span/40)){for(const sg of o?[1,-1]:[1]){const t=mid+sg*o,cx=pc.A[0]+ux*t,cy=pc.A[1]+uy*t,parts=[];
+            for(let i=0;i<=n;i++){const d=-w/2+h/2+(w-h)*i/n,px=cx+ux*d,py=cy+uy*d;parts.push({x0:px-h/2,x1:px+h/2,y0:py-h/2,y1:py+h/2})}
+            if(parts.some(hit))continue;PL.push(...parts);done=true;
+            let a=Math.atan2(uy,ux)*180/Math.PI;if(a>90)a-=180;if(a<=-90)a+=180;
+            const g=el("g",{transform:`rotate(${a} ${cx} ${cy})`,opacity:dim?.2:1,"pointer-events":"none"},gP);
+            el("rect",{x:cx-w/2,y:cy-h/2,width:w,height:h,rx:h/2,fill:col(l.c)},g);
+            const tx=el("text",{x:cx,y:cy+fs*.36,"text-anchor":"middle","font-size":fs,"font-weight":800,"letter-spacing":.5*k,fill:"#fff","font-family":"Overpass, Arial, sans-serif"},g);tx.textContent=txt;break}}}}})})}
   drawMini();
 }
 function labelCands(id,s,p,rpx,k,dim,onF){
@@ -615,10 +655,11 @@ function labelCands(id,s,p,rpx,k,dim,onF){
       b={x0:Math.min(...parts.map(a=>a.x0)),x1:Math.max(...parts.map(a=>a.x1)),y0:Math.min(...parts.map(a=>a.y0)),y1:Math.max(...parts.map(a=>a.y1))}}
     return{id,fol:!!(onF&&onF.has(id)),text,kind,x,y,anchor,rot,box:b,parts,pri:p2,ax:p[0],ay:p[1],dim,closed:s.closed};
   };
-  if(H&&k>(lay==="tall"?4.6:3.2)){ // overview: small hub names above each hub, kept inside the view
-    const lb=mk(s.n,"ov",p[0],p[1]-(rpx+7)*k,"middle",0,90),m=8*k,dx=Math.max(0,vb.x+m-lb.box.x0)-Math.max(0,lb.box.x1-(vb.x+vb.w-m));
+  if(H&&k>(lay==="tall"?1.8:3.2)){ // overview: small hub names above each hub, kept inside the view
+    const lb=mk(s.n,"ov",p[0],p[1]+(rpx+5)*k+10*k,"middle",0,90),m=8*k,dx=Math.max(0,vb.x+m-lb.box.x0)-Math.max(0,lb.box.x1-(vb.x+vb.w-m));
     lb.x+=dx;lb.box.x0+=dx;lb.box.x1+=dx;lb.parts=[lb.box];out.push(lb);return out}
-  if(H){const z=Math.min(1,k);out.push(mk(s.n,"hub",p[0]+H.n[0]*z,p[1]+H.n[1]*z,H.n[2],0,pri+20));if(H.d&&s.dom)out.push(mk(s.dom,"dom",p[0]+H.d[0]*z,p[1]+H.d[1]*z,H.n[2],0,pri-30));return out}
+  if(H&&HUBICON[id]){out.push(mk(s.n,"hub",p[0],p[1]+(rpx+5)*k+13*k,"middle",0,pri+35));return out}
+  if(H){const z=Math.min(1,k);out.push(mk(s.n,"hub",p[0]+H.n[0]*z,p[1]+H.n[1]*z,H.n[2],0,pri+20));if(false)out.push(mk(s.dom,"dom",p[0]+H.d[0]*z,p[1]+H.d[1]*z,H.n[2],0,pri-30));return out}
   const side=(G?LAYOUT[lay].gs[G.id]:p[2])||"r",pad=(rpx+6)*k,d=(rpx*.7+4)*k,ex=p[3]||0,e7=ex*.7071;
   const o={r:[pad+ex,5*k,"start"],l:[-pad-ex,5*k,"end"],t:[0,-pad-3*k-ex,"middle"],b:[0,pad+13*k+ex,"middle"],br:[-4*k,pad+13*k+ex,"start"],ur:[d+2*k+e7,-d-e7,"start",-45],dl:[-d-e7,d+2*k+e7,"end",-45],dr:[d+2*k+e7,d+4*k+e7,"start",45]}[side];
   out.push(mk(G?G.n:s.n,"stop",p[0]+o[0],p[1]+o[1],o[2],o[3]||0,pri+10));
@@ -646,7 +687,7 @@ function fitBox(x0,y0,x1,y1,opts={}){
   const cx=x0-L0*k+(R.width*k)/2+((R.width-L0-Rt)*k-(x1-x0))/2*0, cy=y0-T*k+(R.height*k)/2;
   vb={x:x0-L0*k-((R.width-L0-Rt)*k-(x1-x0))/2,y:y0-T*k-((R.height-T-Bt)*k-(y1-y0))/2,w:R.width*k,h:R.height*k};
 }
-function fitAll(){const B=bounds();fitBox(B.x0,B.y0,B.x1,B.y1);hideSheet(true);render()}
+function fitAll(){const B=bounds();fitBox(B.x0,B.y0,B.x1,B.y1);window.KFIT=vb.w/Math.max(1,rect().width);hideSheet(true);render()}
 let anim=null;
 function animateTo(cx,cy,k){
   const R=rect(),to={x:cx-R.width*k/2,y:cy-R.height*k/2,w:R.width*k,h:R.height*k};

@@ -163,7 +163,7 @@ html.embed .bar,html.embed .privlink{display:none}
     </div>
     <div class="sheet" id="sheet" hidden></div>
     <a class="privlink" id="privlink" href="?privacy=1">Privacy</a>
-    <div class="pv" id="pv" hidden role="dialog" aria-label="Privacy"><div><b>Privacy</b><p>S.We.T.A. counts anonymous rides between stops. No names or emails, and your IP is never stored.</p><p>Turn on Do Not Track or Global Privacy Control and nothing is counted.</p><button type="button" id="pvx">Close</button></div></div>
+    <div class="pv" id="pv" hidden role="dialog" aria-label="Privacy"><div><b>Privacy</b><p>S.We.T.A. counts anonymous rides between stops. No names or emails, and your IP is never stored.</p><p>It also records your country and region, your timezone, the site you came from, and whether you are on a phone, tablet or computer.</p><p>Turn on Do Not Track or Global Privacy Control and nothing is counted.</p><button type="button" id="pvx">Close</button></div></div>
     <aside class="panel" id="panel" hidden aria-label="Lines and stations">
       <header>
         <div class="tabs" role="tablist">
@@ -829,10 +829,12 @@ try{OPTOUT=navigator.doNotTrack==="1"||window.doNotTrack==="1"||navigator.global
   }catch(e){RID=""}
 })();
 const hand=u=>RID?u+(u.includes("?")?"&":"?")+"swt="+RID:u;
+// The site the visitor came from (host name only), when it is another site.
+let REF="";try{const ru=new URL(document.referrer);if(ru.hostname!==location.hostname)REF=ru.hostname}catch(e){}
 function track(t,stop,to){
   if(!TRACK_URL||OPTOUT||!RID)return;
   try{
-    const body=JSON.stringify({t,s:stop||"",o:to||"",r:RID,h:location.hostname,p:location.pathname,k:"map"});
+    const body=JSON.stringify({t,s:stop||"",o:to||"",r:RID,h:location.hostname,p:location.pathname,k:"map",f:REF});
     if(navigator.sendBeacon&&navigator.sendBeacon(TRACK_URL+"/hit",new Blob([body],{type:"text/plain"})))return;
     fetch(TRACK_URL+"/hit",{method:"POST",body,keepalive:true,mode:"cors",headers:{"content-type":"text/plain"}}).catch(()=>{});
   }catch(e){}

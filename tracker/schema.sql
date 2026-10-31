@@ -9,7 +9,12 @@ CREATE TABLE IF NOT EXISTS events (
   to_stop TEXT,                 -- for clicks: station id the link led to (empty for other sites)
   host TEXT,                    -- site the event came from
   path TEXT,                    -- page path, no query string
-  src TEXT                      -- strip | map
+  src TEXT,                     -- strip | map
+  country TEXT,                 -- two-letter country code from Cloudflare
+  region TEXT,                  -- state or region name from Cloudflare
+  tz TEXT,                      -- visitor timezone from Cloudflare (for local time of day)
+  ref TEXT,                     -- site the visitor came from (host name only)
+  dev TEXT                      -- phone | tablet | desktop, from the browser name
 );
 CREATE INDEX IF NOT EXISTS ev_ts ON events(ts);
 CREATE INDEX IF NOT EXISTS ev_ih ON events(ih, ts);
@@ -20,4 +25,10 @@ CREATE TABLE IF NOT EXISTS daily (
   views INTEGER NOT NULL,
   riders INTEGER NOT NULL,
   PRIMARY KEY (day, stop)
+);
+-- Download counts pulled from the Google Sheets (counts only, refreshed every 10 minutes).
+CREATE TABLE IF NOT EXISTS sheets (
+  name TEXT PRIMARY KEY,
+  fetched INTEGER NOT NULL,
+  data TEXT NOT NULL
 );

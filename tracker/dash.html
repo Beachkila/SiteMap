@@ -6,83 +6,141 @@
 <meta name="robots" content="noindex,nofollow">
 <title>S.We.T.A. Ridership</title>
 <style>
-:root{--bg:#141413;--panel:#1c1c1a;--panel2:#242421;--ink:#ecebe6;--muted:#9a9a93;--rule:#33332f;--amber:#f2b134;--hot:#e5483b;--ok:#6fbf73;
+:root{--bg:#121211;--panel:#1b1b19;--panel2:#252522;--ink:#ecebe6;--muted:#9a9a93;--rule:#34342f;--accent:#f2b134;--hot:#e5483b;--ok:#6fbf73;--live:#4fd1c5;
   --mono:ui-monospace,Menlo,Consolas,monospace;--sans:"Helvetica Neue",Arial,system-ui,sans-serif;color-scheme:dark}
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 var(--sans)}
-header{display:flex;flex-wrap:wrap;align-items:center;gap:8px 18px;padding:12px 16px;border-bottom:3px solid var(--ink)}
+header{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;padding:12px 16px;border-bottom:3px solid var(--ink)}
 h1{font-size:18px;margin:0;font-weight:800;letter-spacing:-.01em}
 h1 small{font-weight:400;color:var(--muted);font-size:12px;margin-left:8px}
 .sp{flex:1}
 select,button,input{font:inherit;color:var(--ink);background:var(--panel2);border:1px solid var(--rule);border-radius:8px;padding:5px 10px}
 button{cursor:pointer}
 button:hover,select:hover{border-color:var(--muted)}
-nav{display:flex;gap:4px;padding:8px 16px 0;border-bottom:1px solid var(--rule);overflow-x:auto}
+button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+#liveTag{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--muted)}
+#liveTag i{width:9px;height:9px;border-radius:50%;background:var(--muted)}
+#liveTag.on i{background:var(--live);box-shadow:0 0 0 0 var(--live);animation:beat 1.6s infinite}
+@keyframes beat{0%{box-shadow:0 0 0 0 rgba(79,209,197,.6)}70%{box-shadow:0 0 0 8px rgba(79,209,197,0)}100%{box-shadow:0 0 0 0 rgba(79,209,197,0)}}
+nav{display:flex;gap:2px;padding:8px 16px 0;border-bottom:1px solid var(--rule);overflow-x:auto}
 nav button{border:0;border-bottom:3px solid transparent;border-radius:0;background:none;padding:8px 12px;color:var(--muted);font-weight:700;white-space:nowrap}
-nav button[aria-selected=true]{color:var(--ink);border-bottom-color:var(--amber)}
-main{padding:16px;max-width:1400px;margin:0 auto}
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:16px}
+nav button[aria-selected=true]{color:var(--ink);border-bottom-color:var(--accent)}
+main{padding:16px;max-width:1500px;margin:0 auto}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:10px;margin-bottom:16px}
 .card{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:10px 12px}
 .card b{display:block;font-size:24px;font-family:var(--mono);line-height:1.1}
 .card span{color:var(--muted);font-size:12px}
-.grid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(280px,1fr);gap:16px}
-@media(max-width:900px){.grid{grid-template-columns:1fr}}
-.box{background:var(--panel);border:1px solid var(--rule);border-radius:10px;overflow:hidden}
-.box h2{margin:0;padding:10px 12px;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-bottom:1px solid var(--rule);display:flex;gap:8px;align-items:center}
+.card em{font-style:normal;font-size:11px;font-family:var(--mono);margin-left:6px}
+.up{color:var(--ok)}.down{color:var(--hot)}
+.grid{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(300px,1fr);gap:16px;align-items:start}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}
+@media(max-width:980px){.grid{grid-template-columns:1fr}}
+.box{background:var(--panel);border:1px solid var(--rule);border-radius:10px;overflow:hidden;margin-bottom:16px}
+.box h2{margin:0;padding:10px 12px;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-bottom:1px solid var(--rule);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .box h2 .sp{flex:1}
-iframe{display:block;width:100%;height:560px;border:0;background:#fff}
+.pad{padding:10px 12px}
 table{width:100%;border-collapse:collapse}
 th,td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--rule);vertical-align:middle}
 th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700;cursor:pointer;white-space:nowrap}
-td.n,th.n{text-align:right;font-family:var(--mono)}
+td.n,th.n{text-align:right;font-family:var(--mono);white-space:nowrap}
 tr.click{cursor:pointer}
-tr.click:hover td{background:var(--panel2)}
-.bar{display:inline-block;height:8px;border-radius:4px;background:var(--amber);vertical-align:middle;min-width:2px}
-.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:-1px}
+tr.click:hover td,tr.sel td{background:var(--panel2)}
+.bar{display:inline-block;height:8px;border-radius:4px;background:var(--accent);vertical-align:middle;min-width:2px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:-1px}
 .pill{display:inline-block;font-size:11px;padding:1px 8px;border-radius:999px;border:1px solid var(--rule);color:var(--muted)}
-.pill.hot{color:var(--hot);border-color:var(--hot)}.pill.amber{color:var(--amber);border-color:var(--amber)}.pill.ok{color:var(--ok);border-color:var(--ok)}
+.pill.hot{color:var(--hot);border-color:var(--hot)}.pill.amber{color:var(--accent);border-color:var(--accent)}.pill.ok{color:var(--ok);border-color:var(--ok)}
 .muted{color:var(--muted)}
 .empty{padding:30px 16px;text-align:center;color:var(--muted)}
+.err{color:var(--hot)}
+/* map */
+.mapwrap{position:relative;height:620px;background:#0d0d0c;touch-action:none}
+.mapwrap svg{display:block;width:100%;height:100%;cursor:grab}
+.mapwrap svg.drag{cursor:grabbing}
+.tools{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--rule);font-size:13px}
+.tools label{display:flex;align-items:center;gap:5px;color:var(--muted)}
+.tools select{padding:3px 6px}
+.tools .seg{display:inline-flex;border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+.tools .seg button{border:0;border-radius:0;padding:3px 9px;background:var(--panel2)}
+.tools .seg button.on{background:var(--ink);color:var(--bg)}
+.zoom{position:absolute;right:10px;top:10px;display:flex;flex-direction:column;gap:6px}
+.zoom button{width:34px;height:34px;padding:0;font-size:18px;font-weight:700}
+.legend{position:absolute;left:10px;bottom:10px;background:rgba(18,18,17,.88);border:1px solid var(--rule);border-radius:8px;padding:8px 10px;font-size:12px;max-width:360px}
+.legend .grad{height:10px;border-radius:5px;margin:4px 0 2px;width:220px}
+.legend .row{display:flex;justify-content:space-between;width:220px;font-family:var(--mono);color:var(--muted)}
+.lbl{font:600 12px var(--sans);fill:var(--ink);paint-order:stroke;stroke:#0d0d0c;stroke-width:3px;pointer-events:none}
+.side h3{margin:0 0 2px;font-size:16px}
+.kv{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:10px 0}
+.kv div{background:var(--panel2);border-radius:8px;padding:6px 8px}
+.kv b{display:block;font-family:var(--mono);font-size:17px}
+.kv span{font-size:11px;color:var(--muted)}
+.list{margin:0;padding:0;list-style:none}
+.list li{display:flex;gap:8px;align-items:center;padding:4px 0;border-bottom:1px solid var(--rule);font-size:13px}
+.list li .n{margin-left:auto;font-family:var(--mono)}
+.feed li{animation:fadein .6s}
+@keyframes fadein{from{background:rgba(79,209,197,.25)}to{background:transparent}}
+.sub{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:14px 0 4px}
+.cols{display:flex;align-items:flex-end;gap:3px;height:120px;padding:8px 0 0}
+.cols div{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;height:100%;justify-content:flex-end}
+.cols i{display:block;width:100%;background:var(--accent);border-radius:3px 3px 0 0;min-height:1px}
+.cols span{font-size:10px;color:var(--muted);font-family:var(--mono)}
+.stack{display:flex;height:22px;border-radius:6px;overflow:hidden;margin:6px 0}
+.stack i{display:block;height:100%}
+.keys{display:flex;flex-wrap:wrap;gap:10px;font-size:12px;color:var(--muted)}
+.keys span{display:flex;align-items:center;gap:5px}
+.keys b{width:10px;height:10px;border-radius:3px;display:inline-block}
+.world{height:440px;background:#0d0d0c}
+.world svg{width:100%;height:100%;display:block}
+.world path{stroke:#0d0d0c;stroke-width:.5}
 .tl{padding:8px 12px 12px}
-.tl .sess{margin:10px 0 4px;font-weight:700;font-size:12px;color:var(--amber);font-family:var(--mono)}
+.tl .sess{margin:10px 0 4px;font-weight:700;font-size:12px;color:var(--accent);font-family:var(--mono);display:flex;gap:8px;align-items:center}
 .tl .ev{display:grid;grid-template-columns:96px 1fr;gap:8px;padding:3px 0 3px 12px;border-left:2px solid var(--rule);font-size:13px}
 .tl .ev .t{white-space:nowrap;color:var(--muted);font-family:var(--mono);font-size:12px}
-.tl .ev.click{border-left-color:var(--amber)}
-.tl .ev.click .what{color:var(--amber)}
-.spark{display:flex;align-items:flex-end;gap:2px;height:60px;padding:8px 12px}
-.spark i{flex:1;background:var(--amber);min-width:2px;border-radius:2px 2px 0 0;opacity:.85}
-.build{padding:0}
+.tl .ev.click{border-left-color:var(--accent)}
+.tl .ev.click .what{color:var(--accent)}
 .build .it{padding:10px 12px;border-bottom:1px solid var(--rule)}
 .build .it:last-child{border:0}
 .build .it b{display:block}
 #login{max-width:420px;margin:60px auto;padding:20px;background:var(--panel);border:1px solid var(--rule);border-radius:10px}
 #login input{width:100%;margin:10px 0}
-.err{color:var(--hot)}
+.tip{position:fixed;pointer-events:none;background:#000;border:1px solid var(--rule);border-radius:6px;padding:4px 8px;font-size:12px;z-index:9;display:none}
+.swatch{display:inline-block;width:14px;height:14px;border-radius:3px;border:1px solid var(--rule);vertical-align:-2px;margin-right:6px}
 </style>
 </head>
 <body>
 <header>
   <h1>S.We.T.A. Ridership<small>private</small></h1>
+  <span id="liveTag" title="Checks for new riders every 5 seconds"><i></i><span>Live</span></span>
   <span class="sp"></span>
-  <label class="muted">Period <select id="days"><option value="7">7 days</option><option value="30" selected>30 days</option><option value="90">90 days</option></select></label>
+  <label class="muted">Period <select id="days"><option value="1">24 hours</option><option value="7">7 days</option><option value="30" selected>30 days</option><option value="90">90 days</option></select></label>
   <button id="refresh">Refresh</button>
   <button id="csv">Export CSV</button>
   <button id="json">Export JSON</button>
 </header>
 <nav id="tabs" role="tablist"></nav>
 <main id="main"></main>
+<div class="tip" id="tip"></div>
 
 <script>
 (function () {
   "use strict";
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var esc = function (v) { return String(v == null ? "" : v).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
+  var NS = "http://www.w3.org/2000/svg";
   var TOKEN = ""; try { TOKEN = sessionStorage.getItem("swt_tok") || ""; } catch (e) {}
-  var META = null, SUM = null, RIDERS = null, TAB = "heat", METRIC = "views", SORT = { k: "visits", d: -1 };
+  var META = null, SUM = null, RIDERS = null, DL = null, TAB = "map", SORT = { k: "views", d: -1 }, SEL = null, STOPDATA = null, PLACE = null;
+  var ISO = {"AW":"533","AF":"004","AO":"024","AI":"660","AX":"248","AL":"008","AD":"020","AE":"784","AR":"032","AM":"051","AS":"016","AQ":"010","TF":"260","AG":"028","AU":"036","AT":"040","AZ":"031","BI":"108","BE":"056","BJ":"204","BQ":"535","BF":"854","BD":"050","BG":"100","BH":"048","BS":"044","BA":"070","BL":"652","BY":"112","BZ":"084","BM":"060","BO":"068","BR":"076","BB":"052","BN":"096","BT":"064","BV":"074","BW":"072","CF":"140","CA":"124","CC":"166","CH":"756","CL":"152","CN":"156","CI":"384","CM":"120","CD":"180","CG":"178","CK":"184","CO":"170","KM":"174","CV":"132","CR":"188","CU":"192","CW":"531","CX":"162","KY":"136","CY":"196","CZ":"203","DE":"276","DJ":"262","DM":"212","DK":"208","DO":"214","DZ":"012","EC":"218","EG":"818","ER":"232","EH":"732","ES":"724","EE":"233","ET":"231","FI":"246","FJ":"242","FK":"238","FR":"250","FO":"234","FM":"583","GA":"266","GB":"826","GE":"268","GG":"831","GH":"288","GI":"292","GN":"324","GP":"312","GM":"270","GW":"624","GQ":"226","GR":"300","GD":"308","GL":"304","GT":"320","GF":"254","GU":"316","GY":"328","HK":"344","HM":"334","HN":"340","HR":"191","HT":"332","HU":"348","ID":"360","IM":"833","IN":"356","IO":"086","IE":"372","IR":"364","IQ":"368","IS":"352","IL":"376","IT":"380","JM":"388","JE":"832","JO":"400","JP":"392","KZ":"398","KE":"404","KG":"417","KH":"116","KI":"296","KN":"659","KR":"410","KW":"414","LA":"418","LB":"422","LR":"430","LY":"434","LC":"662","LI":"438","LK":"144","LS":"426","LT":"440","LU":"442","LV":"428","MO":"446","MF":"663","MA":"504","MC":"492","MD":"498","MG":"450","MV":"462","MX":"484","MH":"584","MK":"807","ML":"466","MT":"470","MM":"104","ME":"499","MN":"496","MP":"580","MZ":"508","MR":"478","MS":"500","MQ":"474","MU":"480","MW":"454","MY":"458","YT":"175","NA":"516","NC":"540","NE":"562","NF":"574","NG":"566","NI":"558","NU":"570","NL":"528","NO":"578","NP":"524","NR":"520","NZ":"554","OM":"512","PK":"586","PA":"591","PN":"612","PE":"604","PH":"608","PW":"585","PG":"598","PL":"616","PR":"630","KP":"408","PT":"620","PY":"600","PS":"275","PF":"258","QA":"634","RE":"638","RO":"642","RU":"643","RW":"646","SA":"682","SD":"729","SN":"686","SG":"702","GS":"239","SH":"654","SJ":"744","SB":"090","SL":"694","SV":"222","SM":"674","SO":"706","PM":"666","RS":"688","SS":"728","ST":"678","SR":"740","SK":"703","SI":"705","SE":"752","SZ":"748","SX":"534","SC":"690","SY":"760","TC":"796","TD":"148","TG":"768","TH":"764","TJ":"762","TK":"772","TM":"795","TL":"626","TO":"776","TT":"780","TN":"788","TR":"792","TV":"798","TW":"158","TZ":"834","UG":"800","UA":"804","UM":"581","UY":"858","US":"840","UZ":"860","VA":"336","VC":"670","VE":"862","VG":"092","VI":"850","VN":"704","VU":"548","WF":"876","WS":"882","YE":"887","ZA":"710","ZM":"894","ZW":"716"};
+  var regionName = (function () { try { var d = new Intl.DisplayNames(["en"], { type: "region" }); return function (c) { try { return d.of(c); } catch (e) { return c; } }; } catch (e) { return function (c) { return c; }; } })();
+  var flag = function (c) { return c && /^[A-Z]{2}$/.test(c) ? String.fromCodePoint(127397 + c.charCodeAt(0), 127397 + c.charCodeAt(1)) : "🏳"; };
 
-  var TABS = [["heat", "Heat map"], ["stations", "Stations"], ["riders", "Riders"], ["flows", "Flows"], ["build", "Build out"]];
+  // Map view settings (remembered in this browser only).
+  var OPT = { metric: "views", marks: "bubbles", flows: false, flowN: 30, lineW: false, labels: "top", live: true };
+  try { Object.assign(OPT, JSON.parse(localStorage.getItem("swt_dash_opt") || "{}")); } catch (e) {}
+  var saveOpt = function () { try { localStorage.setItem("swt_dash_opt", JSON.stringify(OPT)); } catch (e) {} };
+
+  var TABS = [["map", "Map"], ["places", "Places"], ["stations", "Stations"], ["lines", "Lines"], ["sources", "Sources"], ["downloads", "Downloads"], ["riders", "Riders"], ["flows", "Flows"], ["build", "Build out"]];
   $("#tabs").innerHTML = TABS.map(function (t) { return '<button role="tab" data-t="' + t[0] + '" aria-selected="' + (t[0] === TAB) + '">' + t[1] + "</button>"; }).join("");
-  $("#tabs").onclick = function (e) { var b = e.target.closest("button"); if (!b) return; TAB = b.dataset.t; [].forEach.call($("#tabs").children, function (x) { x.setAttribute("aria-selected", x === b); }); draw(); };
+  $("#tabs").onclick = function (e) { var b = e.target.closest("button"); if (!b) return; go(b.dataset.t); };
+  function go(t) { TAB = t; [].forEach.call($("#tabs").children, function (x) { x.setAttribute("aria-selected", x.dataset.t === t); }); draw(); }
 
   function api(path) {
     var h = TOKEN ? { authorization: "Bearer " + TOKEN } : {};
@@ -92,11 +150,12 @@ tr.click:hover td{background:var(--panel2)}
       return r;
     });
   }
+  var getJ = function (p) { return api(p).then(function (r) { return r.json(); }); };
   function days() { return $("#days").value; }
   function load() {
     $("#main").innerHTML = '<div class="empty">Loading…</div>';
-    return Promise.all([META ? META : api("/api/meta").then(function (r) { return r.json(); }), api("/api/summary?days=" + days()).then(function (r) { return r.json(); }), api("/api/riders?days=" + days()).then(function (r) { return r.json(); })])
-      .then(function (a) { META = a[0]; SUM = a[1]; RIDERS = a[2].riders; draw(); })
+    return Promise.all([META ? META : getJ("/api/meta"), getJ("/api/summary?days=" + days()), getJ("/api/riders?days=" + days()), getJ("/api/downloads?days=" + days()).catch(function (e) { return { error: e.message }; })])
+      .then(function (a) { META = a[0]; SUM = a[1]; RIDERS = a[2].riders; DL = a[3]; draw(); startLive(); })
       .catch(function (e) { if (e.code === 401) login(); else $("#main").innerHTML = '<div class="empty err">Could not load: ' + esc(e.message) + "</div>"; });
   }
   function login(msg) {
@@ -104,94 +163,455 @@ tr.click:hover td{background:var(--panel2)}
     $("#go").onclick = function () { TOKEN = $("#tok").value.trim(); try { sessionStorage.setItem("swt_tok", TOKEN); } catch (e) {} load(); };
   }
 
-  var nm = function (id) { return META.stops[id] ? META.stops[id].n : id; };
+  var nm = function (id) { return id === "(left)" ? "Left the sites" : META.stops[id] ? META.stops[id].n : id; };
   var lineOf = function (id) { var s = META.stops[id]; if (!s || !s.lines.length) return null; for (var i = 0; i < META.lines.length; i++) if (s.lines.indexOf(META.lines[i].id) > -1) return META.lines[i]; return null; };
   var dotFor = function (id) { var l = lineOf(id); return '<i class="dot" style="background:' + (l ? l.c : "#777") + '"></i>'; };
   var num = function (n) { return Number(n || 0).toLocaleString(); };
   var pct = function (a, b) { return b ? Math.round(100 * a / b) + "%" : "–"; };
   var when = function (ts) { var d = new Date(ts); return d.toLocaleDateString(undefined, { month: "short", day: "numeric" }) + " " + d.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" }); };
+  var clock = function (ts) { return new Date(ts).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit", second: "2-digit" }); };
+  var sortObj = function (o) { return Object.keys(o || {}).map(function (k) { return [k, o[k]]; }).sort(function (a, b) { return b[1] - a[1]; }); };
+  var sum = function (o) { return Object.keys(o || {}).reduce(function (s, k) { return s + o[k]; }, 0); };
+
+  // Colour scale (viridis), used for every "more is more" measure.
+  var VIR = ["#440154", "#482878", "#3e4989", "#31688e", "#26828e", "#1f9e89", "#35b779", "#6ece58", "#b5de2b", "#fde725"];
+  var DIV = ["#e5483b", "#ef8a62", "#f7c4a8", "#d9d9d4", "#a8d5c9", "#5fb8a5", "#1b9e77"];
+  function lerpHex(a, b, t) { var p = function (h, i) { return parseInt(h.slice(1 + 2 * i, 3 + 2 * i), 16); }; return "#" + [0, 1, 2].map(function (i) { return Math.round(p(a, i) + (p(b, i) - p(a, i)) * t).toString(16).padStart(2, "0"); }).join(""); }
+  function scale(pal, t) { t = Math.max(0, Math.min(1, t)); var x = t * (pal.length - 1), i = Math.min(pal.length - 2, Math.floor(x)); return lerpHex(pal[i], pal[i + 1], x - i); }
+  var grad = function (pal) { return "linear-gradient(90deg," + pal.join(",") + ")"; };
 
   function rows() {
-    var out = [];
-    Object.keys(META.stops).forEach(function (id) {
-      var s = SUM.stops[id] || { views: 0, riders: 0, entries: 0, exits: 0, bounces: 0, clicksOut: 0 };
-      out.push({ id: id, name: nm(id), views: s.views, riders: s.riders, entries: s.entries, exits: s.exits, bounces: s.bounces, clicksOut: s.clicksOut });
+    var dl = (DL && DL.stops) || {};
+    return Object.keys(META.stops).map(function (id) {
+      var s = SUM.stops[id] || { views: 0, riders: 0, entries: 0, exits: 0, bounces: 0, clicksOut: 0, clicksIn: 0 }, w = (SUM.week || {})[id] || [0, 0];
+      return { id: id, name: nm(id), views: s.views, riders: s.riders, entries: s.entries, exits: s.exits, bounces: s.bounces, clicksOut: s.clicksOut, clicksIn: s.clicksIn || 0,
+        bounce: s.entries ? s.bounces / s.entries : 0, week: w[0], prevWeek: w[1], change: w[1] ? (w[0] - w[1]) / w[1] : (w[0] ? 1 : 0), dl: dl[id] || 0, conv: s.views ? (dl[id] || 0) / s.views : 0 };
     });
-    return out;
   }
+  var METRICS = { views: ["Visits", "count"], riders: ["Riders", "count"], entries: ["Entries (first stop of a trip)", "count"], exits: ["Exits (last stop of a trip)", "count"], bounce: ["Leave right away (share)", "share"], change: ["Last 7 days vs the 7 before", "change"], dl: ["Downloads", "count"], conv: ["Downloads per visit", "share"] };
+  var fmtM = function (k, v) { var t = METRICS[k][1]; return t === "count" ? num(v) : t === "share" ? Math.round(v * 100) + "%" : (v > 0 ? "+" : "") + Math.round(v * 100) + "%"; };
+
   function cards() {
-    var t = SUM.totals;
-    return '<div class="cards">' + [["Riders", t.riders], ["Trips", t.sessions], ["Stop visits", t.visits], ["Moves between stops", t.moves], ["Moves using S.We.T.A.", t.assistedMoves], ["Cross-site moves", t.crossSiteMoves]]
-      .map(function (c) { return '<div class="card"><b>' + num(c[1]) + "</b><span>" + c[0] + "</span></div>"; }).join("") + "</div>";
-  }
-  function spark() {
-    var t = SUM.trend || []; if (!t.length) return "";
-    var mx = Math.max.apply(null, t.map(function (d) { return d.visits; })) || 1;
-    return '<div class="box" style="margin-bottom:16px"><h2>Visits per day</h2><div class="spark">' + t.map(function (d) { return '<i title="' + d.day + ": " + d.visits + ' visits, ' + d.riders + ' riders" style="height:' + Math.max(3, 100 * d.visits / mx) + '%"></i>'; }).join("") + "</div></div>";
+    var t = SUM.totals, dlT = DL && !DL.error ? sum(DL.bySheet) : null;
+    var c = [["Riders", t.riders], ["New riders", t.newRiders], ["Returning", t.returningRiders], ["Trips", t.sessions], ["Stop visits", t.visits], ["Avg trip (min)", t.avgTripMin], ["Moves between stops", t.moves], ["Moves using S.We.T.A.", t.assistedMoves + ' <em class="muted">' + pct(t.assistedMoves, t.moves) + "</em>"]];
+    if (dlT != null) c.push(["Downloads", dlT]);
+    return '<div class="cards">' + c.map(function (x) { return '<div class="card"><b>' + (typeof x[1] === "number" ? num(x[1]) : x[1]) + "</b><span>" + x[0] + "</span></div>"; }).join("") + "</div>";
   }
 
+  // ---------- the dashboard's own map ----------
+  var MAP = null; // {svg, vb, layers}
+  function bounds() {
+    var x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9, add = function (p) { if (!p) return; x0 = Math.min(x0, p[0]); y0 = Math.min(y0, p[1]); x1 = Math.max(x1, p[0]); y1 = Math.max(y1, p[1]); };
+    Object.keys(META.stops).forEach(function (id) { add(META.stops[id].p); });
+    META.lines.forEach(function (l) { l.paths.forEach(function (p) { p.forEach(add); }); });
+    return { x0: x0 - 70, y0: y0 - 70, x1: x1 + 150, y1: y1 + 70 };
+  }
+  function el(t, a, p) { var e = document.createElementNS(NS, t); for (var k in a) e.setAttribute(k, a[k]); if (p) p.appendChild(e); return e; }
+
+  function mapBox() {
+    var m = METRICS[OPT.metric];
+    return '<div class="box"><div class="tools">' +
+      '<label>Show <select id="o_metric">' + Object.keys(METRICS).map(function (k) { return '<option value="' + k + '"' + (OPT.metric === k ? " selected" : "") + ">" + METRICS[k][0] + "</option>"; }).join("") + "</select></label>" +
+      '<span class="seg" id="o_marks">' + [["bubbles", "Bubbles"], ["color", "Colour"], ["size", "Size"], ["off", "Off"]].map(function (x) { return '<button data-v="' + x[0] + '" class="' + (OPT.marks === x[0] ? "on" : "") + '">' + x[1] + "</button>"; }).join("") + "</span>" +
+      '<label><input type="checkbox" id="o_lineW"' + (OPT.lineW ? " checked" : "") + "> Line width by traffic</label>" +
+      '<label><input type="checkbox" id="o_flows"' + (OPT.flows ? " checked" : "") + '> Moves <select id="o_flowN">' + [10, 30, 60, 120].map(function (n) { return '<option value="' + n + '"' + (OPT.flowN == n ? " selected" : "") + ">top " + n + "</option>"; }).join("") + "</select></label>" +
+      '<label>Names <select id="o_labels"><option value="off">off</option><option value="top">top 12</option><option value="all">all</option></select></label>' +
+      '<label><input type="checkbox" id="o_live"' + (OPT.live ? " checked" : "") + "> Live arrivals</label>" +
+      '</div><div class="mapwrap" id="mw"><svg id="msvg"></svg><div class="zoom"><button id="zin" title="Zoom in">+</button><button id="zout" title="Zoom out">−</button><button id="zfit" title="Fit" style="font-size:12px">Fit</button></div><div class="legend" id="leg"></div></div></div>';
+  }
+
+  function buildMap() {
+    var svg = $("#msvg"); if (!svg) return;
+    var B = bounds();
+    MAP = { svg: svg, vb: { x: B.x0, y: B.y0, w: B.x1 - B.x0, h: B.y1 - B.y0 }, B: B };
+    var defs = el("defs", {}, svg);
+    var mk = el("marker", { id: "arw", viewBox: "0 0 10 10", refX: "8", refY: "5", markerWidth: "5", markerHeight: "5", orient: "auto-start-reverse" }, defs);
+    el("path", { d: "M0 0L10 5L0 10z", fill: "#ecebe6" }, mk);
+    MAP.gLines = el("g", {}, svg); MAP.gFlows = el("g", {}, svg); MAP.gMarks = el("g", {}, svg); MAP.gStops = el("g", {}, svg); MAP.gPulse = el("g", {}, svg); MAP.gTrip = el("g", {}, svg); MAP.gLbl = el("g", {}, svg);
+    fitView(); paintMap(); wireMap();
+  }
+  function fitView() {
+    var r = MAP.svg.getBoundingClientRect(), B = MAP.B, w = B.x1 - B.x0, h = B.y1 - B.y0, ar = r.width / Math.max(1, r.height);
+    if (w / h > ar) { var nh = w / ar; MAP.vb = { x: B.x0, y: B.y0 - (nh - h) / 2, w: w, h: nh }; } else { var nw = h * ar; MAP.vb = { x: B.x0 - (nw - w) / 2, y: B.y0, w: nw, h: h }; }
+    setVB();
+  }
+  function setVB() { var v = MAP.vb; MAP.svg.setAttribute("viewBox", v.x + " " + v.y + " " + v.w + " " + v.h); MAP.k = v.w / Math.max(1, MAP.svg.getBoundingClientRect().width); paintLabels(); }
+  function zoomAt(f, cx, cy) { var v = MAP.vb; if (cx == null) { cx = v.x + v.w / 2; cy = v.y + v.h / 2; } var nw = Math.max(150, Math.min(4000, v.w * f)), s = nw / v.w; MAP.vb = { x: cx - (cx - v.x) * s, y: cy - (cy - v.y) * s, w: nw, h: v.h * s }; setVB(); }
+  function wireMap() {
+    var svg = MAP.svg, drag = null, moved = false;
+    var pt = function (e) { var r = svg.getBoundingClientRect(); return { x: MAP.vb.x + (e.clientX - r.left) / r.width * MAP.vb.w, y: MAP.vb.y + (e.clientY - r.top) / r.height * MAP.vb.h }; };
+    svg.addEventListener("wheel", function (e) { e.preventDefault(); var p = pt(e); zoomAt(e.deltaY > 0 ? 1.15 : 1 / 1.15, p.x, p.y); }, { passive: false });
+    svg.addEventListener("pointerdown", function (e) { var hit = e.target.closest && e.target.closest("[data-id]"); drag = { x: e.clientX, y: e.clientY, vb: Object.assign({}, MAP.vb), id: hit ? hit.getAttribute("data-id") : null }; moved = false; svg.setPointerCapture(e.pointerId); svg.classList.add("drag"); });
+    svg.addEventListener("pointermove", function (e) {
+      if (drag) { var r = svg.getBoundingClientRect(), dx = (e.clientX - drag.x) / r.width * MAP.vb.w, dy = (e.clientY - drag.y) / r.height * MAP.vb.h; if (Math.abs(e.clientX - drag.x) + Math.abs(e.clientY - drag.y) > 4) moved = true; MAP.vb = Object.assign({}, drag.vb, { x: drag.vb.x - dx, y: drag.vb.y - dy }); setVB(); return; }
+      var g = e.target.closest && e.target.closest("[data-id]"); tip(g ? stopTip(g.getAttribute("data-id")) : null, e);
+    });
+    svg.addEventListener("pointerup", function (e) {
+      svg.classList.remove("drag"); var d = drag; drag = null; if (moved || !d) return;
+      pick(d.id);
+    });
+    svg.addEventListener("pointerleave", function () { tip(null); });
+    $("#zin").onclick = function () { zoomAt(1 / 1.4); }; $("#zout").onclick = function () { zoomAt(1.4); }; $("#zfit").onclick = fitView;
+    var set = function (k, v) { OPT[k] = v; saveOpt(); paintMap(); };
+    $("#o_metric").onchange = function () { set("metric", this.value); };
+    $("#o_marks").onclick = function (e) { var b = e.target.closest("button"); if (!b) return; [].forEach.call(this.children, function (x) { x.classList.toggle("on", x === b); }); set("marks", b.dataset.v); };
+    $("#o_lineW").onchange = function () { set("lineW", this.checked); };
+    $("#o_flows").onchange = function () { set("flows", this.checked); };
+    $("#o_flowN").onchange = function () { set("flowN", +this.value); };
+    $("#o_labels").value = OPT.labels; $("#o_labels").onchange = function () { set("labels", this.value); };
+    $("#o_live").onchange = function () { OPT.live = this.checked; saveOpt(); };
+    window.addEventListener("resize", function () { if (MAP && document.body.contains(MAP.svg)) setVB(); });
+  }
+  function stopTip(id) {
+    var r = rows().filter(function (x) { return x.id === id; })[0]; if (!r) return null;
+    return "<b>" + esc(r.name) + "</b><br>" + num(r.views) + " visits · " + num(r.riders) + " riders" + (r.dl ? " · " + num(r.dl) + " downloads" : "");
+  }
+  function tip(html, e) { var t = $("#tip"); if (!html) { t.style.display = "none"; return; } t.innerHTML = html; t.style.display = "block"; t.style.left = (e.clientX + 14) + "px"; t.style.top = (e.clientY + 12) + "px"; }
+
+  function paintMap() {
+    if (!MAP) return;
+    var data = rows(), by = {}; data.forEach(function (r) { by[r.id] = r; });
+    var kind = METRICS[OPT.metric][1], vals = data.map(function (r) { return r[OPT.metric]; }).filter(function (v) { return v; });
+    var mx = kind === "change" ? Math.max(0.01, Math.max.apply(null, vals.map(Math.abs).concat([0]))) : Math.max.apply(null, vals.concat([0])) || 1;
+    var colorOf = function (v) { return kind === "change" ? scale(DIV, 0.5 + v / mx / 2) : scale(VIR, Math.sqrt(v / mx)); };
+    // lines
+    MAP.gLines.innerHTML = "";
+    var lmx = Math.max.apply(null, META.lines.map(function (l) { return (SUM.lines[l.id] || {}).visits || 0; }).concat([1]));
+    META.lines.forEach(function (l) {
+      var w = OPT.lineW ? 3 + 15 * Math.sqrt(((SUM.lines[l.id] || {}).visits || 0) / lmx) : 6;
+      l.paths.forEach(function (p) { el("path", { d: "M" + p.map(function (q) { return q.join(" "); }).join(" L"), fill: "none", stroke: l.c, "stroke-width": w, "stroke-linecap": "round", "stroke-linejoin": "round", "stroke-dasharray": l.dash ? "9 8" : "none", opacity: SEL ? (META.stops[SEL] && META.stops[SEL].lines.indexOf(l.id) > -1 ? 1 : .35) : 1 }, MAP.gLines); });
+    });
+    // moves between stops
+    MAP.gFlows.innerHTML = "";
+    if (OPT.flows) {
+      var fl = SUM.flows.filter(function (f) { return META.stops[f.from] && META.stops[f.to] && META.stops[f.from].p && META.stops[f.to].p && (!SEL || f.from === SEL || f.to === SEL); }).slice(0, OPT.flowN), fmx = fl.length ? fl[0].n : 1;
+      fl.forEach(function (f) {
+        var a = META.stops[f.from].p, b = META.stops[f.to].p, dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy) || 1, c = [(a[0] + b[0]) / 2 - dy * .2, (a[1] + b[1]) / 2 + dx * .2];
+        el("path", { d: "M" + a.join(" ") + " Q" + c.join(" ") + " " + b.join(" "), fill: "none", stroke: f.assisted / f.n > .5 ? "#f2b134" : "#ecebe6", "stroke-width": 1.2 + 7 * f.n / fmx, opacity: .55, "marker-end": "url(#arw)", "stroke-linecap": "round" }, MAP.gFlows);
+      });
+    }
+    // stations
+    MAP.gStops.innerHTML = ""; MAP.gMarks.innerHTML = "";
+    var inGroup = {}; META.groups.forEach(function (g) { g.m.forEach(function (id) { inGroup[id] = g; }); });
+    META.groups.forEach(function (g) {
+      var ps = g.m.map(function (id) { return META.stops[id].p; }).filter(Boolean); if (!ps.length) return;
+      var xs = ps.map(function (p) { return p[0]; }), ys = ps.map(function (p) { return p[1]; }), r = 8.5;
+      el("rect", { x: Math.min.apply(null, xs) - r, y: Math.min.apply(null, ys) - r, width: Math.max.apply(null, xs) - Math.min.apply(null, xs) + 2 * r, height: Math.max.apply(null, ys) - Math.min.apply(null, ys) + 2 * r, rx: r, fill: "#121211", stroke: "#ecebe6", "stroke-width": 3 }, MAP.gStops);
+    });
+    Object.keys(META.stops).forEach(function (id) {
+      var s = META.stops[id], p = s.p, r = by[id]; if (!p) return;
+      var v = r ? r[OPT.metric] : 0, g = el("g", { "data-id": id, style: "cursor:pointer" }, MAP.gStops), sel = SEL === id;
+      if (OPT.marks !== "off" && v) {
+        var t = kind === "change" ? Math.abs(v) / mx : Math.sqrt(Math.abs(v) / mx), rad = OPT.marks === "color" ? 0 : 7 + 26 * t;
+        if (OPT.marks === "bubbles" || OPT.marks === "size") el("circle", { cx: p[0], cy: p[1], r: rad, fill: OPT.marks === "size" ? "#ecebe6" : colorOf(v), "fill-opacity": OPT.marks === "size" ? .22 : .78, stroke: OPT.marks === "size" ? "#ecebe6" : colorOf(v), "stroke-width": 1.5, "data-id": id }, MAP.gMarks);
+      }
+      var fill = OPT.marks === "color" && v ? colorOf(v) : "#121211";
+      if (s.icon) {
+        var h = 17; el("rect", { x: p[0] - h, y: p[1] - h, width: 2 * h, height: 2 * h, rx: 4, fill: s.icon[1], stroke: sel ? "#4fd1c5" : (OPT.marks === "color" && v ? colorOf(v) : "#ecebe6"), "stroke-width": sel ? 4 : 3 }, g);
+        el("image", { href: s.icon[0], x: p[0] - h * .8, y: p[1] - h * .8, width: h * 1.6, height: h * 1.6 }, g);
+      } else if (inGroup[id]) {
+        var l = lineOf(id); el("circle", { cx: p[0], cy: p[1], r: OPT.marks === "color" && v ? 5 : 3.4, fill: OPT.marks === "color" && v ? colorOf(v) : (l ? l.c : "#999") }, g);
+        el("circle", { cx: p[0], cy: p[1], r: 9, fill: "transparent" }, g);
+      } else {
+        var rr = s.xfer ? 9 : 6.5;
+        el("circle", { cx: p[0], cy: p[1], r: rr, fill: fill, stroke: sel ? "#4fd1c5" : "#ecebe6", "stroke-width": sel ? 4 : 2.6 }, g);
+      }
+    });
+    paintLabels(); legend(mx, kind);
+    if (TRIP) TRIP.redraw();
+  }
+  function paintLabels() {
+    if (!MAP) return; MAP.gLbl.innerHTML = ""; if (OPT.labels === "off") return;
+    var k = MAP.k || 1, fs = 13 * k, data = rows();
+    var list = data.filter(function (r) { return META.stops[r.id].p; });
+    if (OPT.labels === "top") list = list.filter(function (r) { return r[OPT.metric]; }).sort(function (a, b) { return Math.abs(b[OPT.metric]) - Math.abs(a[OPT.metric]); }).slice(0, 12);
+    var shown = {}, groupName = {}; META.groups.forEach(function (g) { g.m.forEach(function (id) { groupName[id] = g; }); });
+    list.forEach(function (r) {
+      var s = META.stops[r.id], p = s.p, g = groupName[r.id], name = g ? g.n : r.name, key = g ? g.id : r.id;
+      if (shown[key]) return; shown[key] = 1;
+      var off = (s.icon ? 22 : 12) * Math.max(1, k * .9);
+      var t = el("text", { x: p[0] + off, y: p[1] + fs * .35, class: "lbl", "font-size": fs, "stroke-width": 3 * k }, MAP.gLbl);
+      t.textContent = name + (OPT.labels === "top" ? "  " + fmtM(OPT.metric, r[OPT.metric]) : "");
+    });
+  }
+  function legend(mx, kind) {
+    var L = $("#leg"); if (!L) return;
+    var name = METRICS[OPT.metric][0];
+    if (OPT.marks === "off") { L.innerHTML = '<span class="muted">Markers off</span>'; return; }
+    var hi = kind === "count" ? num(mx) : kind === "share" ? Math.round(mx * 100) + "%" : "±" + Math.round(mx * 100) + "%";
+    L.innerHTML = "<b>" + esc(name) + "</b>" + (OPT.marks === "size" ? '<div class="muted">Bigger circle = more</div>' :
+      '<div class="grad" style="background:' + grad(kind === "change" ? DIV : VIR) + '"></div><div class="row"><span>' + (kind === "change" ? "−" + hi.slice(1) : "0") + "</span><span>" + (kind === "change" ? "same" : "") + "</span><span>" + hi + "</span></div>") +
+      (OPT.flows ? '<div class="muted" style="margin-top:4px">Arrows: moves between stops (amber = mostly via the strip or map)</div>' : "") +
+      (OPT.lineW ? '<div class="muted">Line width: visits on that line</div>' : "");
+  }
+
+  // ---------- side panel: a station, or the live feed ----------
+  var FEED = [];
+  function sidePanel() {
+    var box = $("#side"); if (!box) return;
+    if (!SEL) {
+      box.innerHTML = '<h2>Live arrivals<span class="sp"></span><span class="muted" id="act"></span></h2><div class="pad"><p class="muted" style="margin:0 0 8px">Click a station on the map to see its details here. New arrivals blink on the map.</p><ul class="list feed" id="feed">' + feedHtml() + "</ul></div>";
+      return;
+    }
+    var r = rows().filter(function (x) { return x.id === SEL; })[0] || {}, s = META.stops[SEL];
+    box.innerHTML = '<h2>Station<span class="sp"></span><button id="unsel">Clear</button></h2><div class="pad side"><h3>' + dotFor(SEL) + esc(nm(SEL)) + '</h3><div class="muted" style="font-size:12px">' + s.lines.map(function (l) { var L = META.lines.filter(function (x) { return x.id === l; })[0]; return L ? L.n : l; }).join(" · ") + "</div>" +
+      '<div class="kv">' + [["Visits", num(r.views)], ["Riders", num(r.riders)], ["Entries", num(r.entries)], ["Exits", num(r.exits)], ["Leave right away", pct(r.bounces, r.entries)], ["7 days vs before", (r.week >= r.prevWeek ? '<span class="up">' : '<span class="down">') + num(r.week) + " / " + num(r.prevWeek) + "</span>"], ["Downloads", num(r.dl)], ["Downloads per visit", r.views ? Math.round(100 * r.conv) + "%" : "–"]].map(function (x) { return "<div><b>" + x[1] + "</b><span>" + x[0] + "</span></div>"; }).join("") + "</div>" +
+      '<div id="stopx"><div class="muted">Loading…</div></div></div>';
+    $("#unsel").onclick = function () { pick(null); };
+    getJ("/api/stop?id=" + encodeURIComponent(SEL) + "&days=" + days()).then(function (d) {
+      if (d.id !== SEL || !$("#stopx")) return;
+      var li = function (o, f) { var a = sortObj(o).slice(0, 6); return a.length ? '<ul class="list">' + a.map(function (x) { return "<li>" + f(x[0]) + '<span class="n">' + num(x[1]) + "</span></li>"; }).join("") + "</ul>" : '<div class="muted">None yet</div>'; };
+      var tr = Object.keys(d.trend).sort(), tmx = Math.max.apply(null, tr.map(function (k) { return d.trend[k]; }).concat([1]));
+      $("#stopx").innerHTML = (tr.length ? '<div class="sub">Visits per day</div><div class="cols" style="height:70px">' + tr.map(function (k) { return '<div title="' + k + ": " + d.trend[k] + '"><i style="height:' + 100 * d.trend[k] / tmx + '%"></i></div>'; }).join("") + "</div>" : "") +
+        '<div class="sub">Came from</div>' + li(d.from, function (k) { return dotFor(k) + esc(nm(k)); }) +
+        '<div class="sub">Went next</div>' + li(d.to, function (k) { return k === "(left)" ? '<span class="muted">Left the sites</span>' : dotFor(k) + esc(nm(k)); }) +
+        '<div class="sub">Arrived from</div>' + li(d.refs, function (k) { return esc(k); }) +
+        '<div class="sub">Countries</div>' + li(d.countries, function (k) { return k === "?" ? '<span class="muted">Unknown</span>' : flag(k) + " " + esc(regionName(k)); });
+    }).catch(function () {});
+  }
+  function feedHtml() {
+    if (!FEED.length) return '<li class="muted">Waiting for riders…</li>';
+    return FEED.slice(0, 40).map(function (e) { return "<li>" + '<span class="muted" style="font-family:var(--mono);font-size:12px">' + clock(e.ts) + "</span> " + (e.country ? flag(e.country) : "") + " " + dotFor(e.stop) + esc(nm(e.stop)) + '<span class="n muted" style="font-size:11px">' + esc(e.region || (e.country ? regionName(e.country) : "")) + "</span></li>"; }).join("");
+  }
+  function pick(id) { SEL = id; paintMap(); sidePanel(); }
+
+  // ---------- live ----------
+  var LIVE = { since: Date.now() - 10 * 60e3, timer: null, first: true };
+  function startLive() { if (LIVE.timer) return; poll(); LIVE.timer = setInterval(function () { if (!document.hidden) poll(); }, 5000); }
+  function poll() {
+    getJ("/api/live?since=" + LIVE.since).then(function (d) {
+      $("#liveTag").classList.add("on"); $("#liveTag span").textContent = d.active + " riding now";
+      var a = $("#act"); if (a) a.textContent = d.active + " in the last 5 min";
+      if (!d.events.length) return;
+      LIVE.since = d.events[d.events.length - 1].ts;
+      d.events.forEach(function (e) { FEED.unshift(e); if (!LIVE.first && OPT.live) pulse(e.stop); });
+      FEED = FEED.slice(0, 60); LIVE.first = false;
+      var f = $("#feed"); if (f) f.innerHTML = feedHtml();
+    }).catch(function () { $("#liveTag").classList.remove("on"); $("#liveTag span").textContent = "Live paused"; });
+  }
+  function pulse(id) {
+    if (!MAP || !document.body.contains(MAP.svg)) return;
+    var s = META.stops[id]; if (!s || !s.p) return;
+    var g = el("g", {}, MAP.gPulse), n = 0;
+    var ring = function () {
+      var c = el("circle", { cx: s.p[0], cy: s.p[1], r: 10, fill: "none", stroke: "#4fd1c5", "stroke-width": 4 }, g);
+      el("animate", { attributeName: "r", from: 10, to: 46, dur: "0.9s", fill: "freeze" }, c);
+      el("animate", { attributeName: "opacity", from: 1, to: 0, dur: "0.9s", fill: "freeze" }, c);
+      try { c.firstChild.beginElement(); c.lastChild.beginElement(); } catch (e) {}
+      if (++n < 3) setTimeout(ring, 650); else setTimeout(function () { g.remove(); }, 1200);
+    };
+    var dotc = el("circle", { cx: s.p[0], cy: s.p[1], r: 7, fill: "#4fd1c5" }, g);
+    el("animate", { attributeName: "opacity", values: "1;0.2;1;0.2;1;0.2;1;0", dur: "2.6s", fill: "freeze" }, dotc);
+    try { dotc.firstChild.beginElement(); } catch (e) {}
+    ring();
+  }
+
+  // ---------- journey playback ----------
+  var TRIP = null;
+  function playTrip(stops) {
+    go("map");
+    var pts = stops.map(function (id) { return META.stops[id] && META.stops[id].p; }).filter(Boolean);
+    if (!MAP || pts.length < 1) return;
+    var g = MAP.gTrip; g.innerHTML = "";
+    var path = el("path", { d: "M" + pts.map(function (p) { return p.join(" "); }).join(" L"), fill: "none", stroke: "#4fd1c5", "stroke-width": 4, "stroke-dasharray": "2 9", "stroke-linecap": "round", opacity: .9 }, g);
+    var dot = el("circle", { r: 9, fill: "#4fd1c5", stroke: "#121211", "stroke-width": 3 }, g);
+    var len = path.getTotalLength(), t0 = performance.now(), dur = Math.max(2500, len * 6);
+    TRIP = { redraw: function () {} };
+    (function step(now) {
+      if (!document.body.contains(dot)) return;
+      var t = Math.min(1, (now - t0) / dur), q = path.getPointAtLength(len * t);
+      dot.setAttribute("cx", q.x); dot.setAttribute("cy", q.y);
+      if (t < 1) requestAnimationFrame(step);
+    })(t0);
+  }
+
+  // ---------- small charts ----------
+  function colsChart(vals, labels, color) {
+    var mx = Math.max.apply(null, vals.concat([1]));
+    return '<div class="cols">' + vals.map(function (v, i) { return '<div title="' + esc(labels[i]) + ": " + num(v) + '"><i style="height:' + (100 * v / mx) + "%;background:" + (color || "var(--accent)") + '"></i><span>' + esc(labels[i]) + "</span></div>"; }).join("") + "</div>";
+  }
+  function stackBar(o, colors) {
+    var a = sortObj(o), t = sum(o) || 1;
+    return '<div class="stack">' + a.map(function (x, i) { return '<i title="' + esc(x[0]) + ": " + num(x[1]) + '" style="width:' + 100 * x[1] / t + "%;background:" + (colors[x[0]] || scale(VIR, i / Math.max(1, a.length - 1))) + '"></i>'; }).join("") + '</div><div class="keys">' + a.map(function (x, i) { return '<span><b style="background:' + (colors[x[0]] || scale(VIR, i / Math.max(1, a.length - 1))) + '"></b>' + esc(x[0]) + " " + pct(x[1], t) + "</span>"; }).join("") + "</div>";
+  }
+  function rankTable(o, f, limit) {
+    var a = sortObj(o).slice(0, limit || 15), t = sum(o) || 1, mx = a.length ? a[0][1] : 1;
+    return a.length ? "<table>" + a.map(function (x) { return "<tr><td>" + f(x[0]) + '</td><td class="n">' + num(x[1]) + '</td><td class="n muted">' + pct(x[1], t) + '</td><td style="width:28%"><span class="bar" style="width:' + Math.max(2, 100 * x[1] / mx) + '%"></span></td></tr>'; }).join("") + "</table>" : '<div class="empty">Nothing yet.</div>';
+  }
+  function trendChart() {
+    var t = SUM.trend || [], dl = (DL && DL.trend) || {};
+    var dset = {}; t.forEach(function (d) { dset[d.day] = 1; }); Object.keys(dl).forEach(function (d) { dset[d] = 1; });
+    var ds = Object.keys(dset).sort(); if (!ds.length) return "";
+    var tv = {}; t.forEach(function (d) { tv[d.day] = d; });
+    var mx = Math.max.apply(null, ds.map(function (d) { return Math.max((tv[d] || {}).visits || 0, dl[d] || 0); }).concat([1]));
+    return '<div class="box"><h2>Per day<span class="sp"></span><span class="keys"><span><b style="background:var(--accent)"></b>Stop visits</span><span><b style="background:#35b779"></b>Downloads</span></span></h2><div class="pad"><div class="cols" style="height:110px">' +
+      ds.map(function (d) { var v = (tv[d] || {}).visits || 0, w = dl[d] || 0; return '<div title="' + d + ": " + v + " visits, " + w + ' downloads" style="flex-direction:row;align-items:flex-end;gap:1px"><i style="height:' + 100 * v / mx + '%"></i><i style="height:' + 100 * w / mx + '%;background:#35b779"></i></div>'; }).join("") + "</div></div></div>";
+  }
+
+  // ---------- tabs ----------
   function draw() {
     if (!META || !SUM) return;
-    var m = $("#main"); m.onclick = null;
-    if (TAB === "heat") {
-      var r = rows().sort(function (a, b) { return b[METRIC] - a[METRIC]; }), mx = (r[0] && r[0][METRIC]) || 1;
-      m.innerHTML = cards() + spark() + '<div class="grid"><div class="box"><h2>Busiest stations<span class="sp"></span><select id="metric"><option value="views">Visits</option><option value="riders">Riders</option><option value="entries">Entries</option></select></h2><iframe id="map" title="Map" src="' + esc(META.map) + '?embed=1"></iframe></div>' +
-        '<div class="box"><h2>Ranking</h2><table>' + r.filter(function (x) { return x[METRIC] > 0; }).slice(0, 25).map(function (x) {
-          return '<tr class="click" data-s="' + x.id + '"><td>' + dotFor(x.id) + esc(x.name) + '</td><td class="n">' + num(x[METRIC]) + '</td><td style="width:30%"><span class="bar" style="width:' + Math.max(2, 100 * x[METRIC] / mx) + '%"></span></td></tr>';
-        }).join("") + (r.some(function (x) { return x[METRIC] > 0; }) ? "" : '<tr><td class="empty">No rides counted yet.</td></tr>') + "</table></div></div>";
-      $("#metric").value = METRIC; $("#metric").onchange = function () { METRIC = this.value; draw(); };
-      var f = $("#map"), send = function () { var d = {}; rows().forEach(function (x) { if (x[METRIC] > 0) d[x.id] = x[METRIC]; }); try { f.contentWindow.postMessage({ swt: "heat", data: d }, "*"); } catch (e) {} };
-      f.onload = function () { send(); setTimeout(send, 600); };
-    } else if (TAB === "stations") {
-      var rs = rows(); rs.forEach(function (x) { x.bouncePct = x.entries ? x.bounces / x.entries : 0; x.exitPct = x.views ? x.exits / x.views : 0; });
-      rs.sort(function (a, b) { var A = a[SORT.k], B = b[SORT.k]; return (typeof A === "string" ? A.localeCompare(B) : A - B) * SORT.d; });
-      var cols = [["name", "Station"], ["views", "Visits"], ["riders", "Riders"], ["entries", "Entries"], ["exits", "Exits"], ["bounces", "Bounces"], ["clicksOut", "Map/strip clicks"]];
-      m.innerHTML = '<div class="box"><h2>All stations</h2><div style="overflow-x:auto"><table><thead><tr>' + cols.map(function (c) { return '<th class="' + (c[0] === "name" ? "" : "n") + '" data-k="' + c[0] + '">' + c[1] + (SORT.k === c[0] ? (SORT.d < 0 ? " ▾" : " ▴") : "") + "</th>"; }).join("") + "</tr></thead><tbody>" +
-        rs.map(function (x) { return "<tr><td>" + dotFor(x.id) + esc(x.name) + '</td><td class="n">' + num(x.views) + '</td><td class="n">' + num(x.riders) + '</td><td class="n">' + num(x.entries) + '</td><td class="n">' + num(x.exits) + '</td><td class="n">' + num(x.bounces) + '</td><td class="n">' + num(x.clicksOut) + "</td></tr>"; }).join("") + "</tbody></table></div></div>";
-      m.querySelector("thead").onclick = function (e) { var th = e.target.closest("th"); if (!th) return; SORT = { k: th.dataset.k, d: SORT.k === th.dataset.k ? -SORT.d : -1 }; draw(); };
-    } else if (TAB === "riders") {
-      m.innerHTML = '<div class="grid"><div class="box"><h2>Riders <span class="muted">(anonymous)</span></h2><div style="overflow-x:auto"><table><thead><tr><th>Rider</th><th>Last seen</th><th class="n">Trips</th><th class="n">Visits</th><th class="n">Stops</th><th class="n">Sites</th><th class="n">Clicks</th></tr></thead><tbody>' +
-        (RIDERS.length ? RIDERS.map(function (x) { return '<tr class="click" data-r="' + x.id + '"><td style="font-family:var(--mono)">' + x.id.slice(0, 8) + "</td><td>" + when(x.last) + '</td><td class="n">' + x.sessions + '</td><td class="n">' + x.visits + '</td><td class="n">' + x.stops + '</td><td class="n">' + x.sites + '</td><td class="n">' + x.clicks + "</td></tr>"; }).join("") : '<tr><td colspan="7" class="empty">No riders yet.</td></tr>') +
-        '</tbody></table></div></div><div class="box"><h2>Journey</h2><div id="jny" class="empty">Pick a rider.</div></div></div>';
-      m.onclick = function (e) { var tr = e.target.closest("tr[data-r]"); if (!tr) return; journey(tr.dataset.r); };
-    } else if (TAB === "flows") {
-      var fl = SUM.flows;
-      m.innerHTML = '<div class="box"><h2>Moves between stations <span class="muted">(assisted = used the strip or map)</span></h2><div style="overflow-x:auto"><table><thead><tr><th>From</th><th>To</th><th class="n">Moves</th><th class="n">Assisted</th><th class="n">Cross-site</th><th></th></tr></thead><tbody>' +
-        (fl.length ? fl.slice(0, 80).map(function (f) { return "<tr><td>" + dotFor(f.from) + esc(nm(f.from)) + "</td><td>" + dotFor(f.to) + esc(nm(f.to)) + '</td><td class="n">' + f.n + '</td><td class="n">' + f.assisted + " (" + pct(f.assisted, f.n) + ')</td><td class="n">' + f.cross + '</td><td style="width:20%"><span class="bar" style="width:' + Math.max(3, 100 * f.n / fl[0].n) + '%"></span></td></tr>'; }).join("") : '<tr><td colspan="6" class="empty">No moves counted yet.</td></tr>') + "</tbody></table></div></div>";
-    } else if (TAB === "build") {
-      buildOut(m);
-    }
-    var tr = m.querySelectorAll("tr[data-s]"); [].forEach.call(tr, function (r) { r.onclick = function () { TAB = "stations"; [].forEach.call($("#tabs").children, function (x) { x.setAttribute("aria-selected", x.dataset.t === TAB); }); draw(); }; });
+    var m = $("#main"); m.onclick = null; MAP = null;
+    if (TAB === "map") {
+      m.innerHTML = cards() + '<div class="grid"><div>' + mapBox() + "</div><div><div class=\"box\" id=\"side\"></div></div></div>" + trendChart();
+      buildMap(); sidePanel();
+    } else if (TAB === "places") places(m);
+    else if (TAB === "stations") stationsTab(m);
+    else if (TAB === "lines") linesTab(m);
+    else if (TAB === "sources") sourcesTab(m);
+    else if (TAB === "downloads") downloadsTab(m);
+    else if (TAB === "riders") ridersTab(m);
+    else if (TAB === "flows") flowsTab(m);
+    else if (TAB === "build") buildOut(m);
   }
 
+  function stationsTab(m) {
+    var rs = rows();
+    rs.sort(function (a, b) { var A = a[SORT.k], B = b[SORT.k]; return (typeof A === "string" ? A.localeCompare(B) : A - B) * SORT.d; });
+    var cols = [["name", "Station"], ["views", "Visits"], ["riders", "Riders"], ["entries", "Entries"], ["exits", "Exits"], ["bounce", "Leave right away"], ["clicksIn", "Arrived via S.We.T.A."], ["clicksOut", "Left via S.We.T.A."], ["change", "7 days vs before"], ["dl", "Downloads"], ["conv", "Downloads / visit"]];
+    m.innerHTML = '<div class="box"><h2>All stations<span class="sp"></span><span class="muted">Click a row to see it on the map</span></h2><div style="overflow-x:auto"><table><thead><tr>' + cols.map(function (c) { return '<th class="' + (c[0] === "name" ? "" : "n") + '" data-k="' + c[0] + '">' + c[1] + (SORT.k === c[0] ? (SORT.d < 0 ? " ▾" : " ▴") : "") + "</th>"; }).join("") + "</tr></thead><tbody>" +
+      rs.map(function (x) { return '<tr class="click" data-s="' + x.id + '"><td>' + dotFor(x.id) + esc(x.name) + '</td><td class="n">' + num(x.views) + '</td><td class="n">' + num(x.riders) + '</td><td class="n">' + num(x.entries) + '</td><td class="n">' + num(x.exits) + '</td><td class="n">' + (x.entries ? Math.round(100 * x.bounce) + "%" : "–") + '</td><td class="n">' + num(x.clicksIn) + '</td><td class="n">' + num(x.clicksOut) + '</td><td class="n ' + (x.week > x.prevWeek ? "up" : x.week < x.prevWeek ? "down" : "muted") + '">' + num(x.week) + " / " + num(x.prevWeek) + '</td><td class="n">' + (x.dl ? num(x.dl) : "–") + '</td><td class="n">' + (x.dl && x.views ? Math.round(100 * x.conv) + "%" : "–") + "</td></tr>"; }).join("") + "</tbody></table></div></div>";
+    m.querySelector("thead").onclick = function (e) { var th = e.target.closest("th"); if (!th) return; SORT = { k: th.dataset.k, d: SORT.k === th.dataset.k ? -SORT.d : -1 }; draw(); };
+    m.querySelector("tbody").onclick = function (e) { var tr = e.target.closest("tr[data-s]"); if (!tr) return; SEL = tr.dataset.s; go("map"); };
+  }
+
+  function linesTab(m) {
+    var L = META.lines.filter(function (l) { return !l.dash; }).map(function (l) { var s = SUM.lines[l.id] || {}; return { l: l, v: s.visits || 0, r: s.riders || 0, t: s.trips || 0, a: s.avgStops || 0 }; }).sort(function (a, b) { return b.v - a.v; });
+    var mx = L.length ? L[0].v || 1 : 1;
+    var pickL = PLACE && PLACE.line ? PLACE.line : (L[0] && L[0].l.id);
+    var line = META.lines.filter(function (l) { return l.id === pickL; })[0];
+    var ride = "";
+    if (line) {
+      var by = {}; rows().forEach(function (r) { by[r.id] = r; });
+      ride = line.stops.map(function (br, bi) {
+        var bm = Math.max.apply(null, br.map(function (id) { return (by[id] || {}).views || 0; }).concat([1]));
+        return (line.stops.length > 1 ? '<div class="sub">Branch ' + (bi + 1) + "</div>" : "") + "<table>" + br.map(function (id, i) { var r = by[id] || {}; return '<tr><td style="width:36px" class="muted">' + (i + 1) + "</td><td>" + esc(nm(id)) + '</td><td class="n">' + num(r.views) + '</td><td class="n muted">' + (r.views ? Math.round(100 * (r.exits || 0) / r.views) + "% leave" : "") + '</td><td style="width:30%"><span class="bar" style="background:' + line.c + ";width:" + Math.max(2, 100 * (r.views || 0) / bm) + '%"></span></td></tr>'; }).join("") + "</table>";
+      }).join("");
+    }
+    m.innerHTML = '<div class="grid"><div class="box"><h2>Lines</h2><table><thead><tr><th>Line</th><th class="n">Visits</th><th class="n">Riders</th><th class="n">Trips on it</th><th class="n">Stops per trip</th><th></th></tr></thead><tbody>' +
+      L.map(function (x) { return '<tr class="click' + (x.l.id === pickL ? " sel" : "") + '" data-l="' + x.l.id + '"><td><i class="dot" style="background:' + x.l.c + '"></i>' + esc(x.l.n) + '</td><td class="n">' + num(x.v) + '</td><td class="n">' + num(x.r) + '</td><td class="n">' + num(x.t) + '</td><td class="n">' + x.a + '</td><td style="width:22%"><span class="bar" style="background:' + x.l.c + ";width:" + Math.max(2, 100 * x.v / mx) + '%"></span></td></tr>'; }).join("") + "</tbody></table></div>" +
+      '<div class="box"><h2>' + (line ? '<i class="dot" style="background:' + line.c + '"></i>' + esc(line.n) + " · along the line" : "Pick a line") + '</h2><div class="pad">' + ride + "</div></div></div>";
+    m.onclick = function (e) { var tr = e.target.closest("tr[data-l]"); if (!tr) return; PLACE = Object.assign({}, PLACE, { line: tr.dataset.l }); draw(); };
+  }
+
+  function sourcesTab(m) {
+    var so = SUM.sources || {}, t = SUM.totals, rs = rows();
+    var top = function (k) { var a = rs.filter(function (r) { return r[k]; }).sort(function (a, b) { return b[k] - a[k]; }).slice(0, 10), mx = a.length ? a[0][k] : 1; return a.length ? "<table>" + a.map(function (r) { return "<tr><td>" + dotFor(r.id) + esc(r.name) + '</td><td class="n">' + num(r[k]) + '</td><td style="width:30%"><span class="bar" style="width:' + 100 * r[k] / mx + '%"></span></td></tr>'; }).join("") + "</table>" : '<div class="empty">Nothing yet.</div>'; };
+    m.innerHTML = '<div class="grid2">' +
+      '<div class="box"><h2>Where riders came from</h2>' + rankTable(so.refs, function (k) { return k === "direct" ? '<span class="muted">Direct or unknown</span>' : esc(k); }) + "</div>" +
+      '<div class="box"><h2>New and returning riders</h2><div class="pad">' + stackBar({ New: t.newRiders || 0, Returning: t.returningRiders || 0 }, { New: "#35b779", Returning: "#31688e" }) + '<p class="muted" style="font-size:12px">Returning = seen before this period (within the last 90 days).</p></div></div>' +
+      '<div class="box"><h2>Devices</h2><div class="pad">' + (sum(so.devices) ? stackBar(so.devices, { phone: "#6ece58", tablet: "#26828e", desktop: "#482878", unknown: "#555" }) : '<div class="muted">Starts with the location update.</div>') + "</div></div>" +
+      '<div class="box"><h2>How people moved with S.We.T.A.</h2><div class="pad"><div class="sub">Clicks</div>' + (sum(so.clickSrc) ? stackBar(so.clickSrc, { strip: "#f2b134", map: "#4fd1c5", other: "#555" }) : '<div class="muted">No clicks yet.</div>') + '<div class="sub">Visits counted by</div>' + (sum(so.visitSrc) ? stackBar(so.visitSrc, { strip: "#f2b134", map: "#4fd1c5", other: "#555" }) : "") + "</div></div>" +
+      '<div class="box"><h2>Where trips start</h2>' + top("entries") + "</div>" +
+      '<div class="box"><h2>Where trips end</h2>' + top("exits") + "</div>" +
+      '<div class="box"><h2>Sites</h2>' + rankTable(so.hosts, function (k) { return esc(k); }) + "</div>" +
+      "</div>";
+  }
+
+  // ---------- places ----------
+  var WORLD = null;
+  function loadScript(u) { return new Promise(function (res, rej) { var s = document.createElement("script"); s.src = u; s.onload = res; s.onerror = rej; document.head.appendChild(s); }); }
+  function world() {
+    if (WORLD) return WORLD;
+    WORLD = loadScript("https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js").then(function () { return loadScript("https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"); })
+      .then(function () { return fetch("https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json").then(function (r) { return r.json(); }); });
+    return WORLD;
+  }
+  function places(m) {
+    var g = SUM.geo || {}, c = g.countries || {}, total = sum(c), selC = PLACE && PLACE.country;
+    var regs = {}; Object.keys(g.regions || {}).forEach(function (k) { var p = k.split("|"); if (!selC || p[0] === selC) regs[selC ? p[1] : regionName(p[0]) + " · " + p[1]] = g.regions[k]; });
+    var tm = SUM.time || { hours: [], weekdays: [] };
+    var hours = []; for (var i = 0; i < 24; i++) hours.push(i);
+    m.innerHTML = '<div class="grid"><div class="box"><h2>Visits by country' + (selC ? ' · <span style="color:var(--ink)">' + flag(selC) + " " + esc(regionName(selC)) + '</span><button id="allc">All countries</button>' : "") + '<span class="sp"></span><span class="muted">' + num(total) + ' visits with a location</span></h2><div class="world" id="world"><div class="empty">Loading the world map…</div></div><div class="pad legend" style="position:static;border:0;background:none"><div class="grad" style="background:' + grad(VIR) + '"></div><div class="row"><span>fewer</span><span>more</span></div></div></div>' +
+      '<div><div class="box"><h2>Countries</h2>' + (total ? rankTable(c, function (k) { return '<a href="#" data-c="' + k + '" style="color:inherit;text-decoration:none">' + flag(k) + " " + esc(regionName(k)) + "</a>"; }, 20) : '<div class="empty">Locations start counting after the update (see the README). Older visits have none.</div>') + "</div>" +
+      '<div class="box"><h2>' + (selC ? "Regions in " + esc(regionName(selC)) : "Regions") + "</h2>" + rankTable(regs, function (k) { return esc(k); }, 15) + "</div></div></div>" +
+      '<div class="grid2"><div class="box"><h2>Time of day <span class="muted">(each visitor\'s own local time)</span></h2><div class="pad">' + colsChart(tm.hours, hours.map(function (h) { return h % 3 ? "" : (h === 0 ? "12a" : h < 12 ? h + "a" : h === 12 ? "12p" : (h - 12) + "p"); }), "#26828e") + "</div></div>" +
+      '<div class="box"><h2>Day of week</h2><div class="pad">' + colsChart(tm.weekdays, ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"], "#6ece58") + "</div></div>" +
+      '<div class="box"><h2>Timezones</h2>' + rankTable(g.tz, function (k) { return esc(k.replace(/_/g, " ")); }, 12) + "</div></div>";
+    m.onclick = function (e) { var a = e.target.closest("[data-c]"); if (a) { e.preventDefault(); PLACE = Object.assign({}, PLACE, { country: a.dataset.c }); draw(); } if (e.target.id === "allc") { PLACE = Object.assign({}, PLACE, { country: null }); draw(); } };
+    world().then(function (topo) {
+      var box = $("#world"); if (!box || !window.d3 || !window.topojson) return;
+      var W = box.clientWidth, H = box.clientHeight, feats = topojson.feature(topo, topo.objects.countries).features.filter(function (f) { return f.id !== "010"; });
+      var proj = d3.geoNaturalEarth1().fitSize([W, H], { type: "FeatureCollection", features: feats }), path = d3.geoPath(proj);
+      var byNum = {}; Object.keys(c).forEach(function (k) { if (ISO[k]) byNum[ISO[k]] = k; });
+      var mx = Math.max.apply(null, Object.keys(c).map(function (k) { return c[k]; }).concat([1]));
+      box.innerHTML = "";
+      var svg = d3.select(box).append("svg").attr("viewBox", "0 0 " + W + " " + H);
+      svg.selectAll("path").data(feats).enter().append("path").attr("d", path)
+        .attr("fill", function (f) { var a = byNum[f.id]; return a ? scale(VIR, Math.sqrt(c[a] / mx)) : "#2a2a27"; })
+        .attr("stroke", function (f) { return byNum[f.id] && byNum[f.id] === selC ? "#4fd1c5" : "#0d0d0c"; }).attr("stroke-width", function (f) { return byNum[f.id] && byNum[f.id] === selC ? 2 : .5; })
+        .style("cursor", function (f) { return byNum[f.id] ? "pointer" : "default"; })
+        .on("mousemove", function (ev, f) { var a = byNum[f.id]; tip("<b>" + esc(a ? regionName(a) : (f.properties && f.properties.name) || "") + "</b>" + (a ? "<br>" + num(c[a]) + " visits · " + num((g.countryRiders || {})[a]) + " riders" : '<br><span class="muted">No visits</span>'), ev); })
+        .on("mouseleave", function () { tip(null); })
+        .on("click", function (ev, f) { var a = byNum[f.id]; if (a) { PLACE = Object.assign({}, PLACE, { country: a }); tip(null); draw(); } });
+    }).catch(function () { var b = $("#world"); if (b) b.innerHTML = '<div class="empty">The world map could not load (it comes from a public map library).</div>'; });
+  }
+
+  // ---------- downloads ----------
+  function downloadsTab(m) {
+    if (!DL || DL.error) { m.innerHTML = '<div class="box"><h2>Downloads</h2><div class="empty">' + esc((DL && DL.error) || "Not loaded") + "</div></div>"; return; }
+    var errs = Object.keys(DL.errors || {}).map(function (k) { return '<div class="err">' + (k.indexOf("tags") === 0 ? "Tags Generated sheet" : "TCN sheet") + ": " + esc(DL.errors[k]) + "</div>"; }).join("");
+    var by = {}; rows().forEach(function (r) { by[r.id] = r; });
+    var STOPOF = { Tags: "create", TCN: "n_tags", ACEO: "SMW", Negatives: "n_neg", CMYK: "n_cmyk", Enlarger: "n_enl", "Gallery Bench": "n_bench" };
+    var kinds = sortObj(DL.byKind);
+    var fetched = Object.keys(DL.fetched || {}).map(function (k) { return (k === "tags" ? "Tags sheet " : "TCN sheet ") + when(DL.fetched[k]); }).join(" · ");
+    var colorSw = { red: "#e5483b", yellow: "#f2bf00", black: "#111", blue: "#0072ce", green: "#00964a", white: "#fff", orange: "#f28c28", purple: "#7b2d8e", pink: "#d6459b", gold: "#c9a227", silver: "#c0c0c0" };
+    m.innerHTML = '<div class="cards">' + [["Downloads", sum(DL.bySheet)], ["Tag makers", DL.bySheet.tags || 0], ["Network tools", DL.bySheet.tcn || 0], ["Network members using tools", DL.users || 0]].map(function (x) { return '<div class="card"><b>' + num(x[1]) + "</b><span>" + x[0] + "</span></div>"; }).join("") + "</div>" +
+      (errs ? '<div class="box"><div class="pad">' + errs + "</div></div>" : "") + trendChart() +
+      '<div class="box"><h2>By maker and tool<span class="sp"></span><span class="muted">' + esc(fetched) + '</span><button id="dlr">Refresh from sheets</button></h2><table><thead><tr><th>What</th><th>Station</th><th class="n">Downloads</th><th class="n">Station visits</th><th class="n">Downloads / visit</th></tr></thead><tbody>' +
+      (kinds.length ? kinds.map(function (x) { var st = STOPOF[x[0]], v = st && by[st] ? by[st].views : 0; return "<tr><td>" + esc(x[0]) + "</td><td>" + (st ? dotFor(st) + esc(nm(st)) : '<span class="muted">–</span>') + '</td><td class="n">' + num(x[1]) + '</td><td class="n">' + num(v) + '</td><td class="n">' + (v ? Math.round(100 * x[1] / v) + "%" : "–") + "</td></tr>"; }).join("") : '<tr><td colspan="5" class="empty">No downloads in this period.</td></tr>') + "</tbody></table></div>" +
+      '<div class="grid2"><div class="box"><h2>Frame colours (tags)</h2>' + rankTable(DL.colors, function (k) { return '<span class="swatch" style="background:' + (colorSw[k] || "#666") + '"></span>' + esc(k); }) + "</div>" +
+      '<div class="box"><h2>Formats (Network tools)</h2>' + rankTable(DL.formats, function (k) { return esc(k); }) + "</div>" +
+      '<div class="box"><h2>Actions (Network tools)</h2>' + rankTable(DL.actions, function (k) { return esc(k); }) + "</div>" +
+      '<div class="box"><h2>Downloaders\' timezones</h2>' + rankTable(DL.tz, function (k) { return esc(k.replace(/_/g, " ")); }) + "</div></div>";
+    $("#dlr").onclick = function () { this.textContent = "Refreshing…"; getJ("/api/downloads?refresh=1&days=" + days()).then(function (d) { DL = d; draw(); }); };
+  }
+
+  // ---------- riders ----------
+  function ridersTab(m) {
+    m.innerHTML = '<div class="grid"><div class="box"><h2>Riders <span class="muted">(anonymous)</span></h2><div style="overflow-x:auto"><table><thead><tr><th>Rider</th><th></th><th>Last seen</th><th class="n">Trips</th><th class="n">Visits</th><th class="n">Stops</th><th class="n">Sites</th><th class="n">Clicks</th></tr></thead><tbody>' +
+      (RIDERS.length ? RIDERS.map(function (x) { return '<tr class="click" data-r="' + x.id + '"><td style="font-family:var(--mono)">' + x.id.slice(0, 8) + '</td><td title="' + esc(x.country ? regionName(x.country) : "") + '">' + (x.country ? flag(x.country) : "") + ' <span class="muted" style="font-size:11px">' + esc(x.dev || "") + "</span></td><td>" + when(x.last) + '</td><td class="n">' + x.sessions + '</td><td class="n">' + x.visits + '</td><td class="n">' + x.stops + '</td><td class="n">' + x.sites + '</td><td class="n">' + x.clicks + "</td></tr>"; }).join("") : '<tr><td colspan="8" class="empty">No riders yet.</td></tr>') +
+      '</tbody></table></div></div><div class="box"><h2>Journey</h2><div id="jny" class="empty">Pick a rider.</div></div></div>';
+    m.onclick = function (e) {
+      var pb = e.target.closest("button[data-play]"); if (pb) { playTrip(JSON.parse(pb.dataset.play)); return; }
+      var tr = e.target.closest("tr[data-r]"); if (!tr) return; [].forEach.call(m.querySelectorAll("tr[data-r]"), function (x) { x.classList.toggle("sel", x === tr); }); journey(tr.dataset.r);
+    };
+  }
   function journey(id) {
     var box = $("#jny"); box.className = ""; box.innerHTML = '<div class="empty">Loading…</div>';
-    api("/api/rider?id=" + encodeURIComponent(id)).then(function (r) { return r.json(); }).then(function (d) {
+    getJ("/api/rider?id=" + encodeURIComponent(id)).then(function (d) {
       box.innerHTML = '<div class="tl">' + d.sessions.map(function (s, i) {
-        return '<div class="sess">Trip ' + (i + 1) + " · " + when(s.start) + " · " + Math.max(1, Math.round((s.end - s.start) / 60000)) + " min</div>" + s.events.map(function (e) {
-          var t = new Date(e.ts).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit", second: "2-digit" });
-          var what = e.type === "click" ? "Used S.We.T.A.: " + esc(e.stop === "map" ? "map" : nm(e.stop)) + " → " + esc(e.to_stop === "map" ? "map" : nm(e.to_stop)) : (e.type === "station" ? "Opened " : "Visited ") + esc(nm(e.stop)) + ' <span class="muted">' + esc((e.host || "") + (e.path || "")) + "</span>";
-          return '<div class="ev ' + e.type + '"><span class="t">' + t + '</span><span class="what">' + what + "</span></div>";
+        var stops = s.events.filter(function (e) { return (e.type === "view" || e.type === "station") && e.stop; }).map(function (e) { return e.stop; }).filter(function (x, j, a) { return j === 0 || a[j - 1] !== x; });
+        var place = s.events.filter(function (e) { return e.country; })[0];
+        return '<div class="sess">Trip ' + (i + 1) + " · " + when(s.start) + " · " + Math.max(1, Math.round((s.end - s.start) / 60000)) + " min" + (place ? " · " + flag(place.country) + " " + esc(place.region || regionName(place.country)) : "") + (stops.length > 1 ? " <button data-play='" + esc(JSON.stringify(stops)) + "'>Play on map</button>" : "") + "</div>" + s.events.map(function (e) {
+          var what = e.type === "click" ? "Used S.We.T.A.: " + esc(e.stop === "map" ? "map" : nm(e.stop)) + " → " + esc(e.to_stop === "map" ? "map" : nm(e.to_stop)) : (e.type === "station" ? "Opened " : "Visited ") + esc(nm(e.stop)) + ' <span class="muted">' + esc((e.host || "") + (e.path || "")) + (e.ref ? " · from " + esc(e.ref) : "") + "</span>";
+          return '<div class="ev ' + e.type + '"><span class="t">' + clock(e.ts) + '</span><span class="what">' + what + "</span></div>";
         }).join("");
       }).join("") + "</div>";
     }).catch(function (e) { box.innerHTML = '<div class="empty err">' + esc(e.message) + "</div>"; });
   }
 
+  function flowsTab(m) {
+    var fl = SUM.flows;
+    m.innerHTML = '<div class="box"><h2>Moves between stations <span class="muted">(assisted = used the strip or map)</span></h2><div style="overflow-x:auto"><table><thead><tr><th>From</th><th>To</th><th class="n">Moves</th><th class="n">Assisted</th><th class="n">Cross-site</th><th></th></tr></thead><tbody>' +
+      (fl.length ? fl.slice(0, 100).map(function (f) { return "<tr><td>" + dotFor(f.from) + esc(nm(f.from)) + "</td><td>" + dotFor(f.to) + esc(nm(f.to)) + '</td><td class="n">' + f.n + '</td><td class="n">' + f.assisted + " (" + pct(f.assisted, f.n) + ')</td><td class="n">' + f.cross + '</td><td style="width:20%"><span class="bar" style="width:' + Math.max(3, 100 * f.n / fl[0].n) + '%"></span></td></tr>'; }).join("") : '<tr><td colspan="6" class="empty">No moves counted yet.</td></tr>') + "</tbody></table></div></div>";
+  }
+
   // Where to build: plain rules over the numbers, each with the reason shown.
   function buildOut(m) {
     var rs = rows(), items = [], total = SUM.totals.visits;
-    var by = {}; rs.forEach(function (x) { by[x.id] = x; });
-    if (total < 20) {
-      m.innerHTML = cards() + '<div class="box"><h2>Where to build out</h2><div class="empty">Not enough rides yet. Suggestions start once there are about 20 stop visits.</div></div>'; return;
-    }
+    if (total < 20) { m.innerHTML = cards() + '<div class="box"><h2>Where to build out</h2><div class="empty">Not enough rides yet. Suggestions start once there are about 20 stop visits.</div></div>'; return; }
     var live = rs.filter(function (x) { return !(META.stops[x.id] || {}).closed; });
     var avg = total / Math.max(1, live.length);
     live.forEach(function (x) {
-      var s = META.stops[x.id];
       if (x.views >= avg * 1.5 && x.entries && x.exits / x.views > 0.7 && x.clicksOut === 0)
         items.push({ w: x.views, tag: "hot", t: "Dead end: " + x.name, d: x.views + " visits, " + pct(x.exits, x.views) + " of them end here and nobody used the strip or map. Add a visible next stop." });
       if (x.entries >= 5 && x.bounces / x.entries > 0.7)
         items.push({ w: x.entries, tag: "amber", t: "Leaves quickly: " + x.name, d: pct(x.bounces, x.entries) + " of " + x.entries + " arrivals saw only this page. The entrance may not match what people expect." });
+      if (x.week >= 5 && x.prevWeek >= 5 && x.week < x.prevWeek * 0.5)
+        items.push({ w: x.prevWeek - x.week, tag: "amber", t: "Dropping: " + x.name, d: x.week + " visits in the last 7 days against " + x.prevWeek + " the week before." });
+      if (x.dl === 0 && ["create", "n_tags", "SMW", "n_neg", "n_cmyk", "n_enl", "n_bench"].indexOf(x.id) > -1 && x.views >= 10)
+        items.push({ w: x.views, tag: "amber", t: "Visits but no downloads: " + x.name, d: x.views + " visits and no downloads counted in this period." });
     });
     var none = live.filter(function (x) { return x.views === 0; });
     if (none.length) items.push({ w: 2, tag: "", t: "No visits in " + SUM.days + " days (" + none.length + " stations)", d: none.map(function (x) { return x.name; }).join(", ") });
@@ -214,7 +634,7 @@ tr.click:hover td{background:var(--panel2)}
   function download(fmt) {
     api("/api/export?days=" + days() + "&format=" + fmt).then(function (r) { return r.blob(); }).then(function (b) {
       var a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = "sweta-events." + fmt; document.body.appendChild(a); a.click(); a.remove();
-    }).catch(function (e) { alert(e.message); });
+    }).catch(function (e) { var b = $("#" + fmt); if (b) { b.textContent = "Export failed"; setTimeout(function () { b.textContent = "Export " + fmt.toUpperCase(); }, 2500); } });
   }
   $("#refresh").onclick = load; $("#days").onchange = load;
   $("#csv").onclick = function () { download("csv"); }; $("#json").onclick = function () { download("json"); };

@@ -36,10 +36,12 @@
     var i = u.indexOf("#"), base = i > -1 ? u.slice(0, i) : u, hash = i > -1 ? u.slice(i) : "";
     return base + (base.indexOf("?") > -1 ? "&" : "?") + "swt=" + RID + hash;
   }
+  // The site the visitor came from (host name only), when it is another site.
+  var REF = ""; try { var ru = new URL(document.referrer); if (ru.hostname !== location.hostname) REF = ru.hostname; } catch (e) {}
   function track(type, stop, to) {
     if (!TRACK || OPTOUT || !RID) return;
     try {
-      var body = JSON.stringify({ t: type, s: stop || "", o: to || "", r: RID, h: location.hostname, p: location.pathname, k: "strip" });
+      var body = JSON.stringify({ t: type, s: stop || "", o: to || "", r: RID, h: location.hostname, p: location.pathname, k: "strip", f: REF });
       if (navigator.sendBeacon && navigator.sendBeacon(TRACK + "/hit", new Blob([body], { type: "text/plain" }))) return;
       fetch(TRACK + "/hit", { method: "POST", body: body, keepalive: true, mode: "cors", headers: { "content-type": "text/plain" } }).catch(function () {});
     } catch (e) {}

@@ -4,6 +4,7 @@ A Cloudflare Worker with a D1 database. The strip and the map send one small mes
 
 ## What is stored
 - Time, stop, destination stop (for strip/map clicks), site and path, strip or map.
+- Country, region and timezone from Cloudflare, the site the visitor came from (host name only), and phone / tablet / desktop.
 - A rider key: a salted hash of IP + browser, cut to 16 characters. The raw IP is never stored.
 - A random browser ID, passed along strip/map links (`?swt=`) so a trip across sites stays one rider.
 - Detailed rows are deleted after 90 days. Daily totals per stop are kept.
@@ -27,3 +28,13 @@ A Cloudflare Worker with a D1 database. The strip and the map send one small mes
 ## Reading the data
 - Dashboard: `<worker-url>/dash`
 - API: `GET /api/summary?days=30`, `/api/riders`, `/api/rider?id=<rider>`, `/api/export?days=90&format=csv|json`, with `Authorization: Bearer <READ_TOKEN>`.
+
+## Update: location, live view and downloads (October 2026)
+1. D1 console: run the contents of `migrate-location.sql` once (adds the location columns and the `sheets` table). Until then the Worker keeps counting without location.
+2. Apps Script, once per sheet:
+   - Open the sheet > Extensions > Apps Script > add a file. Paste `apps-script/tags-read.gs` (Tags Generated sheet) or `apps-script/tcn-read.gs` (TCN sheet).
+   - Replace `PASTE-THE-SAME-KEY-YOU-PUT-IN-CLOUDFLARE` with one long random key (the same key in both).
+   - Deploy > New deployment > Web app. Execute as: Me. Who has access: Anyone. Copy the web app URL (ends in /exec).
+   - If the project already has a `doGet`, rename this one's `doGet` and deploy it from its own Apps Script project instead.
+3. Cloudflare > the Worker > Settings > Variables and secrets: add `SHEET_KEY` (the key, as a secret), `SHEET_TAGS_URL` and `SHEET_TCN_URL` (the two web app URLs).
+4. Paste the new `worker.js` and deploy. Downloads refresh every 10 minutes while the dashboard is open, and daily from the cron.

@@ -8,9 +8,17 @@ const vars = {};
 for (const m of css.matchAll(/--([a-z]+):(#[0-9A-Fa-f]{6})/g)) vars[m[1]] = m[2];
 const b = dark.match(/--brown:(#[0-9A-Fa-f]{6})/); if (b) vars.brown = b[1]; // the strip is always dark
 const start = html.indexOf('const SW="https');
-const end = html.indexOf("const LAYOUT");
-const code = html.slice(start, end) + "\nreturn {S,L,LINKS};";
-const { S, L, LINKS } = new Function(code)();
+const end = html.indexOf("const SITES=");
+const code = html.slice(start, end) + "\nreturn {S,L,LINKS,LAYOUT};";
+const { S, L, LINKS, LAYOUT } = new Function(code)();
+// Desktop map geometry for the small system map in the line menu: each line's drawn path and every stop's point.
+const LW = LAYOUT.wide;
+const expandBr = br => { const o = []; let prev = null; br.forEach(q => { if (q[0] !== "@") { const e = (LW.eb || {})[prev + ">" + q]; if (prev && e) o.push("@~" + prev + ">" + q); prev = q } o.push(q) }); return o };
+const bendOf = q => q[1] === "~" ? LW.eb[q.slice(2)] : LW.bend[q.slice(1)];
+const pathOf = br => { const out = []; expandBr(br).forEach(q => { if (q[0] === "@") (bendOf(q) || []).forEach(b => out.push([b[0], b[1]])); else { const p = LW.p[q]; if (p) out.push([p[0], p[1]]) } }); return out };
+const geo = { p: {}, l: {} };
+Object.keys(S).forEach(id => { const p = LW.p[id]; if (p) geo.p[id] = [Math.round(p[0]), Math.round(p[1])]; });
+L.forEach(l => { geo.l[l.id] = l.b.map(pathOf).map(pa => pa.map(q => [Math.round(q[0]), Math.round(q[1])])); });
 // Extra addresses that show the same stop: a project's board page and its live GitHub Pages site.
 const BOARD = "https://board.studiowetware.com/p/";
 const BOARD_SLUGS = { cyanogal: "cyanotype", lino: "linocuts", pendergal: "pender-art", irgal: "infrared-photography", pimaker: "the-sandbox" };
@@ -37,6 +45,6 @@ const lines = L.map(l => ({ id: l.id, n: l.n, k: KEY[l.id] || l.n[0], c: vars[l.
 const cfgPath = path.join(__dirname, "..", "tracker", "config.json");
 const TRACK = fs.existsSync(cfgPath) ? (JSON.parse(fs.readFileSync(cfgPath, "utf8")).endpoint || "") : "";
 const out = fs.readFileSync(path.join(__dirname, "strip.template.js"), "utf8")
-  .replace("/*TRACK*/\"\"", JSON.stringify(TRACK)).replace("/*DATA*/null", JSON.stringify({ stations, lines }).replace(/[\u0080-\uffff]/g, c => "\\u" + c.charCodeAt(0).toString(16).padStart(4, "0")));
+  .replace("/*TRACK*/\"\"", JSON.stringify(TRACK)).replace("/*DATA*/null", JSON.stringify({ stations, lines, geo }).replace(/[\u0080-\uffff]/g, c => "\\u" + c.charCodeAt(0).toString(16).padStart(4, "0")));
 fs.writeFileSync(path.join(root, "strip.js"), out.replace(/[\u0080-\uffff]/g, c => "\\u" + c.charCodeAt(0).toString(16).padStart(4, "0")));
 console.log("strip.js:", Object.keys(stations).length, "stations,", lines.length, "lines,", out.length, "bytes");

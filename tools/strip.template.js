@@ -446,6 +446,121 @@
     window.addEventListener("hashchange", show); // the Network site switches screens by #/route
   }
 
+
+  // ---------- line menu: opened by any element with data-swt-menu (the site header's hamburger) ----------
+  var MCSS = [
+    ":host([hidden]){display:none}*{box-sizing:border-box}",
+    ".scrim{position:fixed;inset:0;z-index:2147483000;background:rgba(0,0,0,.45)}",
+    ".sh{position:fixed;top:0;right:0;bottom:0;z-index:2147483001;width:min(420px,100vw);overflow-y:auto;padding:16px 18px 14px;font-family:Arial,Helvetica,sans-serif;line-height:1.25;background:#121314;color:#fff;border-left:1px solid #333;box-shadow:-10px 0 30px rgba(0,0,0,.35);display:flex;flex-direction:column}",
+    "@media (max-width:640px){.sh{width:100vw;border-left:0;padding:12px 14px 10px}}",
+    ".hd{display:flex;align-items:center;gap:10px;margin-bottom:8px}",
+    ".seal{flex:none;width:32px;height:32px;border-radius:6px;border:1px solid #444;background:#000 center/contain no-repeat}",
+    ".hn{flex:1;font:700 13px Arial;letter-spacing:.06em;text-transform:uppercase}.hn small{display:block;font:400 11px Arial;letter-spacing:0;text-transform:none;color:#9a9a9a;margin-top:2px}",
+    ".x{flex:none;width:36px;height:36px;border-radius:50%;border:1px solid #444;background:none;color:#ddd;font:400 20px Arial;cursor:pointer;line-height:1}",
+    ".row{display:flex;align-items:center;gap:12px;padding:8px;border-radius:8px;text-decoration:none;color:#fff;border:1px solid transparent}",
+    ".row:hover,.row:focus-visible{background:#1c1d20}.row.on{background:#1c1d20;border-color:#3a3b3e}",
+    "@media (max-width:640px){.row{padding:5px 6px;gap:10px}}",
+    ".bd{flex:none;width:28px;height:28px;border-radius:50%;border:2px solid #fff;display:grid;place-items:center;font:700 13px Arial}",
+    ".mid{flex:1;min-width:0;display:block}.nm{display:block;font:700 12px Arial;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}",
+    ".rail{display:block;position:relative;height:12px;margin-top:5px}.rail b{position:absolute;left:0;right:0;top:4px;height:4px;border-radius:2px}",
+    ".rail i{position:absolute;top:1px;width:10px;height:10px;margin-left:-5px;border-radius:50%;background:#121314;border:2px solid #fff}.rail i.me{background:#fff}",
+    ".rail em{position:absolute;right:-2px;top:-2px;font:700 10px Arial;font-style:normal;color:#bbb;background:#121314;padding:0 2px}",
+    ".cnt{flex:none;font:11px Arial;color:#8d8f94;width:50px;text-align:right}.go{flex:none;color:#888;font-size:16px}",
+    ".mini{margin-top:auto;padding-top:12px;border-top:1px solid #333}",
+    ".mini h4{margin:0 0 6px;font:700 11px Arial;letter-spacing:.08em;color:#8d8f94;text-transform:uppercase;display:flex}.mini h4 span{margin-left:auto;font-weight:400;letter-spacing:0;text-transform:none;color:#bbb}",
+    ".mini a{display:block;border-radius:8px;border:1px solid #2a2a2a;background:#0b0b0b;overflow:hidden}.mini a:hover,.mini a:focus-visible{border-color:#666}",
+    ".mini svg{display:block;width:100%;height:auto}",
+    ".ft{display:flex;justify-content:flex-end;margin-top:6px}.ft a{color:#8d8f94;font-size:12px}"
+  ].join("");
+  var SEAL = MAP_URL + "icons/sweta.png";
+  function firstStop(l) { var br = l.b[0].filter(function (x) { return S[x]; }); return S[br[0]] && S[br[0]].hub && br.length > 1 && br[0] === "SW" ? br[1] : br[0]; }
+  function allStops(l) { var o = []; l.b.forEach(function (br) { br.forEach(function (x) { if (S[x] && o.indexOf(x) < 0) o.push(x); }); }); return o; }
+
+  function miniMap(lineId, id) {
+    var G = DATA.geo; if (!G) return "";
+    var x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9, add = function (q) { x0 = Math.min(x0, q[0]); y0 = Math.min(y0, q[1]); x1 = Math.max(x1, q[0]); y1 = Math.max(y1, q[1]); };
+    LINES.forEach(function (l) { (G.l[l.id] || []).forEach(function (pa) { pa.forEach(add); }); });
+    var fs = Math.max(20, (x1 - x0) / 46), labs = [], o = "";
+    var dim = function (l) { return lineId && l.id !== lineId ? .22 : 1; };
+    LINES.forEach(function (l) {
+      if (l.dash) return;
+      (G.l[l.id] || []).forEach(function (pa) { if (pa.length > 1) o += '<path d="M' + pa.map(function (q) { return q.join(" "); }).join(" L") + '" fill="none" stroke="' + l.c + '" stroke-width="' + (l.id === lineId ? 10 : 7) + '" stroke-linejoin="round" stroke-linecap="round" opacity="' + dim(l) + '"/>'; });
+    });
+    var seen = {};
+    LINES.forEach(function (l) {
+      if (l.dash) return;
+      allStops(l).forEach(function (sid) {
+        var q = G.p[sid]; if (!q || (seen[sid] && sid !== id)) return; seen[sid] = 1;
+        var me = sid === id;
+        o += '<circle cx="' + q[0] + '" cy="' + q[1] + '" r="' + (me ? 11 : 5) + '" fill="' + (me ? "#fff" : "#0b0b0b") + '" stroke="#fff" stroke-width="' + (me ? 4 : 2.4) + '" opacity="' + (me ? 1 : Math.max(dim(l), lineId && l.b.some(function (b) { return b.indexOf(sid) > -1; }) && l.id === lineId ? 1 : dim(l))) + '"/>';
+      });
+    });
+    // Line names: at the far end of each line, kept clear of each other, inside the picture.
+    LINES.forEach(function (l) {
+      if (l.dash) return;
+      var pa = (G.l[l.id] || [])[0]; if (!pa || !pa.length) return;
+      var e = pa[pa.length - 1], txt = l.n.toUpperCase(), w = txt.length * fs * .62, f = l.id === lineId ? fs * 1.25 : fs;
+      var right = e[0] + w + 16 > x1 + 140, x = right ? e[0] - 14 : e[0] + 14, y = e[1] - 10, anchor = right ? "end" : "start";
+      var bx = right ? x - w : x;
+      for (var k = 0; k < 12 && labs.some(function (b) { return bx < b[2] && bx + w > b[0] && y - f < b[3] && y > b[1]; }); k++) y += f * 1.15;
+      labs.push([bx, y - f, bx + w, y]); add([bx, y - f]); add([bx + w, y + 4]);
+      o += '<text x="' + x + '" y="' + y + '" text-anchor="' + anchor + '" fill="' + l.c + '" font-family="Arial" font-weight="700" font-size="' + f + '" opacity="' + (lineId && l.id !== lineId ? .35 : 1) + '" paint-order="stroke" stroke="#0b0b0b" stroke-width="' + (f / 4) + '">' + esc(txt) + "</text>";
+    });
+    var pad = 24;
+    return '<svg viewBox="' + (x0 - pad) + " " + (y0 - pad) + " " + (x1 - x0 + 2 * pad) + " " + (y1 - y0 + 2 * pad) + '" role="img" aria-label="S.We.T.A. system map">' + o + "</svg>";
+  }
+
+  function menuHTML(id) {
+    var p = id && plan(id), lineId = p && !p.hub ? p.main.line.id : null;
+    var where = !id ? "" : lineId ? "You are on the " + esc(p.main.line.n) + " line" : "You are at " + esc(S[id].n);
+    var rows = LINES.filter(function (l) { return !l.dash; }).map(function (l) {
+      var st = allStops(l), n = st.length, cap = 14, shown = n > cap ? st.slice(0, cap - 1) : st, k = shown.length;
+      var dots = shown.map(function (sid, i) { return '<i class="' + (sid === id ? "me" : "") + '" style="left:' + (k === 1 ? 50 : 4 + i * (n > cap ? 84 : 92) / (k - 1)) + '%"></i>'; }).join("") + (n > cap ? "<em>+" + (n - k) + "</em>" : "");
+      var f = firstStop(l);
+      return '<a class="row' + (l.id === lineId ? " on" : "") + '" data-to="' + f + '" href="' + esc(hand(S[f].u)) + '"><span class="bd" style="background:' + l.c + ";color:" + (l.c === "#F2BF00" ? "#121314" : "#fff") + '">' + esc(l.k) + '</span><span class="mid"><span class="nm">' + esc(l.n) + '</span><span class="rail"><b style="background:' + l.c + '"></b>' + dots + '</span></span><span class="cnt">' + n + ' stops</span><span class="go">›</span></a>';
+    }).join("");
+    return '<div class="hd"><span class="seal" style="background-image:url(' + SEAL + ')"></span><div class="hn">S.We.T.A. Lines' + (where ? "<small>" + where + "</small>" : "") + '</div><button type="button" class="x" data-close aria-label="Close">×</button></div>' +
+      '<nav aria-label="S.We.T.A. lines">' + rows + "</nav>" +
+      '<div class="mini"><h4>System map <span>Tap to open the full map</span></h4><a data-to="map" href="' + esc(id ? mapHref(id) : hand(MAP_URL)) + '" aria-label="Open the full map">' + miniMap(lineId, id) + "</a></div>" +
+      '<div class="ft"><a data-to="privacy" href="' + esc(hand(MAP_URL + "?privacy=1")) + '">Privacy</a></div>';
+  }
+
+  var MENU = null;
+  function menuStop() { var f = document.querySelector(".swt-strip[data-stop]"); var v = f && f.getAttribute("data-stop"); return v && S[v] ? v : here(); }
+  function openMenu(btn) {
+    var id = menuStop();
+    if (!MENU) {
+      var hh = document.createElement("div"); hh.hidden = true; hh.className = "swt-menu-panel";
+      document.body.appendChild(hh);
+      MENU = { host: hh, root: hh.attachShadow({ mode: "open" }), btn: null };
+      MENU.root.addEventListener("click", function (ev) {
+        var t = ev.target && ev.target.closest ? ev.target.closest("a,.scrim,[data-close]") : null;
+        if (!t) return;
+        if (t.tagName !== "A") { closeMenu(); return; }
+        track("click", MENU.id || "", t.getAttribute("data-to") || "");
+        closeMenu();
+      });
+      document.addEventListener("keydown", function (e) { if (e.key === "Escape" && MENU && !MENU.host.hidden) closeMenu(); });
+    }
+    MENU.id = id; MENU.btn = btn || null;
+    MENU.root.innerHTML = "<style>" + MCSS + '</style><div class="scrim"></div><div class="sh" role="dialog" aria-modal="true" aria-label="S.We.T.A. lines">' + menuHTML(id) + "</div>";
+    MENU.host.hidden = false;
+    if (btn) btn.setAttribute("aria-expanded", "true");
+    var x = MENU.root.querySelector("[data-close]"); if (x) x.focus();
+  }
+  function closeMenu() {
+    if (!MENU) return; MENU.host.hidden = true;
+    if (MENU.btn) { MENU.btn.setAttribute("aria-expanded", "false"); try { MENU.btn.focus(); } catch (e) {} }
+  }
+  document.addEventListener("click", function (ev) {
+    var b = ev.target && ev.target.closest ? ev.target.closest("[data-swt-menu]") : null;
+    if (!b) return;
+    ev.preventDefault();
+    if (MENU && !MENU.host.hidden) closeMenu(); else openMenu(b);
+  });
+  window.SWTStrip = window.SWTStrip || {};
+  window.SWTStrip.menu = function () { openMenu(null); };
+
   function start() {
     var els = document.querySelectorAll(".swt-strip");
     for (var k = 0; k < els.length; k++) mount(els[k]);

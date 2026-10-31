@@ -112,11 +112,10 @@
     ".open .chev{font-size:10px;color:#9a9a9a;margin-left:-4px}",
     "button.map{background:none;cursor:pointer;font-family:Arial}",
     ".tw{overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;margin:2px 0 0}",".tw::-webkit-scrollbar{display:none}",
-    ".labs{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:baseline;font-size:12px;margin-top:2px;min-height:18px}",
-    ".labs>*{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}",
-    ".labs .pv{text-align:left}.labs .nx{text-align:right}.labs .cu{font-weight:700;color:#fff;max-width:46vw;text-align:center}",
-    ".labs a{color:#b5b5b5;text-decoration:none}.labs a:hover,.labs a:focus{color:#fff;text-decoration:underline}",
-    ".labs .cu a{color:#fff;text-decoration:underline;text-underline-offset:2px}.labs .cu small{font-weight:400;color:#9a9a9a;margin-left:6px}",
+    ".tl{position:absolute;top:31px;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#b5b5b5;padding:2px 0}",
+    ".tl a{color:#b5b5b5;text-decoration:none}.tl a:hover,.tl a:focus{color:#fff;text-decoration:underline}",
+    ".tl.fo{color:#fff;z-index:3;font-weight:700}.tl.fo a{color:#fff;text-decoration:underline;text-underline-offset:2px}.tl.fo small{font-weight:400;color:#9a9a9a;margin-left:6px}.tl.cu{font-weight:700;color:#fff}.tl.cu a{color:#fff;text-decoration:underline;text-underline-offset:2px}.tl.cu small{font-weight:400;color:#9a9a9a;margin-left:6px}",
+    ".tl[hidden]{display:none}",
     "a.st{display:block}a.st:hover .dot,a.st:focus-visible .dot,.st.arm .dot{background:#fff}",
     ".st.arm .dot{box-shadow:0 0 0 4px rgba(255,255,255,.35)}",
     ".badge{flex:none;width:22px;height:22px;border-radius:50%;border:2px solid #fff;display:grid;place-items:center;font:700 11px Arial}",
@@ -124,7 +123,7 @@
     ".sp{flex:1}",
     ".map{flex:none;color:#bbb;font:700 11px Arial;letter-spacing:.08em;text-decoration:none;border:1px solid #444;border-radius:4px;padding:6px 10px;min-height:30px;display:inline-flex;align-items:center}",
     ".map:hover,.map:focus{color:#fff;border-color:#fff}",
-    ".track{position:relative;height:30px;margin:0 26px}",
+    ".track{position:relative;height:54px;margin:0 26px}",
     ".bar{position:absolute;left:-14px;right:-14px;top:13px;height:6px;border-radius:3px}",
     ".st{position:absolute;top:0;width:24px;height:30px;margin-left:-12px}",
     ".dot{position:absolute;left:6px;top:10px;width:12px;height:12px;border-radius:50%;background:#121314;border:3px solid #fff}",
@@ -147,13 +146,13 @@
     ".go:hover .mq{animation-play-state:paused}",
     "@keyframes go{to{transform:translateX(-50%)}}",
     "@media (prefers-reduced-motion:reduce){.go .mq{animation:none;width:auto;flex-wrap:wrap;white-space:normal}.go .grp+.grp{display:none}.st.cur .dot{animation:none}}",
-    ".narrow .lname{font-size:11px}.narrow .in{padding:0 14px}.narrow .track{margin:0 20px}.narrow .msg{font-size:13px;flex-wrap:wrap;gap:2px}.narrow .mqw{flex:1 1 0}.narrow .priv{align-self:flex-end;padding:4px 0 2px}.narrow .mq{width:auto;white-space:normal;flex-wrap:wrap}.narrow .mq .grp{flex-wrap:wrap;gap:6px 9px;padding-right:0}.narrow .chips a{padding:8px 12px;font-size:13px}.wide .labs{font-size:13px}.wide .lname{font-size:12px}.wide .msg{font-size:13px}",
+    ".narrow .lname{font-size:11px}.narrow .in{padding:0 14px}.narrow .track{margin:0 20px}.narrow .tl{font-size:12px}.narrow .msg{font-size:13px;flex-wrap:wrap;gap:2px}.narrow .mqw{flex:1 1 0}.narrow .priv{align-self:flex-end;padding:4px 0 2px}.narrow .mq{width:auto;white-space:normal;flex-wrap:wrap}.narrow .mq .grp{flex-wrap:wrap;gap:6px 9px;padding-right:0}.narrow .chips a{padding:8px 12px;font-size:13px}.wide .tl{font-size:13px}.wide .lname{font-size:12px}.wide .msg{font-size:13px}",
     // light theme (opted in with data-theme="light")
     ".lt .tk{background:#fcfbf7;color:#14171a;border-bottom:1px solid #e6e2d8}",
     ".lt .badge{border-color:#fcfbf7;box-shadow:0 0 0 1px #cfcabb}",
     ".lt .map{color:#16385c;border-color:#cfcabb}.lt .map:hover,.lt .map:focus{color:#0e2a47;border-color:#16385c}",
     ".lt .dot{background:#fff;border-color:#14171a}",
-    ".lt .labs a{color:#4a4a44}.lt .labs a:hover{color:#14171a}.lt .labs .cu,.lt .labs .cu a{color:#14171a}.lt a.st:hover .dot,.lt .st.arm .dot{background:#14171a}.lt .open .chev{color:#5b6770}",
+    ".lt .tl,.lt .tl a{color:#4a4a44}.lt .tl a:hover{color:#14171a}.lt .tl.cu,.lt .tl.cu a,.lt .tl.fo,.lt .tl.fo a{color:#14171a}.lt a.st:hover .dot,.lt .st.arm .dot{background:#14171a}.lt .open .chev{color:#5b6770}",
     ".lt .st.cur .dot{animation:none}",
     ".lt .more{color:#5b6770}",
     ".lt .msg{border-top-color:#e6e2d8;color:#3f4a52}.lt .mq b{color:#14171a}.lt .mq a{color:#16385c}",
@@ -263,6 +262,30 @@
       '<div class="ft"><a class="mp" data-to="map" href="' + esc(mapHref(id)) + '">OPEN FULL MAP</a>' + info + '<a class="pv" data-to="privacy" href="' + esc(hand(MAP_URL + "?privacy=1")) + '">Privacy</a></div>';
   }
 
+  // Names sit under their own dots: this stop centred under its dot, the stops either side under theirs,
+  // pushed aside (and shortened) only as far as needed so nothing overlaps.
+  function placeLabels(root) {
+    var tr = root.querySelector(".track"); if (!tr) return;
+    var W = tr.clientWidth, gap = 12, taken = [];
+    var wOf = function (e) { return Math.ceil(e.getBoundingClientRect().width) + 1; };
+    var fo = tr.querySelector(".tl.fo"), cu = tr.querySelector(".tl.cu"), eds = [].slice.call(tr.querySelectorAll(".tl.ed"));
+    var order = (fo && !fo.hidden ? [fo] : []).concat(cu ? [cu] : [], eds);
+    order.forEach(function (e) { if (e !== fo) e.hidden = false; e.style.maxWidth = ""; e.style.left = "0px"; });
+    order.forEach(function (e) {
+      var w = Math.min(wOf(e), W), x = parseFloat(e.getAttribute("data-x")), l = Math.max(0, Math.min(W - w, x - w / 2));
+      if (taken.some(function (t) { return l < t[1] + gap && l + w > t[0] - gap; })) { e.hidden = true; return; }
+      e.style.left = l + "px"; e.style.maxWidth = w + "px"; taken.push([l, l + w]);
+    });
+  }
+  // Show one stop's name under its dot (hover, or the first tap on a touch screen). null puts things back.
+  function focusDot(root, t, armed) {
+    var fo = root.querySelector(".tl.fo"); if (!fo) return;
+    if (!t) { fo.hidden = true; fo.innerHTML = ""; placeLabels(root); return; }
+    var sid = t.getAttribute("data-to");
+    fo.innerHTML = armed ? '<a data-to="' + sid + '" href="' + esc(t.getAttribute("href")) + '">' + esc(S[sid].n) + "</a><small>tap again</small>" : esc(S[sid].n);
+    fo.setAttribute("data-x", parseFloat(t.style.left)); fo.hidden = false; placeLabels(root);
+  }
+
   function render(host, id) {
     var p = plan(id);
     if (!p) { host.style.display = "none"; return; }
@@ -287,13 +310,16 @@
       var stops = seq.map(function (sid, k) {
         var cur = sid === id;
         return cur ? '<span class="st cur" style="left:' + px(k) + 'px" title="' + esc(S[sid].n) + ' (you are here)"><span class="dot"></span></span>'
-          : '<a class="st" data-to="' + sid + '" data-dot href="' + esc(hand(S[sid].u)) + '" style="left:' + px(k) + 'px" title="' + esc(S[sid].n) + '" aria-label="' + esc(S[sid].n) + '"><span class="dot"></span></a>';
+          : '<a class="st" data-to="' + sid + '" data-dot href="' + esc(hand(S[sid].u)) + '" style="left:' + px(k) + 'px" aria-label="' + esc(S[sid].n) + '"><span class="dot"></span></a>';
       }).join("");
       var prev = seq[i - 1], nxt = seq[i + 1];
       var light = m.line.c === "#F2BF00";
       html = '<div class="row"><button type="button" class="open" data-open aria-label="Show every stop on the ' + esc(m.line.n) + ' line"><span class="badge" style="background:' + m.line.c + ";color:" + (light ? "#121314" : "#fff") + '">' + esc(m.line.k) + '</span><span class="lname">' + esc(m.line.n) + ' line</span><span class="chev">▾</span></button><span class="sp"></span><button type="button" class="map" data-open>MAP</button></div>' +
-        '<div class="tw"><div class="track" style="width:' + tw + 'px"><div class="bar" style="background:' + m.line.c + '"></div>' + stops + "</div></div>" +
-        '<div class="labs"><span class="pv">' + (prev ? "← " + a(prev) : "") + '</span><span class="cu">' + esc(here.n) + '</span><span class="nx">' + (nxt ? a(nxt) + " →" : "") + "</span></div>";
+        '<div class="tw"><div class="track" style="width:' + tw + 'px"><div class="bar" style="background:' + m.line.c + '"></div>' + stops +
+        (i > 0 ? '<span class="tl ed" data-x="' + px(0) + '">' + a(seq[0]) + "</span>" : "") +
+        '<span class="tl cu" data-x="' + px(i) + '">' + esc(here.n) + "</span>" +
+        (i < n - 1 ? '<span class="tl ed" data-x="' + px(n - 1) + '">' + a(seq[n - 1]) + "</span>" : "") +
+        '<span class="tl fo" hidden></span>' + "</div></div>";
       var next = nxt;
       msg = '<span class="tag">' + (p.transfers.length ? "TRANSFER" : "YOU ARE HERE") + "</span>" +
         (p.transfers.length ? '<span class="chip">' + dot(m.line) + p.transfers.map(dot).join("") + "</span>" : "") +
@@ -319,16 +345,18 @@
           root._arm = t.getAttribute("data-to");
           [].forEach.call(root.querySelectorAll(".st.arm"), function (x) { x.classList.remove("arm"); });
           t.classList.add("arm");
-          var cu = root.querySelector(".labs .cu");
-          if (cu) cu.innerHTML = '<a data-to="' + root._arm + '" href="' + esc(t.getAttribute("href")) + '">' + esc(S[root._arm].n) + "</a><small>tap again</small>";
+          focusDot(root, t, true);
           clearTimeout(root._armT);
-          root._armT = setTimeout(function () { root._arm = null; t.classList.remove("arm"); if (cu) cu.textContent = S[cur].n; }, 4000);
+          root._armT = setTimeout(function () { root._arm = null; t.classList.remove("arm"); focusDot(root, null); }, 4000);
           return;
         }
         track("click", cur, t.getAttribute("data-to") || "");
       });
+      root.addEventListener("mouseover", function (ev) { if (TOUCH && TOUCH.matches) return; var t = ev.target.closest && ev.target.closest("a[data-dot]"); if (t) focusDot(root, t, false); });
+      root.addEventListener("mouseout", function (ev) { if (TOUCH && TOUCH.matches) return; var t = ev.target.closest && ev.target.closest("a[data-dot]"); if (t && !(ev.relatedTarget && t.contains(ev.relatedTarget))) focusDot(root, null); });
     }
     host._swtId = id; root._arm = null;
+    placeLabels(root);
     var twb = root.querySelector(".tw"), curDot = root.querySelector(".st.cur");
     if (twb && curDot && twb.scrollWidth > twb.clientWidth) twb.scrollLeft = curDot.offsetLeft + 26 - twb.clientWidth / 2;
     var box = root.querySelector(".mqw"), mq = root.querySelector(".mq");

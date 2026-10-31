@@ -3,15 +3,15 @@
 // The member codes themselves never leave the sheet.
 // Paste this as a new file in the sheet's Apps Script project, set READ_KEY, then deploy (see the README).
 
-const SWT_READ_KEY = "PASTE-THE-SAME-KEY-YOU-PUT-IN-CLOUDFLARE";
-const SWT_SHEET_ID = "1YqrDXgyvUrkC4LsTkOZrpshglULiEX2sQzAgu0z5D5A";
-const SWT_TAB = "All";
+const TCN_READ_KEY = "PASTE-THE-SAME-KEY-YOU-PUT-IN-CLOUDFLARE";
+const TCN_SHEET_ID = "1YqrDXgyvUrkC4LsTkOZrpshglULiEX2sQzAgu0z5D5A";
+const TCN_TAB = "All";
 
 function doGet(e) {
-  if (!e || !e.parameter || e.parameter.key !== SWT_READ_KEY) return swtOut({ error: "bad key" });
-  const book = SpreadsheetApp.openById(SWT_SHEET_ID);
-  const sh = book.getSheetByName(SWT_TAB);
-  if (!sh) return swtOut({ error: "No tab named " + SWT_TAB + ". Tabs: " + book.getSheets().map(s => s.getName()).join(", ") });
+  if (!e || !e.parameter || e.parameter.key !== TCN_READ_KEY) return tcnOut({ error: "bad key" });
+  const book = SpreadsheetApp.openById(TCN_SHEET_ID);
+  const sh = book.getSheetByName(TCN_TAB);
+  if (!sh) return tcnOut({ error: "No tab named " + TCN_TAB + ". Tabs: " + book.getSheets().map(s => s.getName()).join(", ") });
   const v = sh.getDataRange().getDisplayValues();
   const head = v[0].map(h => String(h).trim().toLowerCase());
   const col = (test) => head.findIndex(test);
@@ -21,24 +21,24 @@ function doGet(e) {
   const cFormat = col(h => h === "format");
   const cTz = col(h => h.indexOf("time zone") > -1 || h === "timezone");
   const cUser = col(h => h === "user" || h.indexOf("user") === 0);
-  if (cTime < 0) return swtOut({ error: "No Time column. Headers: " + v[0].join(", ") });
+  if (cTime < 0) return tcnOut({ error: "No Time column. Headers: " + v[0].join(", ") });
   const days = {}, users = {};
   for (let i = 1; i < v.length; i++) {
-    const d = swtDay(v[i][cTime]);
+    const d = tcnDay(v[i][cTime]);
     if (!d) continue;
     const o = days[d] = days[d] || { total: 0, by: {}, action: {}, format: {}, tz: {}, users: 0 };
     o.total++;
-    if (cTool > -1) swtInc(o.by, v[i][cTool]);
-    if (cAction > -1) swtInc(o.action, v[i][cAction]);
-    if (cFormat > -1) swtInc(o.format, String(v[i][cFormat]).toUpperCase());
-    if (cTz > -1) swtInc(o.tz, v[i][cTz]);
+    if (cTool > -1) tcnInc(o.by, v[i][cTool]);
+    if (cAction > -1) tcnInc(o.action, v[i][cAction]);
+    if (cFormat > -1) tcnInc(o.format, String(v[i][cFormat]).toUpperCase());
+    if (cTz > -1) tcnInc(o.tz, v[i][cTz]);
     if (cUser > -1 && v[i][cUser]) { const u = users[d] = users[d] || {}; u[v[i][cUser]] = 1; }
   }
   for (const d in users) days[d].users = Object.keys(users[d]).length;
-  return swtOut({ sheet: "tcn", rows: v.length - 1, days: days });
+  return tcnOut({ sheet: "tcn", rows: v.length - 1, days: days });
 }
 
-function swtDay(s) {
+function tcnDay(s) {
   s = String(s || "").trim();
   let m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
   if (m) return m[3] + "-" + ("0" + m[1]).slice(-2) + "-" + ("0" + m[2]).slice(-2);
@@ -46,5 +46,5 @@ function swtDay(s) {
   if (m) return m[1] + "-" + m[2] + "-" + m[3];
   return null;
 }
-function swtInc(o, k) { k = String(k || "").trim(); if (!k) return; o[k] = (o[k] || 0) + 1; }
-function swtOut(o) { return ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON); }
+function tcnInc(o, k) { k = String(k || "").trim(); if (!k) return; o[k] = (o[k] || 0) + 1; }
+function tcnOut(o) { return ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON); }

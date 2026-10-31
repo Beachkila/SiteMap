@@ -38,5 +38,5 @@ const cfgPath = path.join(__dirname, "..", "tracker", "config.json");
 const TRACK = fs.existsSync(cfgPath) ? (JSON.parse(fs.readFileSync(cfgPath, "utf8")).endpoint || "") : "";
 const out = fs.readFileSync(path.join(__dirname, "strip.template.js"), "utf8")
   .replace("/*TRACK*/\"\"", JSON.stringify(TRACK)).replace("/*DATA*/null", JSON.stringify({ stations, lines }).replace(/[\u0080-\uffff]/g, c => "\\u" + c.charCodeAt(0).toString(16).padStart(4, "0")));
-fs.writeFileSync(path.join(root, "strip.js"), out);
+fs.writeFileSync(path.join(root, "strip.js"), out.replace(/[\u0080-\uffff]/g, c => "\\u" + c.charCodeAt(0).toString(16).padStart(4, "0")));
 console.log("strip.js:", Object.keys(stations).length, "stations,", lines.length, "lines,", out.length, "bytes");

@@ -495,16 +495,31 @@
         o += '<circle cx="' + q[0] + '" cy="' + q[1] + '" r="' + (me ? 11 : 5) + '" fill="' + (me ? "#fff" : "#0b0b0b") + '" stroke="#fff" stroke-width="' + (me ? 4 : 2.4) + '" opacity="' + (me ? 1 : Math.max(dim(l), lineId && l.b.some(function (b) { return b.indexOf(sid) > -1; }) && l.id === lineId ? 1 : dim(l))) + '"/>';
       });
     });
-    // Line names: at the far end of each line, kept clear of each other, inside the picture.
+    // Line names: past the far end of each line on the side it is heading; All Galleries sits at its middle;
+    // GitBeach and Board trade places so each name sits by its own run.
+    var spots = {};
     LINES.forEach(function (l) {
       if (l.dash) return;
       var pa = (G.l[l.id] || [])[0]; if (!pa || !pa.length) return;
-      var e = pa[pa.length - 1], txt = l.n.toUpperCase(), w = txt.length * fs * .62, f = l.id === lineId ? fs * 1.25 : fs;
-      var right = e[0] + w + 16 > x1 + 140, x = right ? e[0] - 14 : e[0] + 14, y = e[1] - 10, anchor = right ? "end" : "start";
-      var bx = right ? x - w : x;
+      var f = l.id === lineId ? fs * 1.25 : fs, w = l.n.length * f * .62, e = pa[pa.length - 1];
+      var pv = pa.length > 1 ? pa[pa.length - 2] : [e[0] - 1, e[1]], dx = e[0] - pv[0], dy = e[1] - pv[1];
+      var right = dx < 0 || e[0] + w + 16 > x1 + 140, x = right ? e[0] - 14 : e[0] + 14, y = dy > 0 && Math.abs(dx) < 1 ? e[1] + f + 10 : e[1] - 10;
+      if (dx < 0) { x = e[0] - 16; y = e[1] + f * .35; }
+      if (l.id === "green") { // in the middle of the line: beside its longest run, inside the loop
+        var bi = 1, bl = -1; for (var i = 1; i < pa.length; i++) { var d = Math.hypot(pa[i][0] - pa[i - 1][0], pa[i][1] - pa[i - 1][1]); if (d > bl) { bl = d; bi = i; } }
+        var A = pa[bi - 1], B = pa[bi], mx = (A[0] + B[0]) / 2, my = (A[1] + B[1]) / 2;
+        right = false;
+        if (Math.abs(B[0] - A[0]) < 1) { x = mx + 18; y = my + f * .35; } else { x = mx - w / 2; y = my - 14; }
+      }
+      spots[l.id] = { x: x, y: y, right: right, f: f, w: w };
+    });
+    if (spots.purple && spots.brown) { var sw = spots.purple; spots.purple = Object.assign({}, spots.brown, { f: sw.f, w: sw.w, y: spots.brown.y + sw.f * 1.1 }); spots.brown = Object.assign({}, sw, { f: spots.brown.f, w: spots.brown.w }); }
+    LINES.forEach(function (l) {
+      var sp = spots[l.id]; if (!sp) return;
+      var f = sp.f, w = l.n.length * f * .62, x = sp.x, y = sp.y, bx = sp.right ? x - w : x;
       for (var k = 0; k < 12 && labs.some(function (b) { return bx < b[2] && bx + w > b[0] && y - f < b[3] && y > b[1]; }); k++) y += f * 1.15;
       labs.push([bx, y - f, bx + w, y]); add([bx, y - f]); add([bx + w, y + 4]);
-      o += '<text x="' + x + '" y="' + y + '" text-anchor="' + anchor + '" fill="' + l.c + '" font-family="Arial" font-weight="700" font-size="' + f + '" opacity="' + (lineId && l.id !== lineId ? .35 : 1) + '" paint-order="stroke" stroke="#0b0b0b" stroke-width="' + (f / 4) + '">' + esc(txt) + "</text>";
+      o += '<text x="' + x + '" y="' + y + '" text-anchor="' + (sp.right ? "end" : "start") + '" fill="' + l.c + '" font-family="Arial" font-weight="700" font-size="' + f + '" opacity="' + (lineId && l.id !== lineId ? .35 : 1) + '" paint-order="stroke" stroke="#0b0b0b" stroke-width="' + (f / 4) + '">' + esc(l.n.toUpperCase()) + "</text>";
     });
     var pad = 24;
     return '<svg viewBox="' + (x0 - pad) + " " + (y0 - pad) + " " + (x1 - x0 + 2 * pad) + " " + (y1 - y0 + 2 * pad) + '" role="img" aria-label="S.We.T.A. system map">' + o + "</svg>";

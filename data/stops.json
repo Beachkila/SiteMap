@@ -1,1 +1,8 @@
-{"v":1,"stops":{}}
+{
+ "v": 1,
+ "stops": {
+  "bp-dock-to-stock": {
+   "note": "VR Freight to inventory management system."
+  }
+ }
+}

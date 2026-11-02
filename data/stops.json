@@ -15,6 +15,9 @@
   },
   "galleries": {
    "note": "View all of Studio Wetware's galleries"
+  },
+  "SMW": {
+   "note": "Collectible tag maker for ACEO's and card sized collections"
   }
  }
 }

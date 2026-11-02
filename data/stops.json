@@ -3,6 +3,9 @@
  "stops": {
   "bp-dock-to-stock": {
    "note": "VR Freight to inventory management system."
+  },
+  "bp-ai-station": {
+   "note": "Multi LLM progressive workload model"
   }
  }
 }

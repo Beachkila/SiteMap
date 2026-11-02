@@ -803,10 +803,17 @@ svg.addEventListener("pointermove",e=>{if(!ptrs.has(e.pointerId))return;ptrs.set
   if(ptrs.size===2&&pinch){const a=[...ptrs.values()],d=Math.hypot(a[0][0]-a[1][0],a[0][1]-a[1][1]);zoomBy(pinch.k*pinch.d/d/kNow(),(a[0][0]+a[1][0])/2,(a[0][1]+a[1][1])/2);moved=true;if(sheet.classList.contains("float"))hideSheet(true);render();return}
   if(!start||ptrs.size>1)return;const dx=e.clientX-start.x,dy=e.clientY-start.y;if(Math.hypot(dx,dy)>6)moved=true;if(!moved)return;
   const k=kNow();vb.x=start.vb.x-dx*k;vb.y=start.vb.y-dy*k;if(sheet.classList.contains("float")&&!sheet.hidden)hideSheet(true);render()});
-function end(e){ptrs.delete(e.pointerId);if(ptrs.size<2)pinch=null;svg.classList.remove("grabbing");
+function end(e){const was=ptrs.size;ptrs.delete(e.pointerId);if(ptrs.size<2)pinch=null;svg.classList.remove("grabbing");
+  // a pinch just ended with one finger still down: carry on panning from where the map is now, not from where the pinch began
+  if(was===2&&ptrs.size===1){const p=[...ptrs.values()][0];start={x:p[0],y:p[1],vb:{...vb},g:null};moved=true;return}
   if(start&&!moved&&ptrs.size===0){if(start.g){const id=start.g.dataset.id;openStation(id,"pin");if(narrow())centerStation(id)}else if(!sheet.hidden)hideSheet()}
   if(!ptrs.size)start=null}
 svg.addEventListener("pointerup",end);svg.addEventListener("pointercancel",end);
+// Safari (iPhone, iPad) zooms the whole page on a pinch even with touch-action:none, and inside an iframe it zooms the host page.
+// Keep two-finger gestures on the map for the map.
+["gesturestart","gesturechange","gestureend"].forEach(t=>document.addEventListener(t,e=>e.preventDefault(),{passive:false}));
+svg.addEventListener("touchstart",e=>{if(e.touches.length>1)e.preventDefault()},{passive:false});
+svg.addEventListener("touchmove",e=>{e.preventDefault()},{passive:false});
 svg.addEventListener("wheel",e=>{e.preventDefault();zoomBy(e.deltaY>0?1.12:.89,e.clientX,e.clientY);if(sheet.classList.contains("float"))hideSheet(true);render()},{passive:false});
 svg.addEventListener("keydown",e=>{const g=e.target.closest(".stn");if(g&&(e.key==="Enter"||e.key===" ")){e.preventDefault();openStation(g.dataset.id,"pin");sheet.querySelector(".go")?.focus()}});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(!panel.hidden)closePanel();else if(!sheet.hidden)hideSheet();else if(follow)setFollow(null)}

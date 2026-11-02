@@ -38,3 +38,8 @@ A Cloudflare Worker with a D1 database. The strip and the map send one small mes
    - If the project already has a `doGet`, rename this one's `doGet` and deploy it from its own Apps Script project instead.
 3. Cloudflare > the Worker > Settings > Variables and secrets: add `SHEET_KEY` (the key, as a secret), `SHEET_TAGS_URL` and `SHEET_TCN_URL` (the two web app URLs).
 4. Paste the new `worker.js` and deploy. Downloads refresh every 10 minutes while the dashboard is open, and daily from the cron.
+
+## Update: staying inside D1's free read limit (November 2026)
+D1's free plan allows 5 million row reads a day. The dashboard now reads the rides once per period and keeps the result for 10 minutes (the `cache` table); Refresh forces a new read at most once a minute. New vs returning riders come from a small `riders` table instead of a full scan, and the live view checks every 20 seconds.
+1. D1 console: run the contents of `migrate-reads.sql` once (adds `riders` and `cache`, and fills `riders` from the rides already stored).
+2. Paste the new `worker.js` and deploy.

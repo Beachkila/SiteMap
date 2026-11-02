@@ -32,3 +32,8 @@ CREATE TABLE IF NOT EXISTS sheets (
   fetched INTEGER NOT NULL,
   data TEXT NOT NULL
 );
+-- First time each rider was seen (for new vs returning without scanning every ride).
+CREATE TABLE IF NOT EXISTS riders (ih TEXT PRIMARY KEY, first INTEGER NOT NULL);
+CREATE INDEX IF NOT EXISTS riders_first ON riders(first);
+-- Dashboard numbers kept for a few minutes so the dashboard reads the database once, not on every click.
+CREATE TABLE IF NOT EXISTS cache (k TEXT PRIMARY KEY, at INTEGER NOT NULL, data TEXT NOT NULL);

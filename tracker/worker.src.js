@@ -65,6 +65,7 @@ async function handleHit(request, env) {
     // The location columns are not added yet (see README): keep counting without them.
     await env.DB.prepare("INSERT INTO events (ts, ih, cid, type, stop, to_stop, host, path, src) VALUES (?,?,?,?,?,?,?,?,?)").bind(...row).run();
   }
+  try { await env.DB.prepare("INSERT OR IGNORE INTO riders (ih, first) VALUES (?, ?)").bind(ih, row[0]).run(); } catch {}
   return new Response(null, { status: 204, headers: cors });
 }
 
@@ -140,7 +141,7 @@ function localParts(ts, tz) {
   return { h, w: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].indexOf(w) };
 }
 
-function analyse(events, firstSeen, since) {
+function analyse(events, newSet) {
   const stops = {}, flows = new Map(), riders = new Set();
   const st = (id) => (stops[id] = stops[id] || { views: 0, riders: new Set(), entries: 0, exits: 0, bounces: 0, clicksOut: 0, clicksIn: 0 });
   const sessions = sessionsOf(events);
@@ -162,7 +163,7 @@ function analyse(events, firstSeen, since) {
   const devOf = {}; for (const e of events) if (e.dev) devOf[e.ih] = e.dev;
   for (const ih of riders) inc(devices, devOf[ih] || "unknown");
   let newR = 0, retR = 0;
-  for (const ih of riders) { if (firstSeen && firstSeen[ih] != null && firstSeen[ih] < since) retR++; else newR++; }
+  for (const ih of riders) { if (newSet && !newSet.has(ih)) retR++; else newR++; }
   for (const s of sessions) {
     duration += s.end - s.start;
     const vs = s.events.filter(VISIT);
@@ -218,10 +219,6 @@ async function loadEvents(env, days, limit = 50000) {
   const since = Date.now() - Math.min(Math.max(days, 1), RETAIN_DAYS) * 86400e3;
   return sel(env, "WHERE ts >= ?", [since], limit);
 }
-async function firstSeen(env) {
-  const r = await env.DB.prepare("SELECT ih, MIN(ts) AS f FROM events GROUP BY ih").all();
-  const o = {}; for (const x of r.results || []) o[x.ih] = x.f; return o;
-}
 
 const day = (ts) => new Date(ts).toISOString().slice(0, 10);
 
@@ -271,43 +268,79 @@ function downloads(sh, days) {
   return res;
 }
 
+// ---------- one pass, cached ----------
+// Every dashboard number for a period comes from a single read of the rides, kept for a few minutes,
+// so opening tabs, refreshing and clicking stations do not re-read the database (D1's free plan counts every row read).
+const CACHE_MS = 10 * 60 * 1000, FRESH_MIN_MS = 60 * 1000;
+const top = (o, n) => Object.fromEntries(Object.entries(o).sort((a, b) => b[1] - a[1]).slice(0, n));
+
+async function bundle(env, days, fresh) {
+  const key = "bundle:" + days;
+  let row = null;
+  try { row = await env.DB.prepare("SELECT at, data FROM cache WHERE k = ?").bind(key).first(); } catch {}
+  if (row && Date.now() - row.at < (fresh ? FRESH_MIN_MS : CACHE_MS)) return JSON.parse(row.data);
+  const B = await computeBundle(env, days);
+  try { await env.DB.prepare("INSERT OR REPLACE INTO cache (k, at, data) VALUES (?,?,?)").bind(key, Date.now(), JSON.stringify(B)).run(); } catch {}
+  return B;
+}
+
+async function computeBundle(env, days) {
+  const now = Date.now(), since = now - Math.min(days, RETAIN_DAYS) * 86400e3;
+  const all = await loadEvents(env, Math.max(days, 14));
+  const ev = all.filter(e => e.ts >= since);
+  // riders first seen inside this period (one small indexed read); everyone else in the period is returning
+  let newSet = null;
+  try { newSet = new Set(((await env.DB.prepare("SELECT ih FROM riders WHERE first >= ?").bind(since).all()).results || []).map(r => r.ih)); } catch {}
+  const a = analyse(ev, newSet);
+  if (!newSet) { a.totals.newRiders = a.totals.riders; a.totals.returningRiders = 0; }
+  const trend = {};
+  for (const e of ev) if (VISIT(e)) { const d = (trend[day(e.ts)] = trend[day(e.ts)] || { visits: 0, riders: new Set() }); d.visits++; d.riders.add(e.ih); }
+  a.trend = Object.keys(trend).sort().map(k => ({ day: k, visits: trend[k].visits, riders: trend[k].riders.size }));
+  const wk = {};
+  for (const e of all) if (VISIT(e)) { const age = now - e.ts; const w = wk[e.stop] = wk[e.stop] || [0, 0]; if (age < 7 * 86400e3) w[0]++; else if (age < 14 * 86400e3) w[1]++; }
+  a.week = wk;
+  try { a.history = (await env.DB.prepare("SELECT day, SUM(views) AS visits FROM daily GROUP BY day ORDER BY day DESC LIMIT 365").all()).results || []; } catch { a.history = []; }
+  a.days = days; a.generated = now;
+  // riders list
+  const by = new Map();
+  for (const e of ev) {
+    const r = by.get(e.ih) || { id: e.ih, first: e.ts, last: e.ts, visits: 0, clicks: 0, stops: new Set(), hosts: new Set(), lastStop: null, country: null, dev: null };
+    r.last = e.ts; if (VISIT(e)) { r.visits++; r.stops.add(e.stop); r.lastStop = e.stop; } if (e.type === "click") r.clicks++; if (e.host) r.hosts.add(e.host);
+    if (e.country) r.country = e.country; if (e.dev) r.dev = e.dev;
+    by.set(e.ih, r);
+  }
+  const sessions = sessionsOf(ev), sess = {};
+  for (const s of sessions) sess[s.ih] = (sess[s.ih] || 0) + 1;
+  const riders = [...by.values()].map(r => ({ id: r.id, first: r.first, last: r.last, visits: r.visits, clicks: r.clicks, stops: r.stops.size, sites: r.hosts.size, sessions: sess[r.id] || 0, lastStop: r.lastStop, country: r.country, dev: r.dev }))
+    .sort((x, y) => y.last - x.last).slice(0, 200);
+  // details for every station, so clicking one on the map costs nothing
+  const S = {}, st = (id) => (S[id] = S[id] || { riders: new Set(), trend: {}, countries: {}, refs: {}, from: {}, to: {} });
+  for (const s of sessions) {
+    const vs = s.events.filter(VISIT);
+    vs.forEach((e, i) => {
+      const o = st(e.stop);
+      o.riders.add(e.ih); inc(o.trend, day(e.ts)); inc(o.countries, e.country || "?");
+      if (i === 0) { const r = s.events.find(x => x.ref); inc(o.refs, r ? r.ref : "direct"); } else if (vs[i - 1].stop !== e.stop) inc(o.from, vs[i - 1].stop);
+      if (i < vs.length - 1 && vs[i + 1].stop !== e.stop) inc(o.to, vs[i + 1].stop); else if (i === vs.length - 1) inc(o.to, "(left)");
+    });
+  }
+  const stopInfo = {};
+  for (const [id, o] of Object.entries(S)) stopInfo[id] = { riders: o.riders.size, trend: o.trend, countries: top(o.countries, 8), refs: top(o.refs, 8), from: top(o.from, 8), to: top(o.to, 8) };
+  return { summary: a, riders, stopInfo };
+}
+
 async function handleApi(url, env) {
   const days = Math.min(parseInt(url.searchParams.get("days") || "30", 10) || 30, 365);
   const route = url.pathname.replace(/^\/api\//, "");
   if (route === "meta") return json(META);
-  if (route === "summary") {
-    const since = Date.now() - Math.min(days, RETAIN_DAYS) * 86400e3;
-    const all = await loadEvents(env, Math.max(days, 14));
-    const ev = all.filter(e => e.ts >= since);
-    let fs = null; try { fs = await firstSeen(env); } catch {}
-    const a = analyse(ev, fs, since);
-    const trend = {};
-    for (const e of ev) if (VISIT(e)) { const d = (trend[day(e.ts)] = trend[day(e.ts)] || { visits: 0, riders: new Set() }); d.visits++; d.riders.add(e.ih); }
-    a.trend = Object.keys(trend).sort().map(k => ({ day: k, visits: trend[k].visits, riders: trend[k].riders.size }));
-    // last 7 days against the 7 before, per stop
-    const now = Date.now(), wk = {};
-    for (const e of all) if (VISIT(e)) { const age = now - e.ts; const w = wk[e.stop] = wk[e.stop] || [0, 0]; if (age < 7 * 86400e3) w[0]++; else if (age < 14 * 86400e3) w[1]++; }
-    a.week = wk;
-    const old = await env.DB.prepare("SELECT day, SUM(views) AS visits FROM daily GROUP BY day ORDER BY day DESC LIMIT 365").all();
-    a.history = old.results || [];
-    a.days = days; a.generated = Date.now();
-    return json(a);
-  }
-  if (route === "stop") {
-    const id = url.searchParams.get("id") || "";
-    if (!/^[A-Za-z0-9_-]{1,40}$/.test(id)) return json({ error: "bad id" }, 400);
-    const ev = await loadEvents(env, days);
-    const trend = {}, countries = {}, refs = {}, from = {}, to = {}, riders = new Set();
-    for (const s of sessionsOf(ev)) {
-      const vs = s.events.filter(VISIT);
-      vs.forEach((e, i) => {
-        if (e.stop !== id) return;
-        riders.add(e.ih); inc(trend, day(e.ts)); inc(countries, e.country || "?");
-        if (i === 0) { const r = s.events.find(x => x.ref); inc(refs, r ? r.ref : "direct"); } else if (vs[i - 1].stop !== id) inc(from, vs[i - 1].stop);
-        if (i < vs.length - 1 && vs[i + 1].stop !== id) inc(to, vs[i + 1].stop); else if (i === vs.length - 1) inc(to, "(left)");
-      });
+  if (route === "summary" || route === "riders" || route === "stop") {
+    const B = await bundle(env, days, url.searchParams.get("fresh") === "1");
+    if (route === "riders") return json({ riders: B.riders, days });
+    if (route === "stop") {
+      const id = url.searchParams.get("id") || "";
+      return json(Object.assign({ id, days, riders: 0, trend: {}, countries: {}, refs: {}, from: {}, to: {} }, B.stopInfo[id] || {}));
     }
-    return json({ id, days, riders: riders.size, trend, countries, refs, from, to });
+    return json(Object.assign({}, B.summary, { riders: B.riders }));
   }
   if (route === "live") {
     const since = Math.max(parseInt(url.searchParams.get("since") || "0", 10) || 0, Date.now() - 15 * 60e3);
@@ -321,20 +354,6 @@ async function handleApi(url, env) {
     const d = downloads(sh, days);
     d.errors = Object.fromEntries(Object.entries(sh).filter(([k]) => k.endsWith("Error")));
     return json(d);
-  }
-  if (route === "riders") {
-    const ev = await loadEvents(env, days);
-    const by = new Map();
-    for (const e of ev) {
-      const r = by.get(e.ih) || { id: e.ih, first: e.ts, last: e.ts, visits: 0, clicks: 0, stops: new Set(), hosts: new Set(), lastStop: null, country: null, dev: null };
-      r.last = e.ts; if (VISIT(e)) { r.visits++; r.stops.add(e.stop); r.lastStop = e.stop; } if (e.type === "click") r.clicks++; if (e.host) r.hosts.add(e.host);
-      if (e.country) r.country = e.country; if (e.dev) r.dev = e.dev;
-      by.set(e.ih, r);
-    }
-    const sess = {}; for (const s of sessionsOf(ev)) sess[s.ih] = (sess[s.ih] || 0) + 1;
-    const list = [...by.values()].map(r => ({ id: r.id, first: r.first, last: r.last, visits: r.visits, clicks: r.clicks, stops: r.stops.size, sites: r.hosts.size, sessions: sess[r.id] || 0, lastStop: r.lastStop, country: r.country, dev: r.dev }))
-      .sort((a, b) => b.last - a.last).slice(0, Math.min(parseInt(url.searchParams.get("limit") || "200", 10) || 200, 1000));
-    return json({ riders: list, days });
   }
   if (route === "rider") {
     const id = url.searchParams.get("id") || "";

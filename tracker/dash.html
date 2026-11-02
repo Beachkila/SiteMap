@@ -109,7 +109,7 @@ tr.click:hover td,tr.sel td{background:var(--panel2)}
 <body>
 <header>
   <h1>S.We.T.A. Ridership<small>private</small></h1>
-  <span id="liveTag" title="Checks for new riders every 5 seconds"><i></i><span>Live</span></span>
+  <span id="liveTag" title="Checks for new riders every 20 seconds"><i></i><span>Live</span></span>
   <span class="sp"></span>
   <label class="muted">Period <select id="days"><option value="1">24 hours</option><option value="7">7 days</option><option value="30" selected>30 days</option><option value="90">90 days</option></select></label>
   <button id="refresh">Refresh</button>
@@ -151,11 +151,13 @@ tr.click:hover td,tr.sel td{background:var(--panel2)}
     });
   }
   var getJ = function (p) { return api(p).then(function (r) { return r.json(); }); };
+  var FRESH = false;
   function days() { return $("#days").value; }
   function load() {
     $("#main").innerHTML = '<div class="empty">Loading…</div>';
-    return Promise.all([META ? META : getJ("/api/meta"), getJ("/api/summary?days=" + days()), getJ("/api/riders?days=" + days()), getJ("/api/downloads?days=" + days()).catch(function (e) { return { error: e.message }; })])
-      .then(function (a) { META = a[0]; SUM = a[1]; RIDERS = a[2].riders; DL = a[3]; draw(); startLive(); })
+    var fr = FRESH ? "&fresh=1" : ""; FRESH = false;
+    return Promise.all([META ? META : getJ("/api/meta"), getJ("/api/summary?days=" + days() + fr), getJ("/api/downloads?days=" + days()).catch(function (e) { return { error: e.message }; })])
+      .then(function (a) { META = a[0]; SUM = a[1]; RIDERS = SUM.riders || []; DL = a[2]; draw(); startLive(); })
       .catch(function (e) { if (e.code === 401) login(); else $("#main").innerHTML = '<div class="empty err">Could not load: ' + esc(e.message) + "</div>"; });
   }
   function login(msg) {
@@ -377,7 +379,7 @@ tr.click:hover td,tr.sel td{background:var(--panel2)}
 
   // ---------- live ----------
   var LIVE = { since: Date.now() - 10 * 60e3, timer: null, first: true };
-  function startLive() { if (LIVE.timer) return; poll(); LIVE.timer = setInterval(function () { if (!document.hidden) poll(); }, 5000); }
+  function startLive() { if (LIVE.timer) return; poll(); LIVE.timer = setInterval(function () { if (!document.hidden) poll(); }, 20000); }
   function poll() {
     getJ("/api/live?since=" + LIVE.since).then(function (d) {
       $("#liveTag").classList.add("on"); $("#liveTag span").textContent = d.active + " riding now";
@@ -636,7 +638,7 @@ tr.click:hover td,tr.sel td{background:var(--panel2)}
       var a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = "sweta-events." + fmt; document.body.appendChild(a); a.click(); a.remove();
     }).catch(function (e) { var b = $("#" + fmt); if (b) { b.textContent = "Export failed"; setTimeout(function () { b.textContent = "Export " + fmt.toUpperCase(); }, 2500); } });
   }
-  $("#refresh").onclick = load; $("#days").onchange = load;
+  $("#refresh").onclick = function () { FRESH = true; load(); }; $("#days").onchange = load;
   $("#csv").onclick = function () { download("csv"); }; $("#json").onclick = function () { download("json"); };
   load();
 })();

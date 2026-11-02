@@ -6,6 +6,9 @@
   },
   "bp-ai-station": {
    "note": "Multi LLM progressive workload model"
+  },
+  "bp-bang": {
+   "note": "Project published as Bang!"
   }
  }
 }

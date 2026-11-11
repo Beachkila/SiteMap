@@ -7,11 +7,12 @@ const RETAIN_DAYS = 90;
 const SESSION_GAP = 30 * 60 * 1000;
 const SHEET_TTL = 10 * 60 * 1000;
 const TYPES = new Set(["view", "station", "click"]);
-const SRCS = new Set(["strip", "map"]);
+const SRCS = new Set(["strip", "map", "beacon"]); // beacon: a page counted without the strip (IDLA)
 const BOT = /bot|crawl|spider|headless|lighthouse|preview|facebookexternalhit|slurp|python-requests|curl\//i;
 const DEFAULT_ORIGINS = ["https://studiowetware.com", "https://www.studiowetware.com", "https://network.studiowetware.com",
   "https://smallworks.studiowetware.com", "https://beachselfgrading.com", "https://www.beachselfgrading.com",
-  "https://tag.beachselfgrading.com", "https://board.studiowetware.com", "https://beachkila.github.io"];
+  "https://tag.beachselfgrading.com", "https://board.studiowetware.com", "https://beachkila.github.io",
+  "https://idla.studiowetware.com"];
 
 // Which map stop each sheet row belongs to.
 const DL_STOP = { tags: { Tags: "create", TCN: "n_tags", ACEO: "SMW" }, tcn: { Negatives: "n_neg", CMYK: "n_cmyk", Enlarger: "n_enl", "Gallery Bench": "n_bench" } };

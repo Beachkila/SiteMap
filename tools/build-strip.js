@@ -7,6 +7,7 @@ const dark = html.match(/:root:not\(\[data-theme="light"\]\)\{[^}]*\}/)[0];
 const vars = {};
 for (const m of css.matchAll(/--([a-z]+):(#[0-9A-Fa-f]{6})/g)) vars[m[1]] = m[2];
 const b = dark.match(/--brown:(#[0-9A-Fa-f]{6})/); if (b) vars.brown = b[1]; // the strip is always dark
+const wv = dark.match(/--white:(#[0-9A-Fa-f]{6})/); if (wv) vars.white = wv[1];
 const start = html.indexOf('const SW="https');
 const end = html.indexOf("const SITES=");
 const code = html.slice(start, end) + "\nreturn {S,L,LINKS,LAYOUT};";
@@ -39,7 +40,7 @@ for (const [id, s] of Object.entries(S)) {
   if (s.live) a.push(s.live);
   if (a.length) stations[id].a = a;
 }
-const KEY = { red: "P", orange: "S", blue: "N", teal: "S", green: "G", purple: "G", brown: "B", yellow: "B", gray: "A", writeups: "W" };
+const KEY = { red: "P", orange: "S", blue: "N", teal: "S", green: "G", purple: "G", brown: "B", yellow: "B", gray: "A", writeups: "W", white: "I" };
 const lines = L.map(l => ({ id: l.id, n: l.n, k: KEY[l.id] || l.n[0], c: vars[l.c.replace("--", "")], dash: l.dash ? 1 : 0,
   b: l.b.map(br => br.filter(x => !x.startsWith("@") && !x.startsWith("~"))) }));
 const cfgPath = path.join(__dirname, "..", "tracker", "config.json");

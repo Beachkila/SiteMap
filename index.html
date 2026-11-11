@@ -20,10 +20,10 @@ html,body{margin:0}
   --bg:#ffffff; --board:#fbfbf8; --ink:#1b1c1e; --muted:#62656b; --rule:#dcdcd6; --stn:#ffffff; --shade:rgba(20,20,20,.18);
   --display:"Overpass","Helvetica Neue",Arial,sans-serif;
   --mono:"Overpass Mono",ui-monospace,Menlo,monospace;
-  --red:#E3242B; --orange:#F28C28; --yellow:#F2BF00; --green:#00964A; --blue:#0072CE; --purple:#7B2D8E; --brown:#8C5A2B; --teal:#00A19C; --pink:#D6459B; --gray:#8A8D91; --focus:#0072CE; --here:#E3242B;--was:#1E9E55;
+  --red:#E3242B; --orange:#F28C28; --yellow:#F2BF00; --green:#00964A; --blue:#0072CE; --purple:#7B2D8E; --brown:#8C5A2B; --teal:#00A19C; --pink:#D6459B; --gray:#8A8D91; --white:#BFC2C6; --focus:#0072CE; --here:#E3242B;--was:#1E9E55;
 }
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#121314;--board:#17181a;--ink:#ececE8;--muted:#a3a6ab;--rule:#2d2f32;--stn:#17181a;--brown:#B07A45;--shade:rgba(0,0,0,.5);color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#121314;--board:#17181a;--ink:#ececE8;--muted:#a3a6ab;--rule:#2d2f32;--stn:#17181a;--brown:#B07A45;--shade:rgba(0,0,0,.5);color-scheme:dark}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#121314;--board:#17181a;--ink:#ececE8;--muted:#a3a6ab;--rule:#2d2f32;--stn:#17181a;--brown:#B07A45;--white:#F2F2EE;--shade:rgba(0,0,0,.5);color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#121314;--board:#17181a;--ink:#ececE8;--muted:#a3a6ab;--rule:#2d2f32;--stn:#17181a;--brown:#B07A45;--white:#F2F2EE;--shade:rgba(0,0,0,.5);color-scheme:dark}
 [hidden]{display:none!important}
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 html,body{height:100%;height:100dvh}
@@ -200,6 +200,7 @@ const S={
  n_mine:{n:"Profile",u:NETU+"/#/mine",site:"net",img:null},
  n_learn:{n:"Learn",u:NETU+"/",nm:1,site:"net",img:null},
  SMW:{n:"Small Works",u:"https://smallworks.studiowetware.com/",pages:1,hub:1,dom:"smallworks.studiowetware.com",site:"smw",img:null},
+ IDLA:{n:"IDLA",u:"https://idla.studiowetware.com/",pages:1,hub:1,dom:"idla.studiowetware.com",site:"idla",img:null},
  gitbeach:{n:"GitBeach",u:SW+"/gitbeach/",site:"sw",img:null},
  picam:{n:"Pi-Cam-IR-A",u:SW+"/pi-cam-ir-a/",site:"sw",img:"i0/2026/08/img_6445.jpg"},
  atlas:{n:"Atlas",u:SW+"/atlas/",site:"sw",img:"i0/2026/09/image-6.jpg"},
@@ -254,6 +255,7 @@ const L=[
  {id:"blue",n:"The Cyanotype Network",c:"--blue",b:[["SW","@blT","NET","n_feed","n_neg","n_cmyk","n_enl","n_forecast","@bT","n_bench","n_tags","n_mine","n_learn"]]},
  {id:"writeups",n:"Tool write-ups",c:"--pink",b:[["SW","@wA","netpage","solat","cmyk","enlarger","sunprint"]]},
  {id:"teal",n:"Small Works",c:"--teal",b:[["SW","@te","SMW"]]},
+ {id:"white",n:"IDLA",c:"--white",b:[["SW","@wh","IDLA"]]},
  {id:"green",n:"All Galleries",c:"--green",b:[["SW","@gr","galleries","cyanogal","lino","pendergal","irgal","@gr2","neggal","digigal","ui","undisc"]]},
  {id:"purple",n:"GitBeach",c:"--purple",b:[["SW","here","gitbeach","@puB","picam","atlas","blackbox","bucke","pender","bang","potholes","planes","githoods"]]},
  {id:"brown",n:"Board",c:"--brown",b:[["gitbeach","@brA","board"],["board","mediums","stack","pimaker"],["board","@brP",...PROJ.slice(0,8),"@brU",...PROJ.slice(9)]]},
@@ -318,6 +320,7 @@ const LAYOUT={
    "SW":[500,400],
    "about":[500,320,"t"],
    "SMW":[390,374],
+   "IDLA":[315,800],
    "BSG":[300,300],
    "whatis":[260,235,"r"],
    "bsggal":[260,185,"r"],
@@ -354,10 +357,10 @@ const LAYOUT={
    "bp-the-cyanotype-network":[470,855,"dl"]},
   lr:{},
   eb:{"process>thinkneg":[[792,336],[849,279]],"salt>light":[[1069,279],[1129,219]],"light>seepos":[[1259,219],[1299,179]],"sbs>step1":[[799,353],[856,296]],"step1>step2":[[1076,296]],"step2>step3":[[1136,236]],"step3>step4":[[1266,236],[1316,186]],"NET>n_feed":[[800,400]],"n_feed>n_neg":[[870,330]],"n_cmyk>n_enl":[[1090,330],[1150,270]],"n_forecast>n_bench":[[1280,270],[1350,200]],"netpage>solat":[[806,370],[863,313]],"cmyk>enlarger":[[1083,313],[1143,253]],"atlas>blackbox":[[700,657],[740,697]],"bang>potholes":[[1010,697]],"potholes>planes":[[1050,657]],"bp-atlas>bp-black-box":[[707,640],[747,680]],"bp-bang>bp-plane-spotter":[[1003,680],[1043,640]],"create>bsggal":[[330,250],[290,210]],"whatis>contact":[[240,330],[200,290]],"lino>pendergal":[[240,455],[200,495]],"digigal>ui":[[210,645],[250,685]],"stack>pimaker":[[740,610],[775,575]],"bp-ink-drawer>bp-redditprofiler":[[820,830],[795,855]]},
-  bend:{"rT":[],"oT":[],"bT":[],"rR":[[564,336]],"oR":[[547,353]],"wA":[[530,370]],"blT":[],"yb":[[400,300]],"gr":[[445,455]],"gr2":[[65,495],[35,525],[35,615],[65,645]],"te":[[488,412],[450,374]],"puB":[[500,657]],"brA":[[517,592]],"brP":[[517,640]],"brU":[[1250,640],[1295,685],[1295,785],[1250,830]]},
+  bend:{"rT":[],"oT":[],"bT":[],"rR":[[564,336]],"oR":[[547,353]],"wA":[[530,370]],"blT":[],"yb":[[400,300]],"gr":[[445,455]],"gr2":[[65,495],[35,525],[35,615],[65,645]],"te":[[488,412],[450,374]],"wh":[[485,415],[485,470],[315,640]],"puB":[[500,657]],"brA":[[517,592]],"brP":[[517,640]],"brU":[[1250,640],[1295,685],[1295,785],[1250,830]]},
   gs:{"net":"ur","neg":"dr","cmyk":"dr","enl":"dr","uv":"dr","g_picam":"dr","g_atlas":"dr","g_blackbox":"dr","g_bucke":"dr","g_pender":"dr","g_bang":"dr","g_planes":"dr","g_githoods":"dr"},
   ga:{"net":"netpage"},
-  h:{"SW":{"n":[0,40,"middle"]},"SMW":{"n":[0,40,"middle"]},"BSG":{"n":[0,40,"middle"]},"NET":{"n":[0,40,"middle"]},"board":{"n":[-18,34,"end"]}},
+  h:{"SW":{"n":[0,40,"middle"]},"SMW":{"n":[0,40,"middle"]},"IDLA":{"n":[0,40,"middle"]},"BSG":{"n":[0,40,"middle"]},"NET":{"n":[0,40,"middle"]},"board":{"n":[-18,34,"end"]}},
   proj:i=>[635+i*50,865,"dr"]
  },
  tall:{
@@ -406,6 +409,7 @@ const LAYOUT={
    "SW":[470,820],
    "about":[540,890,"r"],
    "SMW":[270,820],
+   "IDLA":[236,1229],
    "BSG":[270,740],
    "whatis":[230,700,"l"],
    "bsggal":[230,655,"l"],
@@ -442,15 +446,15 @@ const LAYOUT={
    "bp-the-cyanotype-network":[720,1096,"r"]},
   lr:{},
   eb:{"process>thinkneg":[[470,594],[510,554]],"salt>light":[[510,396],[470,356]],"light>seepos":[[470,164],[510,124]],"sbs>step1":[[487,601],[527,561]],"step2>step3":[[527,389],[487,349]],"step3>step4":[[487,171],[527,131]],"NET>n_feed":[[700,820]],"n_feed>n_neg":[[700,684]],"n_cmyk>n_enl":[[561,375],[521,335]],"n_forecast>n_bench":[[521,185],[561,145]],"netpage>solat":[[504,608],[544,568]],"cmyk>enlarger":[[544,382],[504,342]],"bucke>pender":[[470,1335],[510,1375]],"bp-buck-e>bp-pender":[[487,1328],[527,1368]],"create>bsggal":[[300,685],[260,645]],"whatis>contact":[[215,760],[180,720]],"lino>pendergal":[[200,890],[170,920]],"digigal>ui":[]},
-  bend:{"rT":[],"oT":[],"bT":[],"rR":[],"oR":[[487,803]],"wA":[[504,786]],"blT":[],"yb":[[390,740]],"gr":[[400,890]],"gr2":[[45,920],[15,950],[15,1020],[45,1050]],"te":[],"puB":[],"brA":[[487,1067]],"brP":[],"brU":[[527,1620],[560,1648],[680,1648],[720,1608]]},
+  bend:{"rT":[],"oT":[],"bT":[],"rR":[],"oR":[[487,803]],"wA":[[504,786]],"blT":[],"yb":[[390,740]],"gr":[[400,890]],"gr2":[[45,920],[15,950],[15,1020],[45,1050]],"te":[],"wh":[[445,845],[445,895],[425,915],[425,1040]],"puB":[],"brA":[[487,1067]],"brP":[],"brU":[[527,1620],[560,1648],[680,1648],[720,1608]]},
   gs:{"net":"r","neg":"r","cmyk":"r","enl":"r","uv":"r","g_picam":"r","g_atlas":"r","g_blackbox":"r","g_bucke":"r","g_pender":"r","g_bang":"r","g_planes":"r","g_githoods":"r"},
   ga:{"g_picam":"bp-pi-cam-ir-a","g_atlas":"bp-atlas","g_blackbox":"bp-black-box","g_bucke":"bp-buck-e","g_pender":"bp-pender","g_bang":"bp-bang","g_planes":"bp-plane-spotter","g_githoods":"bp-githoods"},
-  h:{"SW":{"n":[-35,-15,"end"],"d":[-45,-32]},"SMW":{"n":[0,30,"middle"],"d":[0,46]},"BSG":{"n":[10,28,"start"],"d":[10,44]},"board":{"n":[-14,6,"end"]}},
+  h:{"SW":{"n":[-35,-15,"end"],"d":[-45,-32]},"SMW":{"n":[0,30,"middle"],"d":[0,46]},"IDLA":{"n":[0,30,"middle"],"d":[0,46]},"BSG":{"n":[10,28,"start"],"d":[10,44]},"board":{"n":[-14,6,"end"]}},
   proj:i=>[600,750+i*55,"r"]
  }
 };
 for(const k in LAYOUT)PROJ.forEach((id,i)=>{if(!LAYOUT[k].p[id])LAYOUT[k].p[id]=LAYOUT[k].proj(i)});
-const SITES={sw:"studiowetware.com",net:"The Cyanotype Network",smw:"Small Works",bsg:"Beach Self-Grading",board:"Project Board",gh:"GitHub Pages"};
+const SITES={sw:"studiowetware.com",net:"The Cyanotype Network",smw:"Small Works",idla:"IDLA",bsg:"Beach Self-Grading",board:"Project Board",gh:"GitHub Pages"};
 
 function imgURL(s){
   if(s.imgX)return new URL(s.imgX,location.href).href;
@@ -488,7 +492,7 @@ function bounds(){let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;for(const id in S){const p=P
 
 // ---------- label measuring ----------
 const mctx=document.createElement("canvas").getContext("2d");
-const HUBICON={"SW": ["icons/studio-wetware.png", "#000"], "BSG": ["icons/beach-self-grading.png", "#000"], "SMW": ["icons/small-works.png", "#000"], "NET": ["icons/cyanotype-network.png", "#17355c"], "here": ["icons/sweta.png", "#000"]};const FS={stop:15,hub:18,dom:12,ov:13};
+const HUBICON={"SW": ["icons/studio-wetware.png", "#000"], "BSG": ["icons/beach-self-grading.png", "#000"], "SMW": ["icons/small-works.png", "#000"], "IDLA": ["icons/idla.png", "#000"], "NET": ["icons/cyanotype-network.png", "#17355c"], "here": ["icons/sweta.png", "#000"]};const FS={stop:15,hub:18,dom:12,ov:13};
 function tw(text,kind){mctx.font=kind==="dom"?`400 ${FS.dom}px "Overpass Mono", monospace`:kind==="hub"?`800 ${FS.hub}px Overpass, Arial`:kind==="ov"?`800 ${FS.ov}px Overpass, Arial`:`600 ${FS.stop}px Overpass, Arial`;return mctx.measureText(text).width}
 
 // ---------- render ----------
@@ -500,7 +504,7 @@ let FROM=null;
     if(f&&S[f]){FROM=f}
     else if(document.referrer){
       const u=new URL(document.referrer),h=u.hostname.replace(/^www\./,""),cut=x=>x.replace(/[#?].*$/,"").replace(/\/+$/,"");
-      const hub={"studiowetware.com":"SW","network.studiowetware.com":"NET","beachselfgrading.com":"BSG","smallworks.studiowetware.com":"SMW","board.studiowetware.com":"board"};
+      const hub={"studiowetware.com":"SW","network.studiowetware.com":"NET","beachselfgrading.com":"BSG","smallworks.studiowetware.com":"SMW","idla.studiowetware.com":"IDLA","board.studiowetware.com":"board"};
       const hit=Object.keys(S).find(id=>S[id].u&&!S[id].nm&&id!=="here"&&cut(S[id].u)===cut(u.origin+u.pathname));
       FROM=hit||hub[h]||null;
     }
@@ -528,13 +532,13 @@ let hereBoxes=[];
 function hereTag(p,rr,k,g,txt0,cls0,fill0){
   if(p[0]<vb.x||p[0]>vb.x+vb.w||p[1]<vb.y||p[1]>vb.y+vb.h)return; // stop is off screen
   const txt=txt0||"You are here",fs=13*k,w=tw(txt,"stop")*13/15*k+20*k,h=24*k,gap=8*k;
-  const m=8*k,side=lay==="tall"; // portrait: the stop sits on a vertical line, so the tag goes to its left
-  const x=side?p[0]-rr-gap-w-6*k:Math.min(Math.max(p[0]-w/2,vb.x+m),vb.x+vb.w-w-m),y=side?p[1]-h/2:p[1]-rr-gap-h-6*k;
+  const m=8*k,side=lay==="tall"; // portrait: the stop sits on a vertical line, so the tag goes to its right
+  const x=side?p[0]+rr+gap+6*k:Math.min(Math.max(p[0]-w/2,vb.x+m),vb.x+vb.w-w-m),y=side?p[1]-h/2:p[1]-rr-gap-h-6*k;
   const t=el("g",{class:cls0||"tag-here"},g);
   el("rect",{x,y,width:w,height:h,rx:h/2},t);
-  el("path",{d:side?`M${x+w-1} ${p[1]-5*k} L${x+w+6*k} ${p[1]} L${x+w-1} ${p[1]+5*k}Z`:`M${p[0]-5*k} ${y+h-1} L${p[0]} ${y+h+6*k} L${p[0]+5*k} ${y+h-1}Z`,fill:col(fill0||"--here")},t);
+  el("path",{d:side?`M${x+1} ${p[1]-5*k} L${x-6*k} ${p[1]} L${x+1} ${p[1]+5*k}Z`:`M${p[0]-5*k} ${y+h-1} L${p[0]} ${y+h+6*k} L${p[0]+5*k} ${y+h-1}Z`,fill:col(fill0||"--here")},t);
   const tx=el("text",{x:x+w/2,y:y+h/2+fs*.36,"text-anchor":"middle","font-size":fs},t);tx.textContent=txt;
-  hereBoxes.push({x0:x,y0:y,x1:x+w+6*k,y1:y+h+6*k});
+  hereBoxes.push({x0:side?x-6*k:x,y0:y,x1:x+w+6*k,y1:y+h+6*k});
 }
 function render(){
   const k=kNow(),zs=Math.min(1,Math.max(.45,1.7/k));
@@ -621,7 +625,7 @@ function render(){
     if(!best)return;PL.push(...best.parts);let a=Math.atan2(best.uy,best.ux)*180/Math.PI;if(a>90)a-=180;if(a<=-90)a+=180;const {cx,cy}=best;
     const g=el("g",{transform:`rotate(${a} ${cx} ${cy})`,opacity:dim?.2:1,"pointer-events":"none"},gO);
     el("rect",{x:cx-w/2,y:cy-h/2,width:w,height:h,rx:h/2,fill:col(l.c),stroke:col("--stn"),"stroke-width":1.5*k},g);
-    const tx=el("text",{x:cx,y:cy+fs*.36,"text-anchor":"middle","font-size":fs,"font-weight":800,"letter-spacing":.5*k,fill:"#fff","font-family":"Overpass, Arial, sans-serif"},g);tx.textContent=txt})}
+    const tx=el("text",{x:cx,y:cy+fs*.36,"text-anchor":"middle","font-size":fs,"font-weight":800,"letter-spacing":.5*k,fill:l.id==="white"?"#121314":"#fff","font-family":"Overpass, Arial, sans-serif"},g);tx.textContent=txt})}
   else  {const OB=[...obst,...placed],PL=[],fs=10*k,h=14*k,m=2.5*k;
    if(SHOWSTOPS)for(const id in S){const p=P(id);if(!p||!p[3])continue;const G=GM[id];if(G&&((LAYOUT[lay].ga||{})[G.id]||G.a)!==id)continue;const sd=(G?LAYOUT[lay].gs[G.id]:p[2])||"r",v={r:[1,0],l:[-1,0],t:[0,-1],b:[0,1],ur:[.7071,-.7071],dr:[.7071,.7071],dl:[-.7071,.7071]}[sd]||[1,0],tl=p[3]+9*k;
      for(let d=0;d<=tl;d+=3*k)OB.push({x0:p[0]+v[0]*d-1.5*k,x1:p[0]+v[0]*d+1.5*k,y0:p[1]+v[1]*d-1.5*k,y1:p[1]+v[1]*d+1.5*k})}
@@ -638,7 +642,7 @@ function render(){
             let a=Math.atan2(uy,ux)*180/Math.PI;if(a>90)a-=180;if(a<=-90)a+=180;
             const g=el("g",{transform:`rotate(${a} ${cx} ${cy})`,opacity:dim?.2:1,"pointer-events":"none"},gP);
             el("rect",{x:cx-w/2,y:cy-h/2,width:w,height:h,rx:h/2,fill:col(l.c)},g);
-            const tx=el("text",{x:cx,y:cy+fs*.36,"text-anchor":"middle","font-size":fs,"font-weight":800,"letter-spacing":.5*k,fill:"#fff","font-family":"Overpass, Arial, sans-serif"},g);tx.textContent=txt;break}}}}})})}
+            const tx=el("text",{x:cx,y:cy+fs*.36,"text-anchor":"middle","font-size":fs,"font-weight":800,"letter-spacing":.5*k,fill:l.id==="white"?"#121314":"#fff","font-family":"Overpass, Arial, sans-serif"},g);tx.textContent=txt;break}}}}})})}
   drawMini();
 }
 function labelCands(id,s,p,rpx,k,dim,onF){

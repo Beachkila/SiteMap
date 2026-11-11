@@ -228,7 +228,7 @@
     return before(id, 0).concat(after(id, 0));
   }
   var linesOf = function (sid) { return LINES.filter(function (l) { return l.b.some(function (br) { return br.indexOf(sid) > -1; }); }); };
-  var textOn = function (c) { return c === "#F2BF00" ? "#121314" : "#fff"; };
+  var textOn = function (c) { return c === "#F2BF00" || c === "#F2F2EE" ? "#121314" : "#fff"; };
 
   // One line drawn as a station diagram: the first branch is the trunk, later branches fork off the stop they start from.
   function lineHTML(l, id) {
@@ -313,7 +313,7 @@
           : '<a class="st" data-to="' + sid + '" data-dot href="' + esc(hand(S[sid].u)) + '" style="left:' + px(k) + 'px" aria-label="' + esc(S[sid].n) + '"><span class="dot"></span></a>';
       }).join("");
       var prev = seq[i - 1], nxt = seq[i + 1];
-      var light = m.line.c === "#F2BF00";
+      var light = m.line.c === "#F2BF00" || m.line.c === "#F2F2EE";
       html = '<div class="row"><button type="button" class="open" data-open aria-label="Show every stop on the ' + esc(m.line.n) + ' line"><span class="badge" style="background:' + m.line.c + ";color:" + (light ? "#121314" : "#fff") + '">' + esc(m.line.k) + '</span><span class="lname">' + esc(m.line.n) + ' line</span><span class="chev">▾</span></button><span class="sp"></span><button type="button" class="map" data-open>MAP</button></div>' +
         '<div class="tw"><div class="track" style="width:' + tw + 'px"><div class="bar" style="background:' + m.line.c + '"></div>' + stops +
         (i > 0 ? '<span class="tl ed" data-x="' + px(0) + '">' + a(seq[0]) + "</span>" : "") +
@@ -532,7 +532,7 @@
       var st = allStops(l), n = st.length, cap = 14, shown = n > cap ? st.slice(0, cap - 1) : st, k = shown.length;
       var dots = shown.map(function (sid, i) { return '<i class="' + (sid === id ? "me" : "") + '" style="left:' + (k === 1 ? 50 : 4 + i * (n > cap ? 84 : 92) / (k - 1)) + '%"></i>'; }).join("") + (n > cap ? "<em>+" + (n - k) + "</em>" : "");
       var f = firstStop(l);
-      return '<a class="row' + (l.id === lineId ? " on" : "") + '" data-to="' + f + '" href="' + esc(hand(S[f].u)) + '"><span class="bd" style="background:' + l.c + ";color:" + (l.c === "#F2BF00" ? "#121314" : "#fff") + '">' + esc(l.k) + '</span><span class="mid"><span class="nm">' + esc(l.n) + '</span><span class="rail"><b style="background:' + l.c + '"></b>' + dots + '</span></span><span class="cnt">' + n + ' stops</span><span class="go">›</span></a>';
+      return '<a class="row' + (l.id === lineId ? " on" : "") + '" data-to="' + f + '" href="' + esc(hand(S[f].u)) + '"><span class="bd" style="background:' + l.c + ";color:" + textOn(l.c) + '">' + esc(l.k) + '</span><span class="mid"><span class="nm">' + esc(l.n) + '</span><span class="rail"><b style="background:' + l.c + '"></b>' + dots + '</span></span><span class="cnt">' + n + ' stops</span><span class="go">›</span></a>';
     }).join("");
     return '<div class="hd"><span class="seal" style="background-image:url(' + SEAL + ')"></span><div class="hn">S.We.T.A. Lines' + (where ? "<small>" + where + "</small>" : "") + '</div><button type="button" class="x" data-close aria-label="Close">×</button></div>' +
       '<nav aria-label="S.We.T.A. lines">' + rows + "</nav>" +

@@ -43,3 +43,11 @@ A Cloudflare Worker with a D1 database. The strip and the map send one small mes
 D1's free plan allows 5 million row reads a day. The dashboard now reads the rides once per period and keeps the result for 10 minutes (the `cache` table); Refresh forces a new read at most once a minute. New vs returning riders come from a small `riders` table instead of a full scan, and the live view checks every 20 seconds.
 1. D1 console: run the contents of `migrate-reads.sql` once (adds `riders` and `cache`, and fills `riders` from the rides already stored).
 2. Paste the new `worker.js` and deploy.
+
+## Update: periods, saved history and bot counts (November 2026)
+- Periods: 24 hours (by hour), 7 and 30 days (by Pacific day), 1 year (by week), each compared with the period before.
+- Every finished Pacific day is saved as one row of totals in `rollup` and kept for good. The rider keys inside a row are removed once the day is older than 90 days. The year view reads these rows. Riders get a `last` seen time so the year can count unique riders.
+- Bots that run the page script are counted by hour, type and name in `bots`. Do Not Track and Global Privacy Control visitors are still not counted at all.
+1. D1 console: run the contents of `migrate-history.sql` once.
+2. Apps Script: paste the new `apps-script/tags-read.gs` and `apps-script/tcn-read.gs` over the old ones (keep your key in place of the placeholder), then Deploy > Manage deployments > edit > New version. The web app URLs stay the same.
+3. Paste the new `worker.js` and deploy. Missing days are saved a few at a time when the dashboard loads, and up to a month at a time by the nightly cron.

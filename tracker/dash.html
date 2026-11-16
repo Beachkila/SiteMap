@@ -82,15 +82,23 @@ tr.click:hover td,tr.sel td{background:var(--panel2)}
 .cols{display:flex;align-items:flex-end;gap:3px;height:120px;padding:8px 0 0}
 .cols div{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;height:100%;justify-content:flex-end}
 .cols i{display:block;width:100%;background:var(--accent);border-radius:3px 3px 0 0;min-height:1px}
-.cols span{font-size:10px;color:var(--muted);font-family:var(--mono)}
+.cols span{white-space:nowrap;font-size:10px;color:var(--muted);font-family:var(--mono)}
 .stack{display:flex;height:22px;border-radius:6px;overflow:hidden;margin:6px 0}
 .stack i{display:block;height:100%}
 .keys{display:flex;flex-wrap:wrap;gap:10px;font-size:12px;color:var(--muted)}
 .keys span{display:flex;align-items:center;gap:5px}
 .keys b{width:10px;height:10px;border-radius:3px;display:inline-block}
-.world{height:440px;background:#0d0d0c}
+.world{height:440px;background:#d6d1c6}
 .world svg{width:100%;height:100%;display:block}
-.world path{stroke:#0d0d0c;stroke-width:.5}
+.world .empty{color:#6a655c}
+.steps{display:flex;gap:4px;font:11px var(--mono);color:var(--muted)}
+.steps span{flex:1;display:flex;flex-direction:column;gap:4px}
+.steps span:first-child{flex:0 0 56px}
+.steps i{display:block;height:10px;border-radius:2px}
+.colsx{display:flex;gap:3px;height:120px;align-items:flex-end;padding-top:8px;border-bottom:1px solid var(--rule)}
+.colsx i{flex:1;display:block;border-radius:3px 3px 0 0}
+.axis{display:flex;gap:3px;margin-top:5px}
+.axis span{flex:1;min-width:0;text-align:center;white-space:nowrap;font-size:10px;color:var(--muted);font-family:var(--mono)}
 .tl{padding:8px 12px 12px}
 .tl .sess{margin:10px 0 4px;font-weight:700;font-size:12px;color:var(--accent);font-family:var(--mono);display:flex;gap:8px;align-items:center}
 .tl .ev{display:grid;grid-template-columns:96px 1fr;gap:8px;padding:3px 0 3px 12px;border-left:2px solid var(--rule);font-size:13px}
@@ -103,6 +111,30 @@ tr.click:hover td,tr.sel td{background:var(--panel2)}
 #login{max-width:420px;margin:60px auto;padding:20px;background:var(--panel);border:1px solid var(--rule);border-radius:10px}
 #login input{width:100%;margin:10px 0}
 .tip{position:fixed;pointer-events:none;background:#000;border:1px solid var(--rule);border-radius:6px;padding:4px 8px;font-size:12px;z-index:9;display:none}
+.note{background:var(--panel);border:1px solid var(--rule);border-left:3px solid var(--accent);border-radius:8px;padding:8px 12px;margin-bottom:16px;font-size:13px;color:var(--muted)}
+.card .vs{display:block;font-size:11px;color:var(--muted);margin-top:2px;font-family:var(--mono)}
+.mapwrap.full{position:fixed;inset:0;height:auto;z-index:30}
+.fullbtn{position:absolute;left:10px;top:10px;padding:5px 10px;font-size:13px}
+.phonemap .mapwrap{height:300px}
+.phonemap .legend{display:none}
+.phonemap .mapwrap.full .legend{display:block}
+details.opts summary{padding:8px 12px;cursor:pointer;color:var(--muted);font-size:13px;border-bottom:1px solid var(--rule)}
+@media(max-width:700px){
+  header{padding:10px 12px;gap:8px}
+  header h1{width:100%}
+  header .sp{display:none}
+  #csv,#json{display:none}
+  nav{padding:4px 8px 0;scrollbar-width:none}
+  nav button{padding:8px 10px}
+  main{padding:10px}
+  .cards{grid-template-columns:repeat(2,1fr);gap:8px}
+  .card b{font-size:20px}
+  .grid2{grid-template-columns:1fr}
+  th,td{padding:6px 7px}
+  .kv{grid-template-columns:repeat(2,1fr)}
+  .world{height:260px}
+  .tl .ev{grid-template-columns:70px 1fr}
+}
 .swatch{display:inline-block;width:14px;height:14px;border-radius:3px;border:1px solid var(--rule);vertical-align:-2px;margin-right:6px}
 </style>
 </head>
@@ -111,7 +143,7 @@ tr.click:hover td,tr.sel td{background:var(--panel2)}
   <h1>S.We.T.A. Ridership<small>private</small></h1>
   <span id="liveTag" title="Checks for new riders every 20 seconds"><i></i><span>Live</span></span>
   <span class="sp"></span>
-  <label class="muted">Period <select id="days"><option value="1">24 hours</option><option value="7">7 days</option><option value="30" selected>30 days</option><option value="90">90 days</option></select></label>
+  <label class="muted">Period <select id="days"><option value="1">24 hours</option><option value="7">7 days</option><option value="30" selected>30 days</option><option value="365">1 year</option></select></label>
   <button id="refresh">Refresh</button>
   <button id="csv">Export CSV</button>
   <button id="json">Export JSON</button>
@@ -153,6 +185,26 @@ tr.click:hover td,tr.sel td{background:var(--panel2)}
   var getJ = function (p) { return api(p).then(function (r) { return r.json(); }); };
   var FRESH = false;
   function days() { return $("#days").value; }
+  try { var dsv = localStorage.getItem("swt_dash_days"); if (dsv && $("#days").querySelector('option[value="' + dsv + '"]')) $("#days").value = dsv; } catch (e) {}
+  var PHONE = window.matchMedia("(max-width:700px)");
+  var isPhone = function () { return PHONE.matches; };
+  if (PHONE.addEventListener) PHONE.addEventListener("change", function () { draw(); });
+  var UNIT = function () { return (SUM && SUM.unit) || "day"; };
+  var PERIOD = function () { return { 1: "24 hours", 7: "7 days", 30: "30 days", 365: "year" }[SUM && SUM.days] || (SUM ? SUM.days + " days" : ""); };
+  var MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  var dayLbl = function (d) { var p = d.slice(0, 10).split("-"); return MON[+p[1] - 1] + " " + (+p[2]); };
+  var hName = function (h) { return h === 0 ? "12a" : h < 12 ? h + "a" : h === 12 ? "12p" : (h - 12) + "p"; };
+  var hourLbl = function (k) { return hName(+k.slice(11, 13)); };
+  var keyLbl = function (k) { return UNIT() === "hour" ? hourLbl(k) : dayLbl(k); };
+  var keyLong = function (k) { return UNIT() === "hour" ? dayLbl(k) + " " + hourLbl(k) + " PT" : UNIT() === "week" ? "Week of " + dayLbl(k) + ", " + k.slice(0, 4) : dayLbl(k) + ", " + k.slice(0, 4); };
+  // change against the period before
+  function delta(now, before, note) {
+    if (before == null) return "";
+    if (!before && !now) return '<span class="vs">same as before</span>';
+    if (!before) return '<span class="vs"><span class="up">new</span> vs ' + num(0) + "</span>";
+    var c = Math.round(100 * (now - before) / before);
+    return '<span class="vs"><span class="' + (c > 0 ? "up" : c < 0 ? "down" : "") + '">' + (c > 0 ? "+" : "") + c + "%</span> vs " + num(before) + (note || "") + "</span>";
+  }
   function load() {
     $("#main").innerHTML = '<div class="empty">Loading…</div>';
     var fr = FRESH ? "&fresh=1" : ""; FRESH = false;
@@ -194,10 +246,20 @@ tr.click:hover td,tr.sel td{background:var(--panel2)}
   var fmtM = function (k, v) { var t = METRICS[k][1]; return t === "count" ? num(v) : t === "share" ? Math.round(v * 100) + "%" : (v > 0 ? "+" : "") + Math.round(v * 100) + "%"; };
 
   function cards() {
-    var t = SUM.totals, dlT = DL && !DL.error ? sum(DL.bySheet) : null;
-    var c = [["Riders", t.riders], ["New riders", t.newRiders], ["Returning", t.returningRiders], ["Trips", t.sessions], ["Stop visits", t.visits], ["Avg trip (min)", t.avgTripMin], ["Moves between stops", t.moves], ["Moves using S.We.T.A.", t.assistedMoves + ' <em class="muted">' + pct(t.assistedMoves, t.moves) + "</em>"]];
-    if (dlT != null) c.push(["Downloads", dlT]);
-    return '<div class="cards">' + c.map(function (x) { return '<div class="card"><b>' + (typeof x[1] === "number" ? num(x[1]) : x[1]) + "</b><span>" + x[0] + "</span></div>"; }).join("") + "</div>";
+    var t = SUM.totals, dlT = DL && !DL.error ? sum(DL.bySheet) : null, P = SUM.prev, part = P && P.daysCovered < P.days ? " (" + P.daysCovered + " of " + P.days + " days saved)" : "";
+    var pv = function (k) { return P ? P[k] : null; };
+    var c = [["Riders", t.riders, delta(t.riders, pv("riders"), part)], ["New riders", t.newRiders], ["Returning", t.returningRiders], ["Trips", t.sessions, delta(t.sessions, pv("sessions"), part)], ["Stop visits", t.visits, delta(t.visits, pv("visits"), part)], ["Avg trip (min)", t.avgTripMin], ["Moves between stops", t.moves], ["Moves using S.We.T.A.", t.assistedMoves + ' <em class="muted">' + pct(t.assistedMoves, t.moves) + "</em>"], ["S.We.T.A. clicks", t.clicks, delta(t.clicks, pv("clicks"), part)]];
+    if (dlT != null) c.push(["Downloads", dlT, DL.unit === "hour" && !DL.hourly ? "" : delta(dlT, DL.prev)]);
+    return yearNote() + '<div class="cards">' + c.map(function (x) { return '<div class="card"><b>' + (typeof x[1] === "number" ? num(x[1]) : x[1]) + "</b><span>" + x[0] + "</span>" + (x[2] || "") + "</div>"; }).join("") + "</div>";
+  }
+  function yearNote() {
+    var out = [];
+    if (UNIT() === "week") {
+      out.push("1 year, by week (weeks start Monday). The year fills in from " + dayLbl(SUM.firstDay || SUM.rollStart) + ", the first day with saved rides." + (SUM.firstDay && SUM.rollStart && SUM.firstDay < SUM.rollStart ? " Days before " + dayLbl(SUM.rollStart) + " only have station visits." : ""));
+      if (SUM.totals.ridersSummed) out.push("Some rider counts are added up per day, so one person riding on two days counts twice.");
+    }
+    if (SUM.prev && SUM.prev.daysCovered < SUM.prev.days) out.push("The comparison with the period before only has " + SUM.prev.daysCovered + " of " + SUM.prev.days + " days saved so far.");
+    return out.length ? '<div class="note">' + out.map(esc).join("<br>") + "</div>" : "";
   }
 
   // ---------- the dashboard's own map ----------
@@ -212,14 +274,14 @@ tr.click:hover td,tr.sel td{background:var(--panel2)}
 
   function mapBox() {
     var m = METRICS[OPT.metric];
-    return '<div class="box"><div class="tools">' +
+    return '<div class="box' + (isPhone() ? " phonemap" : "") + '">' + (isPhone() ? '<details class="opts"><summary>Map options</summary>' : "") + '<div class="tools">' +
       '<label>Show <select id="o_metric">' + Object.keys(METRICS).map(function (k) { return '<option value="' + k + '"' + (OPT.metric === k ? " selected" : "") + ">" + METRICS[k][0] + "</option>"; }).join("") + "</select></label>" +
       '<span class="seg" id="o_marks">' + [["bubbles", "Bubbles"], ["color", "Colour"], ["size", "Size"], ["off", "Off"]].map(function (x) { return '<button data-v="' + x[0] + '" class="' + (OPT.marks === x[0] ? "on" : "") + '">' + x[1] + "</button>"; }).join("") + "</span>" +
       '<label><input type="checkbox" id="o_lineW"' + (OPT.lineW ? " checked" : "") + "> Line width by traffic</label>" +
       '<label><input type="checkbox" id="o_flows"' + (OPT.flows ? " checked" : "") + '> Moves <select id="o_flowN">' + [10, 30, 60, 120].map(function (n) { return '<option value="' + n + '"' + (OPT.flowN == n ? " selected" : "") + ">top " + n + "</option>"; }).join("") + "</select></label>" +
       '<label>Names <select id="o_labels"><option value="off">off</option><option value="top">top 12</option><option value="all">all</option></select></label>' +
       '<label><input type="checkbox" id="o_live"' + (OPT.live ? " checked" : "") + "> Live arrivals</label>" +
-      '</div><div class="mapwrap" id="mw"><svg id="msvg"></svg><div class="zoom"><button id="zin" title="Zoom in">+</button><button id="zout" title="Zoom out">−</button><button id="zfit" title="Fit" style="font-size:12px">Fit</button></div><div class="legend" id="leg"></div></div></div>';
+      '</div>' + (isPhone() ? "</details>" : "") + '<div class="mapwrap" id="mw"><svg id="msvg"></svg>' + (isPhone() ? '<button class="fullbtn" id="mfull">Full screen</button>' : "") + '<div class="zoom"><button id="zin" title="Zoom in">+</button><button id="zout" title="Zoom out">−</button><button id="zfit" title="Fit" style="font-size:12px">Fit</button></div><div class="legend" id="leg"></div></div></div>';
   }
 
   function buildMap() {
@@ -253,6 +315,7 @@ tr.click:hover td,tr.sel td{background:var(--panel2)}
       pick(d.id);
     });
     svg.addEventListener("pointerleave", function () { tip(null); });
+    var fb = $("#mfull"); if (fb) fb.onclick = function () { var w = $("#mw"), on = !w.classList.contains("full"); w.classList.toggle("full", on); fb.textContent = on ? "Close" : "Full screen"; document.body.style.overflow = on ? "hidden" : ""; fitView(); };
     $("#zin").onclick = function () { zoomAt(1 / 1.4); }; $("#zout").onclick = function () { zoomAt(1.4); }; $("#zfit").onclick = fitView;
     var set = function (k, v) { OPT[k] = v; saveOpt(); paintMap(); };
     $("#o_metric").onchange = function () { set("metric", this.value); };
@@ -363,19 +426,19 @@ tr.click:hover td,tr.sel td{background:var(--panel2)}
     getJ("/api/stop?id=" + encodeURIComponent(SEL) + "&days=" + days()).then(function (d) {
       if (d.id !== SEL || !$("#stopx")) return;
       var li = function (o, f) { var a = sortObj(o).slice(0, 6); return a.length ? '<ul class="list">' + a.map(function (x) { return "<li>" + f(x[0]) + '<span class="n">' + num(x[1]) + "</span></li>"; }).join("") + "</ul>" : '<div class="muted">None yet</div>'; };
-      var tr = Object.keys(d.trend).sort(), tmx = Math.max.apply(null, tr.map(function (k) { return d.trend[k]; }).concat([1]));
-      $("#stopx").innerHTML = (tr.length ? '<div class="sub">Visits per day</div><div class="cols" style="height:70px">' + tr.map(function (k) { return '<div title="' + k + ": " + d.trend[k] + '"><i style="height:' + 100 * d.trend[k] / tmx + '%"></i></div>'; }).join("") + "</div>" : "") +
+      var tr = SUM.keys || Object.keys(d.trend).sort(), tmx = Math.max.apply(null, tr.map(function (k) { return d.trend[k] || 0; }).concat([1]));
+      $("#stopx").innerHTML = (sum(d.trend) ? '<div class="sub">Visits per ' + (UNIT() === "hour" ? "hour" : UNIT() === "week" ? "week" : "day") + '</div><div class="cols" style="height:70px">' + tr.map(function (k) { return '<div title="' + esc(keyLong(k)) + ": " + (d.trend[k] || 0) + '"><i style="height:' + 100 * (d.trend[k] || 0) / tmx + '%"></i></div>'; }).join("") + "</div>" : "") +
         '<div class="sub">Came from</div>' + li(d.from, function (k) { return dotFor(k) + esc(nm(k)); }) +
         '<div class="sub">Went next</div>' + li(d.to, function (k) { return k === "(left)" ? '<span class="muted">Left the sites</span>' : dotFor(k) + esc(nm(k)); }) +
-        '<div class="sub">Arrived from</div>' + li(d.refs, function (k) { return esc(k); }) +
-        '<div class="sub">Countries</div>' + li(d.countries, function (k) { return k === "?" ? '<span class="muted">Unknown</span>' : flag(k) + " " + esc(regionName(k)); });
+        (d.refs ? '<div class="sub">Arrived from</div>' + li(d.refs, function (k) { return esc(k); }) : "") +
+        (d.countries ? '<div class="sub">Countries</div>' + li(d.countries, function (k) { return k === "?" ? '<span class="muted">Unknown</span>' : flag(k) + " " + esc(regionName(k)); }) : '<p class="muted" style="font-size:12px">Countries and arrival sites per station are kept for 24 hours, 7 days and 30 days.</p>');
     }).catch(function () {});
   }
   function feedHtml() {
     if (!FEED.length) return '<li class="muted">Waiting for riders…</li>';
     return FEED.slice(0, 40).map(function (e) { return "<li>" + '<span class="muted" style="font-family:var(--mono);font-size:12px">' + clock(e.ts) + "</span> " + (e.country ? flag(e.country) : "") + " " + dotFor(e.stop) + esc(nm(e.stop)) + '<span class="n muted" style="font-size:11px">' + esc(e.region || (e.country ? regionName(e.country) : "")) + "</span></li>"; }).join("");
   }
-  function pick(id) { SEL = id; paintMap(); sidePanel(); }
+  function pick(id) { SEL = id; paintMap(); sidePanel(); [].forEach.call(document.querySelectorAll("tr[data-s]"), function (x) { x.classList.toggle("sel", x.dataset.s === id); }); if (id && isPhone()) { var sd = $("#side"); if (sd) sd.scrollIntoView({ behavior: "smooth", block: "start" }); } }
 
   // ---------- live ----------
   var LIVE = { since: Date.now() - 10 * 60e3, timer: null, first: true };
@@ -428,9 +491,10 @@ tr.click:hover td,tr.sel td{background:var(--panel2)}
   }
 
   // ---------- small charts ----------
-  function colsChart(vals, labels, color) {
+  // Bars in one row, labels in their own row underneath; zero values are left blank.
+  function colsChart(vals, labels, color, names) {
     var mx = Math.max.apply(null, vals.concat([1]));
-    return '<div class="cols">' + vals.map(function (v, i) { return '<div title="' + esc(labels[i]) + ": " + num(v) + '"><i style="height:' + (100 * v / mx) + "%;background:" + (color || "var(--accent)") + '"></i><span>' + esc(labels[i]) + "</span></div>"; }).join("") + "</div>";
+    return '<div class="colsx">' + vals.map(function (v, i) { return '<i title="' + esc((names || labels)[i]) + ": " + num(v) + '" style="height:' + (v ? Math.max(2, 100 * v / mx) : 0) + "%;background:" + (color || "var(--accent)") + '"></i>'; }).join("") + '</div><div class="axis">' + labels.map(function (l) { return "<span>" + esc(l) + "</span>"; }).join("") + "</div>";
   }
   function stackBar(o, colors) {
     var a = sortObj(o), t = sum(o) || 1;
@@ -440,21 +504,31 @@ tr.click:hover td,tr.sel td{background:var(--panel2)}
     var a = sortObj(o).slice(0, limit || 15), t = sum(o) || 1, mx = a.length ? a[0][1] : 1;
     return a.length ? "<table>" + a.map(function (x) { return "<tr><td>" + f(x[0]) + '</td><td class="n">' + num(x[1]) + '</td><td class="n muted">' + pct(x[1], t) + '</td><td style="width:28%"><span class="bar" style="width:' + Math.max(2, 100 * x[1] / mx) + '%"></span></td></tr>'; }).join("") + "</table>" : '<div class="empty">Nothing yet.</div>';
   }
+  // Visits, riders and downloads per hour (24 hours), per day (7 and 30 days) or per week (1 year).
   function trendChart() {
-    var t = SUM.trend || [], dl = (DL && DL.trend) || {};
-    var dset = {}; t.forEach(function (d) { dset[d.day] = 1; }); Object.keys(dl).forEach(function (d) { dset[d] = 1; });
-    var ds = Object.keys(dset).sort(); if (!ds.length) return "";
-    var tv = {}; t.forEach(function (d) { tv[d.day] = d; });
-    var mx = Math.max.apply(null, ds.map(function (d) { return Math.max((tv[d] || {}).visits || 0, dl[d] || 0); }).concat([1]));
-    return '<div class="box"><h2>Per day<span class="sp"></span><span class="keys"><span><b style="background:var(--accent)"></b>Stop visits</span><span><b style="background:#35b779"></b>Downloads</span></span></h2><div class="pad"><div class="cols" style="height:110px">' +
-      ds.map(function (d) { var v = (tv[d] || {}).visits || 0, w = dl[d] || 0; return '<div title="' + d + ": " + v + " visits, " + w + ' downloads" style="flex-direction:row;align-items:flex-end;gap:1px"><i style="height:' + 100 * v / mx + '%"></i><i style="height:' + 100 * w / mx + '%;background:#35b779"></i></div>'; }).join("") + "</div></div></div>";
+    var S = SUM.series || [], dl = (DL && !DL.error && DL.series) || {};
+    if (!S.length) return "";
+    var mx = Math.max.apply(null, S.map(function (b) { return Math.max(b.visits, b.riders, dl[b.k] || 0); }).concat([1]));
+    var every = Math.ceil(S.length / (isPhone() ? 6 : 12));
+    var head = UNIT() === "hour" ? "Per hour (Pacific)" : UNIT() === "week" ? "Per week" : "Per day (Pacific)";
+    var tot = function (k) { return S.reduce(function (a, b) { return a + b[k]; }, 0); };
+    var peak = S.reduce(function (a, b) { return b.visits > a.visits ? b : a; }, S[0]);
+    return '<div class="box"><h2>' + head + '<span class="sp"></span><span class="keys"><span><b style="background:var(--accent)"></b>Stop visits</span><span><b style="background:#31688e"></b>Riders</span><span><b style="background:#35b779"></b>Downloads</span></span></h2><div class="pad"><div class="cols" style="height:130px;gap:2px">' +
+      S.map(function (b, i) { var w = dl[b.k] || 0; return '<div title="' + esc(keyLong(b.k)) + ": " + num(b.visits) + " visits, " + num(b.riders) + " riders, " + num(w) + ' downloads"><div style="display:flex;flex-direction:row;align-items:flex-end;justify-content:center;gap:1px;width:100%;flex:1;height:auto"><i style="height:' + 100 * b.visits / mx + '%"></i><i style="height:' + 100 * b.riders / mx + '%;background:#31688e"></i><i style="height:' + 100 * w / mx + '%;background:#35b779"></i></div><span>' + (i % every ? "&nbsp;" : esc(keyLbl(b.k))) + "</span></div>"; }).join("") +
+      '</div><div class="muted" style="font-size:12px;margin-top:6px">' + num(tot("visits")) + " visits · busiest " + (UNIT() === "hour" ? "hour" : UNIT() === "week" ? "week" : "day") + ": " + esc(keyLong(peak.k)) + " (" + num(peak.visits) + ")" + (UNIT() === "hour" && DL && DL.hourly === false ? " · hourly downloads start once the sheet scripts are updated" : "") + "</div></div></div>";
   }
 
   // ---------- tabs ----------
   function draw() {
     if (!META || !SUM) return;
     var m = $("#main"); m.onclick = null; MAP = null;
-    if (TAB === "map") {
+    document.body.style.overflow = "";
+    if (TAB === "map" && isPhone()) {
+      // phone: the numbers first, the map last and smaller (tap Full screen to explore it)
+      m.innerHTML = cards() + trendChart() + topStations() + '<div class="box" id="side"></div>' + mapBox();
+      m.onclick = function (e) { var tr = e.target.closest("tr[data-s]"); if (tr) pick(tr.dataset.s); };
+      buildMap(); sidePanel();
+    } else if (TAB === "map") {
       m.innerHTML = cards() + '<div class="grid"><div>' + mapBox() + "</div><div><div class=\"box\" id=\"side\"></div></div></div>" + trendChart();
       buildMap(); sidePanel();
     } else if (TAB === "places") places(m);
@@ -465,6 +539,11 @@ tr.click:hover td,tr.sel td{background:var(--panel2)}
     else if (TAB === "riders") ridersTab(m);
     else if (TAB === "flows") flowsTab(m);
     else if (TAB === "build") buildOut(m);
+  }
+
+  function topStations() {
+    var rs = rows().filter(function (r) { return r.views; }).sort(function (a, b) { return b.views - a.views; }).slice(0, 10), mx = rs.length ? rs[0].views : 1;
+    return '<div class="box"><h2>Top stations<span class="sp"></span><span class="muted">Tap one for details</span></h2>' + (rs.length ? "<table>" + rs.map(function (r) { return '<tr class="click' + (SEL === r.id ? " sel" : "") + '" data-s="' + r.id + '"><td>' + dotFor(r.id) + esc(r.name) + '</td><td class="n">' + num(r.views) + '</td><td style="width:26%"><span class="bar" style="width:' + Math.max(2, 100 * r.views / mx) + '%"></span></td></tr>'; }).join("") + "</table>" : '<div class="empty">No visits in this period.</div>') + "</div>";
   }
 
   function stationsTab(m) {
@@ -501,13 +580,28 @@ tr.click:hover td,tr.sel td{background:var(--panel2)}
     var top = function (k) { var a = rs.filter(function (r) { return r[k]; }).sort(function (a, b) { return b[k] - a[k]; }).slice(0, 10), mx = a.length ? a[0][k] : 1; return a.length ? "<table>" + a.map(function (r) { return "<tr><td>" + dotFor(r.id) + esc(r.name) + '</td><td class="n">' + num(r[k]) + '</td><td style="width:30%"><span class="bar" style="width:' + 100 * r[k] / mx + '%"></span></td></tr>'; }).join("") + "</table>" : '<div class="empty">Nothing yet.</div>'; };
     m.innerHTML = '<div class="grid2">' +
       '<div class="box"><h2>Where riders came from</h2>' + rankTable(so.refs, function (k) { return k === "direct" ? '<span class="muted">Direct or unknown</span>' : esc(k); }) + "</div>" +
-      '<div class="box"><h2>New and returning riders</h2><div class="pad">' + stackBar({ New: t.newRiders || 0, Returning: t.returningRiders || 0 }, { New: "#35b779", Returning: "#31688e" }) + '<p class="muted" style="font-size:12px">Returning = seen before this period (within the last 90 days).</p></div></div>' +
+      '<div class="box"><h2>New and returning riders</h2><div class="pad">' + stackBar({ New: t.newRiders || 0, Returning: t.returningRiders || 0 }, { New: "#35b779", Returning: "#31688e" }) + '<p class="muted" style="font-size:12px">Returning = seen before this period.</p></div></div>' + botsBox() +
       '<div class="box"><h2>Devices</h2><div class="pad">' + (sum(so.devices) ? stackBar(so.devices, { phone: "#6ece58", tablet: "#26828e", desktop: "#482878", unknown: "#555" }) : '<div class="muted">Starts with the location update.</div>') + "</div></div>" +
       '<div class="box"><h2>How people moved with S.We.T.A.</h2><div class="pad"><div class="sub">Clicks</div>' + (sum(so.clickSrc) ? stackBar(so.clickSrc, { strip: "#f2b134", map: "#4fd1c5", other: "#555" }) : '<div class="muted">No clicks yet.</div>') + '<div class="sub">Visits counted by</div>' + (sum(so.visitSrc) ? stackBar(so.visitSrc, { strip: "#f2b134", map: "#4fd1c5", other: "#555" }) : "") + "</div></div>" +
       '<div class="box"><h2>Where trips start</h2>' + top("entries") + "</div>" +
       '<div class="box"><h2>Where trips end</h2>' + top("exits") + "</div>" +
       '<div class="box"><h2>Sites</h2>' + rankTable(so.hosts, function (k) { return esc(k); }) + "</div>" +
       "</div>";
+  }
+
+  // Bot visits the tracker filtered out, by type, with the names under each.
+  var BOTK = [["search", "Search engines", "#26828e"], ["preview", "Link previews", "#6ece58"], ["seo_ai", "SEO and AI crawlers", "#f2b134"], ["tool", "Automated tools", "#e5483b"], ["other", "Other bots", "#777"]];
+  function botsBox() {
+    var b = SUM.bots;
+    if (!b) return '<div class="box"><h2>Bots filtered out</h2><div class="empty">Starts counting after the database update (see the README).</div></div>';
+    var cols = {}, labels = {}; BOTK.forEach(function (k) { cols[k[1]] = k[2]; labels[k[0]] = k[1]; });
+    var byLabel = {}; Object.keys(b.kinds).forEach(function (k) { byLabel[labels[k] || k] = b.kinds[k]; });
+    return '<div class="box" style="grid-column:1/-1"><h2>Bots filtered out<span class="sp"></span><span class="muted">' + num(b.total) + " bot visits" + (b.prev || b.total ? " · " + num(b.prev) + " the period before" : "") + '</span></h2><div class="pad">' +
+      (b.total ? stackBar(byLabel, cols) : '<div class="muted">No bots counted in this period.</div>') +
+      '<p class="muted" style="font-size:12px;margin:8px 0 0">Only bots that run the page script reach the tracker, so most crawlers never show up here. Visitors with Do Not Track or Global Privacy Control are not counted at all.</p></div>' +
+      (b.total ? '<div class="grid2" style="gap:0">' + BOTK.filter(function (k) { return b.kinds[k[0]]; }).map(function (k) {
+        return '<div style="border-top:1px solid var(--rule)"><div class="sub" style="padding:0 12px"><b class="swatch" style="background:' + k[2] + '"></b>' + k[1] + " · " + num(b.kinds[k[0]]) + "</div>" + rankTable(b.names[k[0]], function (n) { return esc(n); }, 8) + "</div>";
+      }).join("") + "</div>" : "") + "</div>";
   }
 
   // ---------- places ----------
@@ -519,15 +613,19 @@ tr.click:hover td,tr.sel td{background:var(--panel2)}
       .then(function () { return fetch("https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json").then(function (r) { return r.json(); }); });
     return WORLD;
   }
+  // World map colors: paper ocean, off-white land for countries with no visits, five greens for visits.
+  var OCEANC = "#d6d1c6", LANDC = "#f4f1eb", EDGEC = "#b5aea2", GREENS = ["#bfe3b4", "#86c58a", "#4f9d62", "#2c7046", "#17452c"];
+  var STEPS = [[1, 2], [3, 5], [6, 15], [16, 50], [51, 1e9]];
+  var stepColor = function (n) { for (var i = 0; i < STEPS.length; i++) if (n >= STEPS[i][0] && n <= STEPS[i][1]) return GREENS[i]; return LANDC; };
   function places(m) {
     var g = SUM.geo || {}, c = g.countries || {}, total = sum(c), selC = PLACE && PLACE.country;
     var regs = {}; Object.keys(g.regions || {}).forEach(function (k) { var p = k.split("|"); if (!selC || p[0] === selC) regs[selC ? p[1] : regionName(p[0]) + " · " + p[1]] = g.regions[k]; });
     var tm = SUM.time || { hours: [], weekdays: [] };
     var hours = []; for (var i = 0; i < 24; i++) hours.push(i);
-    m.innerHTML = '<div class="grid"><div class="box"><h2>Visits by country' + (selC ? ' · <span style="color:var(--ink)">' + flag(selC) + " " + esc(regionName(selC)) + '</span><button id="allc">All countries</button>' : "") + '<span class="sp"></span><span class="muted">' + num(total) + ' visits with a location</span></h2><div class="world" id="world"><div class="empty">Loading the world map…</div></div><div class="pad legend" style="position:static;border:0;background:none"><div class="grad" style="background:' + grad(VIR) + '"></div><div class="row"><span>fewer</span><span>more</span></div></div></div>' +
+    m.innerHTML = '<div class="grid"><div class="box"><h2>Visits by country' + (selC ? ' · <span style="color:var(--ink)">' + flag(selC) + " " + esc(regionName(selC)) + '</span><button id="allc">All countries</button>' : "") + '<span class="sp"></span><span class="muted">' + num(total) + ' visits with a location</span></h2><div class="world" id="world"><div class="empty">Loading the world map…</div></div><div class="pad"><div class="steps" title="Visits per country"><span><i style="background:' + LANDC + ';border:1px solid ' + EDGEC + '"></i>none</span>' + STEPS.map(function (st, i) { return '<span><i style="background:' + GREENS[i] + '"></i>' + (st[1] > 1e8 ? st[0] + "+" : st[0] + "–" + st[1]) + "</span>"; }).join("") + "</div></div></div>" +
       '<div><div class="box"><h2>Countries</h2>' + (total ? rankTable(c, function (k) { return '<a href="#" data-c="' + k + '" style="color:inherit;text-decoration:none">' + flag(k) + " " + esc(regionName(k)) + "</a>"; }, 20) : '<div class="empty">Locations start counting after the update (see the README). Older visits have none.</div>') + "</div>" +
       '<div class="box"><h2>' + (selC ? "Regions in " + esc(regionName(selC)) : "Regions") + "</h2>" + rankTable(regs, function (k) { return esc(k); }, 15) + "</div></div></div>" +
-      '<div class="grid2"><div class="box"><h2>Time of day <span class="muted">(each visitor\'s own local time)</span></h2><div class="pad">' + colsChart(tm.hours, hours.map(function (h) { return h % 3 ? "" : (h === 0 ? "12a" : h < 12 ? h + "a" : h === 12 ? "12p" : (h - 12) + "p"); }), "#26828e") + "</div></div>" +
+      '<div class="grid2"><div class="box"><h2>Time of day <span class="muted">(each visitor\'s own local time)</span></h2><div class="pad">' + colsChart(tm.hours, hours.map(function (h) { return h % 3 ? "" : hName(h); }), "#26828e", hours.map(hName)) + "</div></div>" +
       '<div class="box"><h2>Day of week</h2><div class="pad">' + colsChart(tm.weekdays, ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"], "#6ece58") + "</div></div>" +
       '<div class="box"><h2>Timezones</h2>' + rankTable(g.tz, function (k) { return esc(k.replace(/_/g, " ")); }, 12) + "</div></div>";
     m.onclick = function (e) { var a = e.target.closest("[data-c]"); if (a) { e.preventDefault(); PLACE = Object.assign({}, PLACE, { country: a.dataset.c }); draw(); } if (e.target.id === "allc") { PLACE = Object.assign({}, PLACE, { country: null }); draw(); } };
@@ -536,12 +634,11 @@ tr.click:hover td,tr.sel td{background:var(--panel2)}
       var W = box.clientWidth, H = box.clientHeight, feats = topojson.feature(topo, topo.objects.countries).features.filter(function (f) { return f.id !== "010"; });
       var proj = d3.geoNaturalEarth1().fitSize([W, H], { type: "FeatureCollection", features: feats }), path = d3.geoPath(proj);
       var byNum = {}; Object.keys(c).forEach(function (k) { if (ISO[k]) byNum[ISO[k]] = k; });
-      var mx = Math.max.apply(null, Object.keys(c).map(function (k) { return c[k]; }).concat([1]));
       box.innerHTML = "";
       var svg = d3.select(box).append("svg").attr("viewBox", "0 0 " + W + " " + H);
       svg.selectAll("path").data(feats).enter().append("path").attr("d", path)
-        .attr("fill", function (f) { var a = byNum[f.id]; return a ? scale(VIR, Math.sqrt(c[a] / mx)) : "#2a2a27"; })
-        .attr("stroke", function (f) { return byNum[f.id] && byNum[f.id] === selC ? "#4fd1c5" : "#0d0d0c"; }).attr("stroke-width", function (f) { return byNum[f.id] && byNum[f.id] === selC ? 2 : .5; })
+        .attr("fill", function (f) { var a = byNum[f.id]; return a ? stepColor(c[a]) : LANDC; })
+        .attr("stroke", function (f) { return byNum[f.id] && byNum[f.id] === selC ? "#111" : EDGEC; }).attr("stroke-width", function (f) { return byNum[f.id] && byNum[f.id] === selC ? 2 : .5; })
         .style("cursor", function (f) { return byNum[f.id] ? "pointer" : "default"; })
         .on("mousemove", function (ev, f) { var a = byNum[f.id]; tip("<b>" + esc(a ? regionName(a) : (f.properties && f.properties.name) || "") + "</b>" + (a ? "<br>" + num(c[a]) + " visits · " + num((g.countryRiders || {})[a]) + " riders" : '<br><span class="muted">No visits</span>'), ev); })
         .on("mouseleave", function () { tip(null); })
@@ -558,8 +655,9 @@ tr.click:hover td,tr.sel td{background:var(--panel2)}
     var kinds = sortObj(DL.byKind);
     var fetched = Object.keys(DL.fetched || {}).map(function (k) { return (k === "tags" ? "Tags sheet " : "TCN sheet ") + when(DL.fetched[k]); }).join(" · ");
     var colorSw = { red: "#e5483b", yellow: "#f2bf00", black: "#111", blue: "#0072ce", green: "#00964a", white: "#fff", orange: "#f28c28", purple: "#7b2d8e", pink: "#d6459b", gold: "#c9a227", silver: "#c0c0c0" };
-    m.innerHTML = '<div class="cards">' + [["Downloads", sum(DL.bySheet)], ["Tag makers", DL.bySheet.tags || 0], ["Network tools", DL.bySheet.tcn || 0], ["Network members using tools", DL.users || 0]].map(function (x) { return '<div class="card"><b>' + num(x[1]) + "</b><span>" + x[0] + "</span></div>"; }).join("") + "</div>" +
-      (errs ? '<div class="box"><div class="pad">' + errs + "</div></div>" : "") + trendChart() +
+    m.innerHTML = '<div class="cards">' + [["Downloads", sum(DL.bySheet), DL.unit === "hour" && !DL.hourly ? "" : delta(sum(DL.bySheet), DL.prev)], ["Tag makers", DL.bySheet.tags || 0], ["Network tools", DL.bySheet.tcn || 0], ["Network members using tools", DL.users || 0]].map(function (x) { return '<div class="card"><b>' + num(x[1]) + "</b><span>" + x[0] + "</span>" + (x[2] || "") + "</div>"; }).join("") + "</div>" +
+      (errs ? '<div class="box"><div class="pad">' + errs + "</div></div>" : "") +
+      (DL.unit === "hour" && DL.hourly === false ? '<div class="note">Downloads by hour need the updated sheet scripts. Until then the 24-hour view shows downloads for today and yesterday.</div>' : "") + trendChart() +
       '<div class="box"><h2>By maker and tool<span class="sp"></span><span class="muted">' + esc(fetched) + '</span><button id="dlr">Refresh from sheets</button></h2><table><thead><tr><th>What</th><th>Station</th><th class="n">Downloads</th><th class="n">Station visits</th><th class="n">Downloads / visit</th></tr></thead><tbody>' +
       (kinds.length ? kinds.map(function (x) { var st = STOPOF[x[0]], v = st && by[st] ? by[st].views : 0; return "<tr><td>" + esc(x[0]) + "</td><td>" + (st ? dotFor(st) + esc(nm(st)) : '<span class="muted">–</span>') + '</td><td class="n">' + num(x[1]) + '</td><td class="n">' + num(v) + '</td><td class="n">' + (v ? Math.round(100 * x[1] / v) + "%" : "–") + "</td></tr>"; }).join("") : '<tr><td colspan="5" class="empty">No downloads in this period.</td></tr>') + "</tbody></table></div>" +
       '<div class="grid2"><div class="box"><h2>Frame colours (tags)</h2>' + rankTable(DL.colors, function (k) { return '<span class="swatch" style="background:' + (colorSw[k] || "#666") + '"></span>' + esc(k); }) + "</div>" +
@@ -571,7 +669,7 @@ tr.click:hover td,tr.sel td{background:var(--panel2)}
 
   // ---------- riders ----------
   function ridersTab(m) {
-    m.innerHTML = '<div class="grid"><div class="box"><h2>Riders <span class="muted">(anonymous)</span></h2><div style="overflow-x:auto"><table><thead><tr><th>Rider</th><th></th><th>Last seen</th><th class="n">Trips</th><th class="n">Visits</th><th class="n">Stops</th><th class="n">Sites</th><th class="n">Clicks</th></tr></thead><tbody>' +
+    m.innerHTML = '<div class="grid"><div class="box"><h2>Riders <span class="muted">(anonymous' + (UNIT() === "week" ? ", last 30 days" : "") + ')</span></h2><div style="overflow-x:auto"><table><thead><tr><th>Rider</th><th></th><th>Last seen</th><th class="n">Trips</th><th class="n">Visits</th><th class="n">Stops</th><th class="n">Sites</th><th class="n">Clicks</th></tr></thead><tbody>' +
       (RIDERS.length ? RIDERS.map(function (x) { return '<tr class="click" data-r="' + x.id + '"><td style="font-family:var(--mono)">' + x.id.slice(0, 8) + '</td><td title="' + esc(x.country ? regionName(x.country) : "") + '">' + (x.country ? flag(x.country) : "") + ' <span class="muted" style="font-size:11px">' + esc(x.dev || "") + "</span></td><td>" + when(x.last) + '</td><td class="n">' + x.sessions + '</td><td class="n">' + x.visits + '</td><td class="n">' + x.stops + '</td><td class="n">' + x.sites + '</td><td class="n">' + x.clicks + "</td></tr>"; }).join("") : '<tr><td colspan="8" class="empty">No riders yet.</td></tr>') +
       '</tbody></table></div></div><div class="box"><h2>Journey</h2><div id="jny" class="empty">Pick a rider.</div></div></div>';
     m.onclick = function (e) {
@@ -616,7 +714,7 @@ tr.click:hover td,tr.sel td{background:var(--panel2)}
         items.push({ w: x.views, tag: "amber", t: "Visits but no downloads: " + x.name, d: x.views + " visits and no downloads counted in this period." });
     });
     var none = live.filter(function (x) { return x.views === 0; });
-    if (none.length) items.push({ w: 2, tag: "", t: "No visits in " + SUM.days + " days (" + none.length + " stations)", d: none.map(function (x) { return x.name; }).join(", ") });
+    if (none.length) items.push({ w: 2, tag: "", t: "No visits in the last " + PERIOD() + " (" + none.length + " stations)", d: none.map(function (x) { return x.name; }).join(", ") });
     SUM.flows.forEach(function (f) {
       var a = META.stops[f.from], b = META.stops[f.to];
       if (!a || !b || f.n < 3) return;
@@ -638,7 +736,7 @@ tr.click:hover td,tr.sel td{background:var(--panel2)}
       var a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = "sweta-events." + fmt; document.body.appendChild(a); a.click(); a.remove();
     }).catch(function (e) { var b = $("#" + fmt); if (b) { b.textContent = "Export failed"; setTimeout(function () { b.textContent = "Export " + fmt.toUpperCase(); }, 2500); } });
   }
-  $("#refresh").onclick = function () { FRESH = true; load(); }; $("#days").onchange = load;
+  $("#refresh").onclick = function () { FRESH = true; load(); }; $("#days").onchange = function () { try { localStorage.setItem("swt_dash_days", this.value); } catch (e) {} SEL = null; load(); };
   $("#csv").onclick = function () { download("csv"); }; $("#json").onclick = function () { download("json"); };
   load();
 })();

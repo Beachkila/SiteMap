@@ -33,7 +33,12 @@ CREATE TABLE IF NOT EXISTS sheets (
   data TEXT NOT NULL
 );
 -- First time each rider was seen (for new vs returning without scanning every ride).
-CREATE TABLE IF NOT EXISTS riders (ih TEXT PRIMARY KEY, first INTEGER NOT NULL);
+CREATE TABLE IF NOT EXISTS riders (ih TEXT PRIMARY KEY, first INTEGER NOT NULL, last INTEGER);
 CREATE INDEX IF NOT EXISTS riders_first ON riders(first);
+CREATE INDEX IF NOT EXISTS riders_last ON riders(last);
 -- Dashboard numbers kept for a few minutes so the dashboard reads the database once, not on every click.
 CREATE TABLE IF NOT EXISTS cache (k TEXT PRIMARY KEY, at INTEGER NOT NULL, data TEXT NOT NULL);
+-- One row of totals per finished Pacific day, kept for good (rider keys inside are removed after 90 days).
+CREATE TABLE IF NOT EXISTS rollup (day TEXT PRIMARY KEY, data TEXT NOT NULL);
+-- Bot visits filtered out of the counts, by hour (Pacific), type and bot name. Nothing else is kept.
+CREATE TABLE IF NOT EXISTS bots (hour TEXT NOT NULL, kind TEXT NOT NULL, name TEXT NOT NULL, n INTEGER NOT NULL, PRIMARY KEY (hour, kind, name));

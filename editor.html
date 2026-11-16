@@ -89,7 +89,7 @@ try{const t=localStorage.getItem(LS);if(t){$("tok").value=t;$("rem").checked=tru
 
 const H=()=>({Authorization:"Bearer "+tok,Accept:"application/vnd.github+json","X-GitHub-Api-Version":"2022-11-28"});
 async function gh(path,opt={}){
-  const r=await fetch(API+path,{...opt,headers:{...H(),...(opt.body?{"Content-Type":"application/json"}:{})}});
+  const r=await fetch(API+path,{cache:"no-store",...opt,headers:{...H(),...(opt.body?{"Content-Type":"application/json"}:{})}});
   let j=null;try{j=await r.json()}catch(e){}
   if(!r.ok){const e=new Error((j&&j.message)||("HTTP "+r.status));e.status=r.status;throw e}
   return j;
@@ -189,7 +189,7 @@ $("save").onclick=async()=>{
   try{
     let newPath=null;
     if(pendingImg){newPath="data/img/"+id.replace(/[^\w-]/g,"_")+"-"+Date.now().toString(36)+".jpg";await putFile(newPath,pendingImg.b64,"Stop image: "+s.n)}
-    for(let attempt=0;attempt<2;attempt++){
+    for(let attempt=0;attempt<3;attempt++){
       await loadStops();
       const prev=stops[id]||{},e={...prev};
       const note=$("note").value.trim();
@@ -198,12 +198,12 @@ $("save").onclick=async()=>{
       if(e.note||e.img)stops[id]=e;else delete stops[id];
       const body=JSON.stringify({v:1,stops},null,1)+"\n";
       try{
-        await putFile(JSON_PATH,b64(body),"Stop notes: "+s.n,sha);
+        const put=await putFile(JSON_PATH,b64(body),"Stop notes: "+s.n,sha);if(put&&put.content&&put.content.sha)sha=put.content.sha;
         if((newPath||removeImg)&&prev.img&&prev.img!==e.img){ // tidy the replaced upload
           try{const m=await gh(`/repos/${REPO}/contents/${prev.img}?ref=${BRANCH}`);await gh(`/repos/${REPO}/contents/${prev.img}`,{method:"DELETE",body:JSON.stringify({message:"Remove replaced image",sha:m.sha,branch:BRANCH})})}catch(x){}
         }
         break;
-      }catch(e2){if(attempt===1||!(e2.status===409||e2.status===422))throw e2}
+      }catch(e2){if(attempt===2||!(e2.status===409||e2.status===422))throw e2}
     }
     await loadStops();pendingImg=null;removeImg=false;$("file").value="";
     say("msg","Saved. It shows on the map in about a minute.","ok");paint();buildList();

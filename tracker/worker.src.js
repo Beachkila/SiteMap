@@ -43,17 +43,35 @@ function ptMidnight(d) { const [y, m, dd] = d.split("-").map(Number), g = Date.U
 const addDays = (d, n) => new Date(Date.parse(d + "T12:00:00Z") + n * 86400e3).toISOString().slice(0, 10);
 const weekOf = (d) => addDays(d, -((new Date(d + "T12:00:00Z").getUTCDay() + 6) % 7)); // the Monday that starts the week
 
-// The period the dashboard asked for: 24 hours by hour, 7 and 30 days by Pacific day, a year by week.
-function range(days, now = Date.now()) {
-  const today = ptDay(now);
-  if (days <= 1) {
+// The period the dashboard asked for: a preset (24 hours, 7, 30, 90 days, a year, ending now) or a custom
+// range of Pacific days (from/to, also used for a single month). Grouped by hour, day, week or month.
+const DAY_RE = /^\d{4}-\d{2}-\d{2}$/;
+const monthOf = (d) => d.slice(0, 7);
+function range(q, now = Date.now()) {
+  if (typeof q === "number") q = { days: q };
+  const today = ptDay(now), custom = !!(q.from && DAY_RE.test(q.from));
+  let first, last, days = Math.max(1, Math.min(q.days || 30, 366));
+  if (!custom && days <= 1) {
     const since = now - 86400e3, h0 = Math.floor(now / 3600e3) * 3600e3, keys = [];
     for (let i = 23; i >= 0; i--) keys.push(ptHour(h0 - i * 3600e3));
-    return { days: 1, unit: "hour", since, until: now, prevSince: since - 86400e3, keys, key: ptHour, today, first: ptDay(since) };
+    return { id: "1:hour", days: 1, unit: "hour", since, until: now, prevSince: since - 86400e3, keys, key: ptHour, dayKey: (d) => d, today, first: ptDay(since), last: today, pFirst: ptDay(since - 86400e3), pLast: ptDay(since - 1), live: true, custom: false };
   }
-  const first = addDays(today, -(days - 1)), pFirst = addDays(first, -days), unit = days > 31 ? "week" : "day", keys = [];
-  for (let d = first; d <= today; d = addDays(d, 1)) { const k = unit === "week" ? weekOf(d) : d; if (keys[keys.length - 1] !== k) keys.push(k); }
-  return { days, unit, since: ptMidnight(first), until: now, prevSince: ptMidnight(pFirst), keys, key: unit === "week" ? (ts) => weekOf(ptDay(ts)) : ptDay, today, first, pFirst };
+  if (custom) {
+    first = q.from; last = q.to && DAY_RE.test(q.to) ? q.to : today;
+    if (first > last) [first, last] = [last, first];
+    if (last > today) last = today;
+    if (first > today) first = today;
+    if (first < addDays(today, -1100)) first = addDays(today, -1100);
+    days = Math.round((Date.parse(last + "T12:00:00Z") - Date.parse(first + "T12:00:00Z")) / 86400e3) + 1;
+  } else { last = today; first = addDays(today, -(days - 1)); }
+  const live = last === today, since = ptMidnight(first), until = live ? now : ptMidnight(addDays(last, 1));
+  const pLast = addDays(first, -1), pFirst = addDays(first, -days);
+  let unit = { day: 1, week: 1, month: 1 }[q.group] ? q.group : custom && days <= 2 ? "hour" : days <= 92 ? "day" : "week";
+  const dayKey = unit === "month" ? monthOf : unit === "week" ? weekOf : (d) => d, keys = [];
+  if (unit === "hour") for (let t = since; t < until; t += 3600e3) { const k = ptHour(t); if (keys[keys.length - 1] !== k) keys.push(k); }
+  else for (let d = first; d <= last; d = addDays(d, 1)) { const k = dayKey(d); if (keys[keys.length - 1] !== k) keys.push(k); }
+  return { id: (custom ? first + "_" + last : String(days)) + ":" + unit, days, unit, since, until, prevSince: unit === "hour" ? since - (until - since) : ptMidnight(pFirst),
+    keys, key: unit === "hour" ? ptHour : (ts) => dayKey(ptDay(ts)), dayKey, today, first, last, pFirst, pLast, live, custom };
 }
 
 async function countBot(env, ua) {
@@ -294,14 +312,16 @@ async function sheets(env, force) {
 function downloads(sh, R) {
   let earliest = null;
   const res = { stops: {}, trend: {}, series: {}, prev: 0, bySheet: {}, byKind: {}, tz: {}, colors: {}, formats: {}, actions: {}, users: 0, fetched: {}, unit: R.unit, hourly: true };
-  const hNow = ptHour(R.until), hFrom = ptHour(R.since), hPrev = ptHour(R.prevSince);
+  const hKeys = new Set(R.keys || []), hFirst = (R.keys || [])[0], hPrev = ptHour(R.prevSince);
+  // the sheets only send hours for the last 72 hours
+  const hoursOk = R.unit === "hour" && R.since >= Date.now() - 70 * 3600e3;
   for (const name of ["tags", "tcn"]) {
     const s = sh[name]; if (!s) continue;
     res.fetched[name] = s.fetched;
     let src = s.days || {}, inNow, inPrev, bucket;
-    if (R.unit === "hour" && s.hours) { src = s.hours; inNow = (k) => k > hFrom && k <= hNow; inPrev = (k) => k > hPrev && k <= hFrom; bucket = (k) => k; }
-    else if (R.unit === "hour") { res.hourly = false; inNow = (k) => k >= R.first && k <= R.today; inPrev = () => false; bucket = (k) => k; }
-    else { inNow = (k) => k >= R.first && k <= R.today; inPrev = (k) => k >= R.pFirst && k < R.first; bucket = R.unit === "week" ? weekOf : (k) => k; }
+    if (hoursOk && s.hours) { src = s.hours; inNow = (k) => hKeys.has(k); inPrev = (k) => k >= hPrev && k < hFirst; bucket = (k) => k; }
+    else if (R.unit === "hour") { res.hourly = false; inNow = (k) => k >= R.first && k <= R.last; inPrev = () => false; bucket = (k) => k; }
+    else { inNow = (k) => k >= R.first && k <= R.last; inPrev = (k) => k >= R.pFirst && k <= R.pLast; bucket = R.dayKey; }
     for (const d of Object.keys(s.days || {})) if (!earliest || d < earliest) earliest = d;
     for (const [d, v] of Object.entries(src)) {
       if (inPrev(d)) { res.prev += v.total || 0; continue; }
@@ -375,6 +395,7 @@ async function rollup(env, maxDays) {
     n++;
   }
   try { await env.DB.prepare("UPDATE rollup SET data = json_remove(data, '$.ih') WHERE day < ? AND json_extract(data, '$.ih') IS NOT NULL").bind(addDays(today, -RETAIN_DAYS)).run(); } catch {}
+  try { await env.DB.prepare("DELETE FROM cache WHERE at < ?").bind(Date.now() - 2 * 86400e3).run(); } catch {}
   return n;
 }
 
@@ -384,13 +405,14 @@ async function rollup(env, maxDays) {
 const CACHE_MS = 10 * 60 * 1000, FRESH_MIN_MS = 60 * 1000;
 const top = (o, n) => Object.fromEntries(Object.entries(o).sort((a, b) => b[1] - a[1]).slice(0, n));
 
-async function bundle(env, days, fresh) {
-  const key = "b2:" + days;
+async function bundle(env, R, fresh) {
+  if (typeof R === "number") R = range(R);
+  const key = "b3:" + R.id;
   let row = null;
   try { row = await env.DB.prepare("SELECT at, data FROM cache WHERE k = ?").bind(key).first(); } catch {}
   if (row && Date.now() - row.at < (fresh ? FRESH_MIN_MS : CACHE_MS)) return JSON.parse(row.data);
   try { await rollup(env, 5); } catch {}
-  const B = await computeBundle(env, days);
+  const B = await computeBundle(env, R);
   try { await env.DB.prepare("INSERT OR REPLACE INTO cache (k, at, data) VALUES (?,?,?)").bind(key, Date.now(), JSON.stringify(B)).run(); } catch {}
   return B;
 }
@@ -404,7 +426,8 @@ function prevFromRolls(rolls, days) {
 
 async function botsFor(env, R) {
   try {
-    const rs = (await env.DB.prepare("SELECT kind, name, SUM(n) AS n FROM bots WHERE hour >= ? GROUP BY kind, name").bind(R.unit === "hour" ? ptHour(R.since) : R.first + " 00").all()).results || [];
+    const end = R.live ? "9999" : R.unit === "hour" ? ptHour(R.until) : addDays(R.last, 1) + " 00";
+    const rs = (await env.DB.prepare("SELECT kind, name, SUM(n) AS n FROM bots WHERE hour >= ? AND hour < ? GROUP BY kind, name").bind(R.unit === "hour" ? ptHour(R.since) : R.first + " 00", end).all()).results || [];
     const out = { kinds: {}, names: {}, total: 0 };
     for (const r of rs) { inc(out.kinds, r.kind, r.n); (out.names[r.kind] = out.names[r.kind] || {})[r.name] = r.n; out.total += r.n; }
     const p = await env.DB.prepare("SELECT SUM(n) AS n FROM bots WHERE hour >= ? AND hour < ?").bind(R.unit === "hour" ? ptHour(R.prevSince) : R.pFirst + " 00", R.unit === "hour" ? ptHour(R.since) : R.first + " 00").first();
@@ -413,21 +436,23 @@ async function botsFor(env, R) {
   } catch { return null; }
 }
 
-async function computeBundle(env, days) {
-  const R = range(days), now = R.until;
-  const year = R.unit === "week";
-  let a, ev, sessions, riders;
-  if (!year) {
-    const loadSince = Math.min(R.since, now - 14 * 86400e3);
-    const all = await loadEvents(env, Math.ceil((now - loadSince) / 86400e3) + 1);
+async function computeBundle(env, R) {
+  const now = Date.now();
+  // Short ranges inside the last 90 days read the rides themselves; longer or older ones read the saved daily totals.
+  const fromRides = R.unit === "hour" || (R.days <= 31 && R.since >= now - (RETAIN_DAYS - 1) * 86400e3);
+  let a, ev = [], sessions = [], riders;
+  if (fromRides) {
+    const want = R.live ? Math.min(R.since, now - 14 * 86400e3) : R.prevSince;
+    const loadSince = Math.max(want, now - RETAIN_DAYS * 86400e3);
+    const all = (await sel(env, "WHERE ts >= ? AND ts < ?", [loadSince, R.until], 60000));
     ev = all.filter(e => e.ts >= R.since);
     // riders first seen inside this period (one small indexed read); everyone else in the period is returning
     let newSet = null;
-    try { newSet = new Set(((await env.DB.prepare("SELECT ih FROM riders WHERE first >= ?").bind(R.since).all()).results || []).map(r => r.ih)); } catch {}
+    try { newSet = new Set(((await env.DB.prepare("SELECT ih FROM riders WHERE first >= ? AND first < ?").bind(R.since, R.until).all()).results || []).map(r => r.ih)); } catch {}
     a = analyse(ev, newSet);
     if (!newSet) { a.totals.newRiders = a.totals.riders; a.totals.returningRiders = 0; }
-    const wk = {};
-    for (const e of all) if (VISIT(e)) { const age = now - e.ts; const w = wk[e.stop] = wk[e.stop] || [0, 0]; if (age < 7 * 86400e3) w[0]++; else if (age < 14 * 86400e3) w[1]++; }
+    const wk = {}, end = R.until;
+    for (const e of all) if (VISIT(e)) { const age = end - e.ts; const w = wk[e.stop] = wk[e.stop] || [0, 0]; if (age < 7 * 86400e3) w[0]++; else if (age < 14 * 86400e3) w[1]++; }
     a.week = wk;
     // the period before, for comparison: from the rides when they are loaded, otherwise from the daily totals
     if (R.prevSince >= loadSince) { a.prev = quick(all.filter(e => e.ts >= R.prevSince && e.ts < R.since)); a.prev.days = R.days; a.prev.daysCovered = R.days; }
@@ -437,14 +462,14 @@ async function computeBundle(env, days) {
     a.series = R.keys.map(k => ({ k, visits: sb[k] ? sb[k].visits : 0, riders: sb[k] ? sb[k].riders.size : 0 }));
     sessions = sessionsOf(ev);
   } else {
-    // a year: one saved row per finished day, plus today's rides; older days saved before rollups started come from the daily table
-    const rolls = await readRolls(env, R.first, R.today);
-    ev = await sel(env, "WHERE ts >= ?", [ptMidnight(R.today)], 60000);
-    rolls.push(Object.assign(rollOf(ev), { day: R.today }));
+    // one saved row per finished day (plus today's rides when the range ends today); days saved before the
+    // rollups started come from the older daily table, which only has station visits
+    const rolls = await readRolls(env, R.first, R.live ? R.today : addDays(R.last, 1));
+    if (R.live) { ev = await sel(env, "WHERE ts >= ?", [ptMidnight(R.today)], 60000); rolls.push(Object.assign(rollOf(ev), { day: R.today })); }
     const have = new Set(rolls.map(r => r.day));
     try {
       const old = {};
-      for (const r of (await env.DB.prepare("SELECT day, stop, views, riders FROM daily WHERE day >= ?").bind(R.first).all()).results || []) {
+      for (const r of (await env.DB.prepare("SELECT day, stop, views, riders FROM daily WHERE day >= ? AND day <= ?").bind(R.first, R.last).all()).results || []) {
         if (have.has(r.day)) continue;
         const o = old[r.day] = old[r.day] || { day: r.day, v: 0, r: 0, st: {}, old: true };
         o.v += r.views; o.st[r.stop] = [r.views, r.riders, 0, 0, 0, 0, 0];
@@ -453,29 +478,36 @@ async function computeBundle(env, days) {
     } catch {}
     rolls.sort((x, y) => (x.day < y.day ? -1 : 1));
     a = fromRolls(rolls);
-    // unique riders over the year: everyone whose last visit falls in it
-    try { const c = await env.DB.prepare("SELECT COUNT(*) AS n FROM riders WHERE last >= ?").bind(R.since).first(); if (c && c.n != null) { a.totals.riders = c.n; delete a.totals.ridersSummed; } } catch {}
-    try { const c = await env.DB.prepare("SELECT COUNT(*) AS n FROM riders WHERE first >= ?").bind(R.since).first(); a.totals.newRiders = Math.min(c.n, a.totals.riders); a.totals.returningRiders = a.totals.riders - a.totals.newRiders; }
+    // unique riders when the range ends now: everyone whose last visit falls in it
+    if (R.live) try { const c = await env.DB.prepare("SELECT COUNT(*) AS n FROM riders WHERE last >= ?").bind(R.since).first(); if (c && c.n != null) { a.totals.riders = c.n; delete a.totals.ridersSummed; } } catch {}
+    try { const c = await env.DB.prepare("SELECT COUNT(*) AS n FROM riders WHERE first >= ? AND first < ?").bind(R.since, R.until).first(); a.totals.newRiders = Math.min(c.n, a.totals.riders); a.totals.returningRiders = a.totals.riders - a.totals.newRiders; }
     catch { a.totals.newRiders = a.totals.riders; a.totals.returningRiders = 0; }
-    const sb = {}, wk = {}, d7 = addDays(R.today, -6), d14 = addDays(R.today, -13);
+    const sb = {}, wk = {}, d7 = addDays(R.last, -6), d14 = addDays(R.last, -13);
     for (const r of rolls) {
-      const k = weekOf(r.day), b = sb[k] = sb[k] || { visits: 0, riders: 0, ids: new Set(), idsOk: true };
+      const k = R.dayKey(r.day), b = sb[k] = sb[k] || { visits: 0, riders: 0, ids: new Set(), idsOk: true };
       b.visits += r.v || 0; b.riders += r.r || 0; if (r.ih) r.ih.forEach(i => b.ids.add(i)); else if (r.r) b.idsOk = false;
       for (const [id, q] of Object.entries(r.st || {})) { const w = wk[id] = wk[id] || [0, 0]; if (r.day >= d7) w[0] += q[0]; else if (r.day >= d14) w[1] += q[0]; }
     }
     a.series = R.keys.map(k => { const b = sb[k]; return { k, visits: b ? b.visits : 0, riders: b ? (b.idsOk ? b.ids.size : b.riders) : 0 }; });
     a.week = wk;
     a.prev = prevFromRolls(await readRolls(env, R.pFirst, R.first), R.days);
-    a.firstDay = rolls.length ? rolls[0].day : R.today;
-    a.rollStart = (rolls.find(r => !r.old) || {}).day || R.today;
+    a.firstDay = rolls.length ? rolls[0].day : R.first;
+    a.rollStart = (rolls.find(r => !r.old) || {}).day || R.first;
     a.yearRolls = rolls;
   }
-  a.unit = R.unit; a.keys = R.keys; a.days = R.days; a.generated = now; a.since = R.since;
+  a.fromRides = fromRides;
+  a.unit = R.unit; a.keys = R.keys; a.days = R.days; a.generated = now; a.since = R.since; a.until = R.until;
+  a.first = R.first; a.last = R.last; a.live = R.live; a.custom = R.custom; a.rangeId = R.id;
   a.bots = await botsFor(env, R);
+  // the first day there is anything saved, for the month picker
+  try {
+    const x = await env.DB.prepare("SELECT MIN(day) AS d FROM rollup").first(), y = await env.DB.prepare("SELECT MIN(day) AS d FROM daily").first(), z = await env.DB.prepare("SELECT MIN(ts) AS t FROM events").first();
+    a.dataFrom = [x && x.d, y && y.d, z && z.t ? ptDay(z.t) : null].filter(Boolean).sort()[0] || R.today;
+  } catch { a.dataFrom = R.today; }
   try { a.history = (await env.DB.prepare("SELECT day, SUM(views) AS visits FROM daily GROUP BY day ORDER BY day DESC LIMIT 365").all()).results || []; } catch { a.history = []; }
 
-  // riders list (the year view lists the last 30 days)
-  if (year) riders = (await bundle(env, 30)).riders;
+  // riders list: from the rides; longer ranges ending today list the last 30 days; older ranges have none
+  if (!fromRides) { riders = R.live ? (await bundle(env, 30)).riders : []; a.ridersNote = R.live ? "last 30 days" : "only kept for the last 90 days"; }
   else {
     const by = new Map();
     for (const e of ev) {
@@ -491,7 +523,7 @@ async function computeBundle(env, days) {
 
   // details for every station, so clicking one on the map costs nothing
   const stopInfo = {};
-  if (!year) {
+  if (fromRides) {
     const S = {}, st = (id) => (S[id] = S[id] || { riders: new Set(), trend: {}, countries: {}, refs: {}, from: {}, to: {} });
     for (const s of sessions) {
       const vs = s.events.filter(VISIT);
@@ -505,7 +537,7 @@ async function computeBundle(env, days) {
     for (const [id, o] of Object.entries(S)) stopInfo[id] = { riders: o.riders.size, trend: o.trend, countries: top(o.countries, 8), refs: top(o.refs, 8), from: top(o.from, 8), to: top(o.to, 8) };
   } else {
     const S = {}, st = (id) => (S[id] = S[id] || { trend: {}, from: {}, to: {} });
-    for (const r of a.yearRolls) for (const [id, q] of Object.entries(r.st || {})) inc(st(id).trend, weekOf(r.day), q[0]);
+    for (const r of a.yearRolls) for (const [id, q] of Object.entries(r.st || {})) inc(st(id).trend, R.dayKey(r.day), q[0]);
     for (const f of a.flows) { inc(st(f.to).from, f.from, f.n); inc(st(f.from).to, f.to, f.n); }
     for (const [id, o] of Object.entries(S)) stopInfo[id] = { riders: (a.stops[id] || {}).riders || 0, trend: o.trend, countries: null, refs: null, from: top(o.from, 8), to: top(o.to, 8) };
     delete a.yearRolls;
@@ -514,11 +546,12 @@ async function computeBundle(env, days) {
 }
 
 async function handleApi(url, env) {
-  const days = Math.max(1, Math.min(parseInt(url.searchParams.get("days") || "30", 10) || 30, 365));
+  const days = Math.max(1, Math.min(parseInt(url.searchParams.get("days") || "30", 10) || 30, 366));
+  const P = url.searchParams, Rq = range({ days, from: P.get("from"), to: P.get("to"), group: P.get("group") });
   const route = url.pathname.replace(/^\/api\//, "");
   if (route === "meta") return json(META);
   if (route === "summary" || route === "riders" || route === "stop") {
-    const B = await bundle(env, days, url.searchParams.get("fresh") === "1");
+    const B = await bundle(env, Rq, url.searchParams.get("fresh") === "1");
     if (route === "riders") return json({ riders: B.riders, days });
     if (route === "stop") {
       const id = url.searchParams.get("id") || "";
@@ -535,7 +568,7 @@ async function handleApi(url, env) {
   if (route === "downloads") {
     const sh = await sheets(env, url.searchParams.get("refresh") === "1");
     if (sh.error) return json({ error: sh.error });
-    const d = downloads(sh, range(days));
+    const d = downloads(sh, Rq);
     d.errors = Object.fromEntries(Object.entries(sh).filter(([k]) => k.endsWith("Error")));
     return json(d);
   }
